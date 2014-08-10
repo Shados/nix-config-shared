@@ -1,0 +1,18 @@
+diff -Naur src/ap/hw_features.c src-forced-40mhz/ap/hw_features.c
+--- hostap/src/ap/hw_features.c	2014-08-04 22:41:13.602538319 +1000
++++ hostap/src-forced-40mhz/ap/hw_features.c	2014-08-04 23:22:15.364021876 +1000
+@@ -534,12 +534,12 @@
+ 
+ 	iface->secondary_ch = iface->conf->secondary_channel;
+ 	if (!oper40) {
+-		wpa_printf(MSG_INFO, "20/40 MHz operation not permitted on "
++		/* wpa_printf(MSG_INFO, "20/40 MHz operation not permitted on "
+ 			   "channel pri=%d sec=%d based on overlapping BSSes",
+ 			   iface->conf->channel,
+ 			   iface->conf->channel +
+ 			   iface->conf->secondary_channel * 4);
+-		iface->conf->secondary_channel = 0;
++		iface->conf->secondary_channel = 0; DILLIGAF */
+ 		if (iface->drv_flags & WPA_DRIVER_FLAGS_HT_2040_COEX) {
+ 			/*
+ 			 * TODO: Could consider scheduling another scan to check
