@@ -14,12 +14,20 @@ let
         description = ''
           The name of the ssh host. If undefined, the name of the attribute set will be used.
         '';
+        example = "shados.net";
       };
       hostName = mkOption {
         type = types.str;
         description = ''
           The hostname of the ssh host.
         '';
+      };
+      user = mkOption {
+        type = types.nullOr types.str;
+        description = ''
+          The user to connect to the ssh host as.
+        '';
+        default = null;
       };
       port = mkOption {
         type = types.nullOr types.int;
@@ -90,6 +98,7 @@ in
           AllowUsers ${concatMapStrings (user: ''${user} '') cfg.allowed_users}
         '';
     };
+
     # Add Mosh & allow Mosh ports :)
     environment.systemPackages = [ pkgs.mosh ];
     networking.firewall.allowedUDPPortRanges = [ { from = 60000; to = 61000; } ];
@@ -99,14 +108,11 @@ in
         Port ${toString clcfg.defaultPort}
       ${flip concatMapStrings globalHosts (host: ''
         Host ${host.name}
+          HostName ${host.hostName}
+          ${optionalString (host.user != null) ''User ${toString host.user}''}
           ${optionalString (host.port != null) ''Port ${toString host.port}''}
-          ${optionalString (host.keyFile != null) ''IdentityFile ${host.keyFile}''}
+          ${optionalString (host.keyFile != null) ''IdentityFile ${pkgs.writeText ''ssh-private-key-${host.name}'' (readFile host.keyFile)}''}
       '')}
     '';
-
-    programs.ssh.globalHosts.test = {
-      hostName = hostname.shados.net;
-      port = 54201;
-    };
   };
 }
