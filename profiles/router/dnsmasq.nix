@@ -14,13 +14,11 @@ pkgs.lib.mkIf (config.fragments.router.enable) {
     '';
   };
 
-  networking.firewall.extraCommands = ''
+  networking.firewall.extraCommands = pkgs.lib.mkOrder 1000 ''
     # Add custom rules
-    -A sn-fw -i ${cfg.intBridge} -j lan-fw
     -A lan-fw -p tcp --dport 53 -j ACCEPT
     -A lan-fw -p udp --dport 53 -j ACCEPT
     -A lan-fw -p udp --dport 67 -j ACCEPT
     -A lan-fw -p udp --dport 68 -j ACCEPT
-    -A lan-fw -j RETURN
   '';
 }
