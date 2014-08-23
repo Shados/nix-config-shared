@@ -52,26 +52,33 @@ in
         default = "lan0";
         type = types.str;
       };
+      enableWifi = mkOption {
+        description = ''
+          Whether or not to enable the wifi AP support.
+        '';
+        default = false;
+        type = types.bool;
+      };
       wifiInt = mkOption {
         description = ''
           Wireless network interface to configure & use.
         '';
         example = "wlp3s0";
-        type = types.str;
+        type = types.nullOr types.str;
       };
       wifiSSID = mkOption {
         description = ''
           Wireless network SSID to use.
         '';
         example = "SN-Test";
-        type = types.str;
+        type = types.nullOr types.str;
       };
       wifiPassphrase = mkOption {
         description = ''
           Wireless network WPA2 passphrase to use.
         '';
         example = "mysekret";
-        type = types.str;
+        type = types.nullOr types.str;
       };
       intSubnet = mkOption {
         description = ''

@@ -4,7 +4,7 @@ let
   cfg = config.fragments.router;
 in
 
-pkgs.lib.mkIf (config.fragments.router.enable) {
+pkgs.lib.mkIf (cfg.enable && cfg.enableWifi) {
   services.hostapd = {
     enable = true;
     hwMode = "g";
