@@ -22,8 +22,8 @@
   # Internationalisation & localization properties.
   i18n = {
     consoleFont = "lat9w-16";
-    consoleKeyMap = "us";
     defaultLocale = "en_US.UTF-8";
+    consoleKeyMap = ./system/sn.map.gz;
   };
   time.timeZone = "Australia/Melbourne";
 
