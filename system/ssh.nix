@@ -61,7 +61,7 @@ in
         description = ''
           A list of the users allowed to log in via SSH.
         '';
-        default = [ "shados" ];
+        default = [];
         type = types.nullOr (types.listOf types.str);
       };
     };
