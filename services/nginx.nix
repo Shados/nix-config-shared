@@ -60,6 +60,8 @@ http {
                     '"$http_user_agent" "$http_x_forwarded_for"';
   access_log  /srv/http/logs/access.log  main;
 
+  server_names_hash_bucket_size 64; # Increases maximum domain name size allowed
+
   # copies data between one FD and other from within the kernel
   # faster then read() + write()
   sendfile on;
