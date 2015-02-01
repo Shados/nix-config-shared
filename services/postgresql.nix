@@ -5,4 +5,7 @@ pkgs.lib.mkIf config.services.postgresql.enable {
     package = pkgs.postgresql92;
     dataDir = "/srv/postgresql";
   };
+  systemd.services.postgresql = {
+    serviceConfig.Restart = "on-failure";
+  };
 }
