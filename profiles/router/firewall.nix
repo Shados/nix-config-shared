@@ -1,9 +1,9 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 let 
   cfg = config.fragments.router;
 in
-with pkgs.lib;
+with lib;
 
 {
   config = mkMerge [

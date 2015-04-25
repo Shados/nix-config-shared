@@ -1,6 +1,6 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
-pkgs.lib.mkIf config.services.teamspeak3.enable {
+lib.mkIf config.services.teamspeak3.enable {
   networking.firewall = {
     allowedTCPPorts = [ 54203 ];
     allowedUDPPorts = [ 54203 ];

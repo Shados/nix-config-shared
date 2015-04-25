@@ -1,11 +1,11 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 let
   cfg = config.services.nginx;
   nginx_package = cfg.package;
 in
 
-pkgs.lib.mkIf cfg.enable {
+lib.mkIf cfg.enable {
   # Allow HTTP & HTTPS ports through the firewall
   networking.firewall.allowedTCPPorts = [ 80 443 ];
   # If we ever want length hiding at the server level, we can have it: https://github.com/nulab/nginx-length-hiding-filter-module

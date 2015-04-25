@@ -1,6 +1,6 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
-pkgs.lib.mkIf config.fragments.readahead.enable {
+lib.mkIf config.fragments.readahead.enable {
   # Kernel customization
   boot.kernelPackages = pkgs.linuxPackages_3_15;
   nixpkgs.config.packageOverrides = pkgs: {

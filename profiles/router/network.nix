@@ -1,10 +1,10 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 let 
   cfg = config.fragments.router;
 in
 
-pkgs.lib.mkIf (config.fragments.router.enable) {
+lib.mkIf (config.fragments.router.enable) {
   networking = {
     # Set up the bridge
     bridges.${cfg.intBridge}.interfaces = cfg.intInts;

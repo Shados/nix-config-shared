@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 {
 # TODO: Fix & re-implement this in a generically useful manner
@@ -21,6 +21,6 @@
 #       speedFactor = 1;
 #     }
 #   ];
-#   maxJobs = pkgs.lib.mkForce 4; # Override the hardware-set value... TODO: Build from the hardware-set value + sum of per-host values, assuming this is possible
+#   maxJobs = lib.mkForce 4; # Override the hardware-set value... TODO: Build from the hardware-set value + sum of per-host values, assuming this is possible
 # };
 }

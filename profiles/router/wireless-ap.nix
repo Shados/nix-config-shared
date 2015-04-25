@@ -1,10 +1,10 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 let 
   cfg = config.fragments.router;
 in
 
-pkgs.lib.mkIf (cfg.enable && cfg.enableWifi) {
+lib.mkIf (cfg.enable && cfg.enableWifi) {
   services.hostapd = {
     enable = true;
     hwMode = "g";

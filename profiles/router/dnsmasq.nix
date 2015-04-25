@@ -1,10 +1,10 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 let 
   cfg = config.fragments.router;
 in
 
-pkgs.lib.mkIf (config.fragments.router.enable) {
+lib.mkIf (config.fragments.router.enable) {
   services.dnsmasq = {
     enable = true;
     servers = config.networking.nameservers;
@@ -14,7 +14,7 @@ pkgs.lib.mkIf (config.fragments.router.enable) {
     '';
   };
 
-  networking.firewall.extraCommands = pkgs.lib.mkOrder 1000 ''
+  networking.firewall.extraCommands = lib.mkOrder 1000 ''
     # Add custom rules
     -A lan-fw -p tcp --dport 53 -j ACCEPT
     -A lan-fw -p udp --dport 53 -j ACCEPT

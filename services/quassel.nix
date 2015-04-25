@@ -1,6 +1,6 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
-pkgs.lib.mkIf config.services.quassel.enable {
+lib.mkIf config.services.quassel.enable {
   services.quassel = {
     interface = "0.0.0.0";
     dataDir = "/srv/quassel/.config/quassel-irc.org";
