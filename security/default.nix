@@ -3,7 +3,6 @@
 
 {
   imports = [
-  ./firewall.nix
-  ./grsecurity.nix
+    ./firewall.nix
   ];
 }
