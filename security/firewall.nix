@@ -8,4 +8,5 @@
     connectionTrackingModules = [];
     autoLoadConntrackHelpers = false;
   };
+  environment.systemPackages = with pkgs; [ iptables ];
 }
