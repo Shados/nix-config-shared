@@ -11,9 +11,14 @@
     neovim
     git
 
-    # System information/troubleshooting tools
+    # Debugging/sysadmin/System information
     nix-repl
+    iftop
+    iotop
     atop
+    nethogs
+    tcpdump
+    nmap
 
     # Generally-useful file utilities
     wgetpaste
