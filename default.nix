@@ -6,6 +6,9 @@
     # Custom/bespoke packages & services
     ./bespoke
 
+    # Standard userspace tooling & applications
+    ./apps
+
     # Conveniently packaged system 'functional profiles', including container/VM profiles
     ./profiles
 
