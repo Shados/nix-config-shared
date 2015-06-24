@@ -19,6 +19,7 @@
     nethogs
     tcpdump
     nmap
+    openssl
 
     # Generally-useful file utilities
     wgetpaste
