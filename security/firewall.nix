@@ -3,7 +3,7 @@
 {
   networking.sn-firewall.enable = false;
   networking.firewall = {
-    enable = false;
+    enable = true;
     allowPing = true;
     connectionTrackingModules = [];
     autoLoadConntrackHelpers = false;
