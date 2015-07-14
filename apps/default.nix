@@ -5,6 +5,7 @@
   environment.systemPackages = with pkgs; [
     # Terminal enhancements
     tmux
+    fish
 
     # Critical userspace tools
     vim_configurable
@@ -20,12 +21,18 @@
     tcpdump
     nmap
     openssl
+    pciutils
+    nix-repl
 
     # Generally-useful file utilities
     wgetpaste
     wget
+    axel
     tree
     file
     unzip
+    unrar
+    lzop
+    p7zip
   ];
 }
