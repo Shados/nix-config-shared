@@ -34,7 +34,7 @@
   services.cron.enable = false; # TODO: Make this the default in nix, convert all modules to use systemd timers
 
   nix = {
-    useChroot = true;
+    useChroot = false; # Currently causes too many issues =/
     gc = {
       automatic = true;
       dates = "04:45";
