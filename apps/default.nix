@@ -23,6 +23,7 @@
     openssl
     pciutils
     nix-repl
+    sysstat
 
     # Generally-useful file utilities
     wgetpaste
