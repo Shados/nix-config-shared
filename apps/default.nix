@@ -24,6 +24,7 @@
     pciutils
     nix-repl
     sysstat
+    mtr
 
     # Generally-useful file utilities
     wgetpaste
