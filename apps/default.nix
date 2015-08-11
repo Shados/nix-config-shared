@@ -26,7 +26,6 @@
     sysstat
     mtr
     gptfdisk
-    fdisk
 
     # Generally-useful file utilities
     wgetpaste
