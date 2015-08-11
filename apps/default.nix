@@ -25,7 +25,7 @@
     nix-repl
     sysstat
     mtr
-    gdisk
+    gptfdisk
     fdisk
 
     # Generally-useful file utilities
