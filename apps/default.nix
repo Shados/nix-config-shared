@@ -25,6 +25,8 @@
     nix-repl
     sysstat
     mtr
+    gdisk
+    fdisk
 
     # Generally-useful file utilities
     wgetpaste
