@@ -33,6 +33,7 @@
     axel
     tree
     file
+    zip
     unzip
     unrar
     lzop
