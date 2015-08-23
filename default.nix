@@ -34,12 +34,15 @@
   services.cron.enable = false; # TODO: Make this the default in nix, convert all modules to use systemd timers
 
   nix = {
-    useChroot = false; # Currently causes too many issues =/
+    useChroot = true;
     gc = {
       automatic = true;
       dates = "04:45";
       options = "--delete-older-than 30d"; # Delete all generations older than 90 days 
     };
+    extraOptions = ''
+      auto-optimise-store = true
+    '';
   };
 
   programs = {
