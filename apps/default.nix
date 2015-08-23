@@ -26,6 +26,7 @@
     sysstat
     mtr
     gptfdisk
+    telnet
 
     # Generally-useful file utilities
     wgetpaste
