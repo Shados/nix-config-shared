@@ -31,7 +31,7 @@
   time.timeZone = "Australia/Melbourne";
 
   # Config for various standard services & progresm
-  services.cron.enable = false; # TODO: Make this the default in nix, convert all modules to use systemd timers
+  services.cron.enable = pkgs.lib.mkDefault false; # TODO: Make this the default in nix, convert all modules to use systemd timers
 
   nix = {
     useChroot = true;
