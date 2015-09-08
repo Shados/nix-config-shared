@@ -53,10 +53,9 @@ with pkgs.lib;
 
   # Building for quad-core systems as a sort of default - TODO: mkOverride appropriately?
   nix = {
-    maxJobs = 4;
-    buildCores = 4;
-    nrBuildUsers = 16;
-    daemonIONiceLevel = 7;
-    daemonNiceLevel = 19;
+    maxJobs = mkDefault 4;
+    buildCores = mkDefault 4;
+    daemonIONiceLevel = mkDefault 7;
+    daemonNiceLevel = mkDefault 19;
   }; 
 }
