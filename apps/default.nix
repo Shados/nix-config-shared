@@ -14,6 +14,7 @@
 
     # Debugging/sysadmin/System information
     nix-repl
+    nox
     iftop
     iotop
     atop
