@@ -95,6 +95,7 @@ in
       permitRootLogin = "no";
       extraConfig = 
         ''
+          LogLevel VERBOSE
           AllowUsers ${concatMapStrings (user: ''${user} '') cfg.allowed_users}
         '';
     };
