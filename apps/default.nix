@@ -9,7 +9,7 @@
 
     # Critical userspace tools
     vim_configurable
-    neovim
+    #neovim
     git
 
     # Debugging/sysadmin/System information
