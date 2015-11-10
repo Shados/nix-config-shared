@@ -112,7 +112,7 @@ in
           HostName ${host.hostName}
           ${optionalString (host.user != null) ''User ${toString host.user}''}
           ${optionalString (host.port != null) ''Port ${toString host.port}''}
-          ${optionalString (host.keyFile != null) ''IdentityFile ${pkgs.writeText ''ssh-private-key-${host.name}'' (readFile host.keyFile)}''}
+          ${optionalString (host.keyFile != null) ''IdentityFile ${toString host.keyFile}''}
       '')}
     '';
   };
