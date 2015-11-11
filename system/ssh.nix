@@ -105,8 +105,6 @@ in
     networking.firewall.allowedUDPPortRanges = [ { from = 60000; to = 61000; } ];
 
     programs.ssh.extraConfig = ''
-      Match all
-        Port ${toString clcfg.defaultPort}
       ${flip concatMapStrings globalHosts (host: ''
         Host ${host.name}
           HostName ${host.hostName}
@@ -114,6 +112,8 @@ in
           ${optionalString (host.port != null) ''Port ${toString host.port}''}
           ${optionalString (host.keyFile != null) ''IdentityFile ${toString host.keyFile}''}
       '')}
+      Match all
+        Port ${toString clcfg.defaultPort}
     '';
   };
 }
