@@ -5,5 +5,6 @@
     hah = callPackage ./hah {};
     hostapd = callPackage ./hostapd-git {};
     hugo = callPackage ./hugo.nix {};
+    rssh = callPackage ./rssh {};
   };
 }
