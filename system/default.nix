@@ -3,6 +3,7 @@
 
 {
   imports = [
+    ./backup.nix
     ./distributed-home.nix
     ./haveged.nix
     ./kernel.nix
