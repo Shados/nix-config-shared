@@ -6,6 +6,7 @@
     # Terminal enhancements
     tmux
     fish
+    rxvt_unicode # Needed for terminfo
 
     # Critical userspace tools
     vim_configurable
