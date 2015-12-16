@@ -16,13 +16,12 @@ in
   };
   config = lib.mkIf cfg.enable {
     services.quassel = {
-      interface = "0.0.0.0";
+      interfaces = [ "0.0.0.0" ];
       dataDir = "/srv/quassel/.config/quassel-irc.org";
     };
     systemd.services.quassel = {
       requires = [ "postgresql.service" ];
       serviceConfig.Restart = "on-failure";
-      serviceConfig.ExecStart = lib.mkForce "${quassel}/bin/quasselcore --listen=${cfg.interface} --port=${toString cfg.portNumber} --configdir=${cfg.dataDir} ${lib.optionalString cfg.debug "-d"}";
     };
     networking.firewall.allowedTCPPorts = [ 4242 ];
 
