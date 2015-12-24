@@ -28,6 +28,7 @@
     sysstat
     mtr
     gptfdisk
+    parted
     telnet
 
     # Generally-useful file utilities
