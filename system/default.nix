@@ -6,9 +6,8 @@
     ./backup.nix
     ./distributed-home.nix
     ./haveged.nix
-    ./kernel.nix
+    ./kernel
     ./networking.nix
-    ./readahead.nix
     ./sound.nix
     ./ssh.nix
     # Global ssh_config Host definitions
