@@ -11,7 +11,11 @@
     # Critical userspace tools
     vim_configurable
     #neovim
+
+    # VCS
     git
+    mercurial
+    subversion
 
     # Debugging/sysadmin/System information
     nix-repl
