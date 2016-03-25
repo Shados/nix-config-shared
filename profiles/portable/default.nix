@@ -33,7 +33,6 @@ with pkgs.lib;
     initrd.kernelModules = [ "ohci_pci" "ehci_pci" "xhci_pci" "uas" "sd_mod" ]; 
 
     initrd.supportedFilesystems = [ "zfs" ]; # When don't I use zfs these days?
-    zfs.useGit = true;
 
     kernelParams = [ 
       "zfs.zfs_arc_max=536870912"  # Limit ZFS ARC size to 512MB max by default, doesn't hurt for this usage and can be tweaked at boot anyway
