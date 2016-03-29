@@ -118,5 +118,10 @@ in
       Match all
         Port ${toString clcfg.defaultPort}
     '';
+
+    # Allow X11 forwarding by default, useful for porting remote clipboard to local
+    programs.ssh.forwardX11 = true;
+    programs.ssh.setXAuthLocation = true;
+    services.openssh.forwardX11 = true;
   };
 }
