@@ -119,8 +119,7 @@ in
     '';
 
     # Allow X11 forwarding by default, useful for porting remote clipboard to local
-    programs.ssh.forwardX11 = true;
-    programs.ssh.setXAuthLocation = true;
+    # Also needs ForwardX11 and ForwardX11Trusted set on the client side for this host
     services.openssh.forwardX11 = true;
   };
 }
