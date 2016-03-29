@@ -1,6 +1,10 @@
 { config, pkgs, ... }:
 
 {
+  imports = [
+    ./vim.nix
+  ];
+
   # Base set of system-wide packages
   environment.systemPackages = with pkgs; [
     # Terminal enhancements
@@ -10,7 +14,6 @@
 
     # Critical userspace tools
     vim_configurable
-    #neovim
 
     # VCS
     git
