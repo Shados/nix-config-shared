@@ -93,14 +93,13 @@ in
       passwordAuthentication = false;
       challengeResponseAuthentication = false;
       permitRootLogin = "no";
-      extraConfig = 
-        ''
-          LogLevel VERBOSE
-          AllowUsers ${concatMapStrings (user: ''${user} '') cfg.allowed_users}
+      extraConfig = ''
+        LogLevel VERBOSE
+        AllowUsers ${concatMapStrings (user: ''${user} '') cfg.allowed_users}
 
-          # Supporting URXVT-256color and other non-standard terms a bit better
-          AcceptEnv TERMINFO
-        '';
+        # Supporting URXVT-256color and other non-standard terms a bit better
+        AcceptEnv TERMINFO
+      '';
     };
 
     # Add Mosh & allow Mosh ports :)
