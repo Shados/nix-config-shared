@@ -97,6 +97,9 @@ in
         ''
           LogLevel VERBOSE
           AllowUsers ${concatMapStrings (user: ''${user} '') cfg.allowed_users}
+
+          # Supporting URXVT-256color and other non-standard terms a bit better
+          AcceptEnv TERMINFO
         '';
     };
 
