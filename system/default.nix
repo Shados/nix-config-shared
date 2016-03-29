@@ -15,4 +15,6 @@
     ./updatedb.nix
     ./users.nix
   ];
+
+  boot.kernelParams = [ "boot.shell_on_fail" ];
 }
