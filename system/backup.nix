@@ -58,6 +58,7 @@ in
     systemd.services.set_backup_acls = {
       before = [ "sshd.service" ];
       wantedBy = [ "multi-user.target" ];
+      unitConfig.RequiresMountsFor = "${concatStringsSep " " cfg.folders}";
       serviceConfig = {
         Type = "oneshot";
         RemainAfterExit = "yes";
