@@ -35,8 +35,8 @@
     useChroot = true;
     gc = {
       automatic = true;
-      dates = "04:45";
-      options = "--delete-older-than 30d"; # Delete all generations older than 90 days 
+      dates = "*-*-1 05:15"; # 5:15 AM on the first of each month
+      options = "--delete-older-than 90d"; # Delete all generations older than 90 days
     };
     extraOptions = ''
       auto-optimise-store = true

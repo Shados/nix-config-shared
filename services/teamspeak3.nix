@@ -2,8 +2,8 @@
 
 lib.mkIf config.services.teamspeak3.enable {
   networking.firewall = {
-    allowedTCPPorts = [ 54203 ];
     allowedUDPPorts = [ 54203 ];
+    allowedTCPPorts = [ 10011 30033 ];
   };
   services.teamspeak3 = {
     dataDir = "/srv/teamspeak3-server";
