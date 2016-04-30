@@ -4,7 +4,7 @@
 with pkgs.lib;
 {
   # Import a bunch of stuff from the livecd/installer expressions, piggyback off of others' work :>
-  imports = [ 
+  imports = [
     <nixpkgs/nixos/modules/profiles/all-hardware.nix>
 
     # 'minimal' install cd software, basically all useful given usb installs often end up used for recovery/setup work anyway
@@ -30,11 +30,11 @@ with pkgs.lib;
       sleep $rootDelay # Force artificial boot delay
     '';
 
-    initrd.kernelModules = [ "ohci_pci" "ehci_pci" "xhci_pci" "uas" "sd_mod" ]; 
+    initrd.kernelModules = [ "ohci_pci" "ehci_pci" "xhci_pci" "uas" "sd_mod" ];
 
     initrd.supportedFilesystems = [ "zfs" ]; # When don't I use zfs these days?
 
-    kernelParams = [ 
+    kernelParams = [
       "zfs.zfs_arc_max=536870912"  # Limit ZFS ARC size to 512MB max by default, doesn't hurt for this usage and can be tweaked at boot anyway
       "boot.shell_on_fail"
       "rootdelay=1" # Seems we do actually need some level of root delay for usb enumeration to finish, in the real-world. 1s seems OK thus far...
@@ -49,7 +49,7 @@ with pkgs.lib;
       };
       efi = {
         canTouchEfiVariables = false;
-        efiSysMountPoint = "/boot/efi";
+        efiSysMountPoint = "/boot";
       };
     };
   };
@@ -58,5 +58,5 @@ with pkgs.lib;
   nix = {
     maxJobs = mkDefault 4;
     buildCores = mkDefault 4;
-  }; 
+  };
 }
