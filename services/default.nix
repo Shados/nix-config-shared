@@ -9,4 +9,5 @@
     ./samba.nix
     ./teamspeak3.nix
   ];
+  services.locate.enable = false;
 }
