@@ -6,8 +6,6 @@ let
 in
 
 lib.mkIf cfg.enable {
-  # Allow HTTP & HTTPS ports through the firewall
-  networking.firewall.allowedTCPPorts = [ 80 443 ];
   # If we ever want length hiding at the server level, we can have it: https://github.com/nulab/nginx-length-hiding-filter-module
   # nixpkgs.config = {
   #   packageOverrides = pkgs: rec {
@@ -17,8 +15,7 @@ lib.mkIf cfg.enable {
   #   };
   # };
   services.nginx = {
-    config =
-      ''
+    config = ''
 #langon = nginx
 worker_processes  auto;
 worker_rlimit_nofile 100000; # Max # of open FDs
@@ -98,8 +95,10 @@ http {
   # See http://nginx.org/en/docs/ngx_core_module.html#include
   # for more information.
   include /srv/http/conf.d/*.nginx;
-}
 #langoff = nginx
-      '';
+    '';
+    appendConfig = pkgs.lib.mkAfter ''
+}
+    '';
   };
 }
