@@ -1,9 +1,11 @@
 { config, pkgs, ... }:
 
+with pkgs.lib;
+
 {
-  networking.sn-firewall.enable = false;
+  networking.sn-firewall.enable = mkDefault false;
   networking.firewall = {
-    enable = true;
+    enable = mkDefault true;
     allowPing = true;
     connectionTrackingModules = [];
     autoLoadConntrackHelpers = false;
