@@ -10,7 +10,7 @@
     # Terminal enhancements
     tmux
     fish
-    rxvt_unicode # Needed for terminfo
+    rxvt_unicode.terminfo
 
     # Critical userspace tools
     vim_configurable
