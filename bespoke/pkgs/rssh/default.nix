@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, openssh, rsync }:
+{ stdenv, fetchurl, openssh, rsync, cvs }:
 
 stdenv.mkDerivation rec {
   name = "rssh-${version}";
@@ -21,12 +21,13 @@ stdenv.mkDerivation rec {
     ./fix-config-path.patch
   ];
 
-  buildInputs = [ openssh rsync ];
+  buildInputs = [ openssh rsync cvs ];
 
   configureFlags = [
     "--with-sftp-server=${openssh}/libexec/sftp-server"
     "--with-scp=${openssh}/bin/scp"
     "--with-rsync=${rsync}/bin/rsync"
+    "--with-cvs=${cvs}/bin/cvs"
   ];
 
 
