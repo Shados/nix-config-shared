@@ -16,5 +16,6 @@
   ];
 
   boot.kernelParams = [ "boot.shell_on_fail" ];
+  boot.kernel.sysctl."vm.swappiness" = pkgs.lib.mkDefault 5;
   services.locate.enable = false;
 }
