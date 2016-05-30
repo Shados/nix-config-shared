@@ -25,9 +25,9 @@
   services.openssh.allowed_users = [ "shados" ];
   programs.fish = {
     enable = true;
-    shellInit = ''
-      source $HOME/.config/fish/config.fish
-    '';
+    #shellInit = ''
+      #source $HOME/.config/fish/config.fish
+    #'';
   };
   environment.systemPackages = with pkgs; [ 
     which # Fish doesn't have `which` by default
