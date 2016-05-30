@@ -37,6 +37,7 @@
     gptfdisk
     parted
     telnet
+    netcat-openbsd
 
     # Generally-useful file utilities
     wgetpaste
