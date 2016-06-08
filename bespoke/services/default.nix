@@ -2,7 +2,6 @@
 
 {
   imports = [
-    ./hah.nix
     ./sn-firewall.nix
   ];
 }
