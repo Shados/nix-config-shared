@@ -95,6 +95,11 @@ http {
   # See http://nginx.org/en/docs/ngx_core_module.html#include
   # for more information.
   include /srv/http/conf.d/*.nginx;
+
+  # Default match
+  server {
+    return 404;
+  }
 #langoff = nginx
     '';
     appendConfig = pkgs.lib.mkAfter ''
