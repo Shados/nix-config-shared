@@ -32,7 +32,7 @@
 
   # Config for various standard services & progresm
   nix = {
-    useChroot = true;
+    useSandbox = true;
     gc = {
       automatic = true;
       dates = "*-*-1 05:15"; # 5:15 AM on the first of each month
