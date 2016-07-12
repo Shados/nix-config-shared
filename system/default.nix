@@ -19,4 +19,7 @@
   boot.kernel.sysctl."vm.swappiness" = pkgs.lib.mkDefault 5;
   environment.sessionVariables.TERMINFO = pkgs.lib.mkDefault "/run/current-system/sw/share/terminfo"; # TODO: Remove once fish upstream bug is fixed
   services.locate.enable = false;
+  services.logind.extraConfig = ''
+    KillUserProcesses=no
+  '';
 }
