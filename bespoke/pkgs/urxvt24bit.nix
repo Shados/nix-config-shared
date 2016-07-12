@@ -1,4 +1,4 @@
-{ stdenv, fetchgit, perlSupport, libX11, libXt, libXft, ncurses, perl,
+{ stdenv, fetchurl, fetchgit, perlSupport, libX11, libXt, libXft, ncurses, perl,
   fontconfig, freetype, pkgconfig, libXrender, gdkPixbufSupport, gdk_pixbuf,
   unicode3Support }:
 
@@ -12,11 +12,22 @@ stdenv.mkDerivation (rec {
   name = "${pname}${if perlSupport then "-with-perl" else ""}${if unicode3Support then "-with-unicode3" else ""}-${version}";
 
   src = fetchgit {
-    url    = "https://github.com/spudowiar/rxvt-unicode.git";
-    rev    = "d6732943f1e79f09fa1bd86dbeb4e02a06bdfc18";
-    sha256 = "0vhg9jmfx8c66h1p6mxa0nd7bpddphrhil0kdlm3asd6kf30zwwl";
+    url    = "https://github.com/exg/rxvt-unicode";
+    rev    = "5da2b333f74b8bd17bd4803c30143af03dc7dc3b";
+    sha256 = "18vfwri0p7ql3wy8nbpkh34p0y76apxahsgm1wcwmxsj9zb35a6m";
     fetchSubmodules = true;
   };
+
+  libptytty = fetchurl {
+    url = "http://dist.schmorp.de/libptytty/libptytty-1.8.tar.gz";
+    sha256 = "0byc9miy2fk5qzf4vnvsj0gxkfhj2izv8kipd9ywn080pj17yc6b";
+  };
+
+  libev = fetchurl {
+    url = "http://dist.schmorp.de/libev/Attic/libev-4.22.tar.gz";
+    sha256 = "1mhvy38g9947bbr0n0hzc34zwfvvfd99qgzpkbap8g2lmkl7jq3k";
+  };
+
 
   buildInputs =
     [ libX11 libXt libXft ncurses /* required to build the terminfo file */
@@ -34,34 +45,12 @@ stdenv.mkDerivation (rec {
 
   preConfigure =
     ''
+      tar xf ${libptytty}
+      mv libptytty* libptytty
+      tar xf ${libev}
+      mv libev* libev
       mkdir -p $terminfo/share/terminfo
-      configureFlags="--with-terminfo=$terminfo/share/terminfo \
-      --enable-256-color \
-      --enable-24-bit-color \
-      --enable-combining \
-      --enable-fading \
-      --enable-font-styles \
-      --enable-iso14755 \
-      --enable-keepscrolling \
-      --enable-lastlog \
-      --enable-mousewheel \
-      --enable-next-scroll \
-      --enable-pointer-blank \
-      --enable-rxvt-scroll \
-      --enable-selectionscrolling \
-      --enable-slipwheeling \
-      --disable-smart-resize \
-      --enable-startup-notification \
-      --enable-transparency \
-      --enable-utmp \
-      --enable-wtmp \
-      --enable-xft \
-      --enable-xim \
-      --enable-xterm-scroll \
-      --disable-pixbuf \
-      --disable-frills \
-      ${if perlSupport then "--enable-perl" else "--disable-perl"} \
-      ${if unicode3Support then "--enable-unicode3" else "--disable-unicode3"}";
+      configureFlags="--with-terminfo=$terminfo/share/terminfo --enable-256-color ${if perlSupport then "--enable-perl" else "--disable-perl"} ${if unicode3Support then "--enable-unicode3" else "--disable-unicode3"}";
       export TERMINFO=$terminfo/share/terminfo # without this the terminfo won't be compiled by tic, see man tic
       NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE -I${freetype.dev}/include/freetype2"
       NIX_LDFLAGS="$NIX_LDFLAGS -lfontconfig -lXrender "
