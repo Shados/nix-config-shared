@@ -24,7 +24,7 @@
 
   # Internationalisation & localization properties.
   i18n = {
-    consoleFont = "lat9w-16";
+    consoleFont   = pkgs.lib.mkDefault "lat9w-16";
     defaultLocale = "en_US.UTF-8";
     consoleKeyMap = ./system/sn.map.gz;
   };
