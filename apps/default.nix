@@ -40,6 +40,7 @@
     parted
     telnet
     netcat-openbsd
+    rsync
 
     # Generally-useful file utilities
     wgetpaste
