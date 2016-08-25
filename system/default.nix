@@ -4,7 +4,6 @@
 {
   imports = [
     ./backup.nix
-    ./distributed-home.nix
     ./fonts.nix
     ./haveged.nix
     ./kernel
