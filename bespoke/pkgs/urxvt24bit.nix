@@ -12,9 +12,9 @@ stdenv.mkDerivation (rec {
   name = "${pname}${if perlSupport then "-with-perl" else ""}${if unicode3Support then "-with-unicode3" else ""}-${version}";
 
   src = fetchgit {
-    url    = "https://github.com/exg/rxvt-unicode";
-    rev    = "5da2b333f74b8bd17bd4803c30143af03dc7dc3b";
-    sha256 = "18vfwri0p7ql3wy8nbpkh34p0y76apxahsgm1wcwmxsj9zb35a6m";
+    url     = "https://github.com/exg/rxvt-unicode";
+    rev     = "15ced41d5787a75c55189ba04f2836be47cbd957";
+    sha256  = "0p4qch245l6sikaacba8cz06ca7scb4im9l78zk1gclkk61my5si";
     fetchSubmodules = true;
   };
 
