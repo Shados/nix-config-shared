@@ -22,11 +22,11 @@ with pkgs.lib;
           rootdelay=*)
             set -- $(IFS==; echo $o)
             rootDelay=$2
-            echo "Root Delay = $rootDelay seconds"
             ;;
         esac
       done
 
+      echo "Sleeping for Root Delay = $rootDelay seconds"
       sleep $rootDelay # Force artificial boot delay
     '';
 
