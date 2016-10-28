@@ -56,7 +56,6 @@ in
     };
     # Ensure ACLs are set for backup directories so that the backup user can actually read them
     systemd.services.set_backup_acls = {
-      before = [ "sshd.service" ];
       wantedBy = [ "multi-user.target" ];
       unitConfig.RequiresMountsFor = "${concatStringsSep " " cfg.folders}";
       serviceConfig = {
