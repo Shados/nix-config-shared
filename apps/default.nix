@@ -41,6 +41,8 @@
     telnet
     netcat-openbsd
     rsync
+    lsof
+    psmisc
 
     # Generally-useful file utilities
     wgetpaste
