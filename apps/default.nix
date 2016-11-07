@@ -43,6 +43,7 @@
     rsync
     lsof
     psmisc
+    bind # For DNS utils e.g. dig, TODO: use multiple-outputs support to provide a client-binaries-only output of this package, for smaller closure size
 
     # Generally-useful file utilities
     wgetpaste
