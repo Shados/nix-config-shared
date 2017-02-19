@@ -59,11 +59,16 @@ http {
 
   server_names_hash_bucket_size 64; # Increases maximum domain name size allowed
 
+  # directio for larger files
+  # sendfile for smaller (<16MB) files
+  directio 16M;
+  output_buffers 2 1M;
   # copies data between one FD and other from within the kernel
   # faster then read() + write()
   sendfile on;
+  sendfile_max_chunk 512k;
 
-  # send headers in one peace, its better then sending them one by one 
+  # send headers in one piece, its better then sending them one by one 
   tcp_nopush on;
 
   # don't buffer data sent, good for small data bursts in real time
@@ -82,7 +87,7 @@ http {
   client_body_timeout 10;
 
   # if client stop responding, free up memory -- default 60
-  send_timeout 2;
+  send_timeout 10;
 
   # reduce the data that needs to be sent over network
   gzip on;
