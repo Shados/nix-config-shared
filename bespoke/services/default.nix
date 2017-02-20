@@ -2,6 +2,7 @@
 
 {
   imports = [
+    ./pppd.nix
     ./sn-firewall.nix
   ];
 }
