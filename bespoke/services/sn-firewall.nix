@@ -164,8 +164,6 @@ in
     assertions = [
     { assertion = ! fwcfg.checkReversePath || kernelHasRPFilter;
       message = "This kernel does not support rpfilter"; }
-    { assertion = fwcfg.autoLoadConntrackHelpers || kernelCanDisableHelpers;
-      message = "This kernel does not support disabling conntrack helpers"; }
     ];
 
     systemd.services.firewall =
