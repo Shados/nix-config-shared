@@ -11,6 +11,8 @@ in
 {
   # TODO: LAN, Bridging, Firewall (NAT), DNS, DHCPD, transparent caching?, traffic shaping, bandwidth limiting, QoS
   imports = [
+    # Hostapd module extension
+    ./hostapd-module.nix
     # Sets up the hostapd access point
     ./wireless-ap.nix
     # Sets up network details (bridges, IP addresses, routes, NAT details)
@@ -39,9 +41,9 @@ in
       };
       intInts = mkOption {
         description = ''
-          List of internal (LAN) network interfaces, these will be bridged together.
+          List of internal (LAN) network interfaces, these will be bridged together. Excludes the wifi interface, if any.
         '';
-        example = [ "enp2s0" "wlp3s0" ];
+        example = [ "enp2s0" "enp3s0" ];
         type = types.listOf types.str;
       };
       intBridge = mkOption {
@@ -56,7 +58,7 @@ in
         description = ''
           Whether or not to enable the wifi AP support.
         '';
-        default = false;
+        default = true;
         type = types.bool;
       };
       wifiInt = mkOption {
@@ -95,6 +97,13 @@ in
         example = [ 100 150 ];
         default = [ 100 150 ];
         type = types.listOf types.int;
+      };
+      enableBridge = mkOption {
+        description = ''
+          Whether or not to enable constructing a bridge from the internal interfaces.
+        '';
+        default = true;
+        type = types.bool;
       };
     };
   };

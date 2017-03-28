@@ -14,11 +14,14 @@ lib.mkIf (config.fragments.router.enable) {
     '';
   };
 
-  networking.firewall.extraCommands = lib.mkOrder 1000 ''
+  networking.sn-firewall.v4rules.filter = lib.mkOrder 1000 ''
     # Add custom rules
     -A lan-fw -p tcp --dport 53 -j ACCEPT
     -A lan-fw -p udp --dport 53 -j ACCEPT
     -A lan-fw -p udp --dport 67 -j ACCEPT
     -A lan-fw -p udp --dport 68 -j ACCEPT
   '';
+
+
+  # TODO: Nov 13 20:55:49 l1.shados.net dnsmasq[22485]: dnsmasq: cannot open or create lease file /var/lib/misc/dnsmasq.leases: No such file or directory 
 }
