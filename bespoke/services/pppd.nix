@@ -14,7 +14,7 @@ let
         wantedBy      = [ "multi-user.target" ];
 
         serviceConfig = {
-          ExecStart   = "${pkgs.ppp}/bin/pppd file ${configFile} nodetach nolog";
+          ExecStart   = "${pkgs.ppp}/bin/pppd file ${configFile} nodetach nolog debug";
         };
     };
 in
@@ -56,5 +56,10 @@ in
     environment.systemPackages = [ pkgs.ppp ];
 
     systemd.services = listToAttrs (mapAttrsFlatten (name: value: nameValuePair "pppd-${name}" (makePPPDJob value name)) cfg.connections);
+
+    networking.sn-firewall.v4rules.filter = ''
+      # We need to clamp MSS as PMTU doesn't work universally on the open net, due to bad or mis-configured firewalls
+      -A FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
+    '';
   };
 }
