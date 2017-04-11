@@ -17,6 +17,7 @@ mkIf cfg.enable {
   #   };
   # };
   services.nginx = {
+    virtualHosts = {};
     recommendedGzipSettings = true;
     eventsConfig = ''
       #langon = nginx
@@ -58,20 +59,6 @@ mkIf cfg.enable {
       # don't buffer data sent, good for small data bursts in real time
       tcp_nodelay on;
 
-      # server will close connection after this time
-      keepalive_timeout 30;
-
-      # number of requests client can make over keep-alive -- for testing
-      keepalive_requests 100000;
-
-      # allow the server to close connection on non responding client, this will free up memory
-      reset_timedout_connection on;
-
-      # request timed out -- default 60
-      client_body_timeout 10;
-
-      # if client stop responding, free up memory -- default 60
-      send_timeout 10;
 
       # Load modular configuration files from the /etc/nginx/conf.d directory.
       # See http://nginx.org/en/docs/ngx_core_module.html#include
@@ -92,6 +79,8 @@ mkIf cfg.enable {
       #open_file_cache_valid 30s; 
       #open_file_cache_min_uses 2;
       #open_file_cache_errors on;
+
+      error_log stderr notice;
       #langoff = nginx
     '';
   };
