@@ -13,6 +13,8 @@ let
         before        = [ "network.target" ];
         wantedBy      = [ "multi-user.target" ];
 
+        path = with pkgs; [ iproute ppp ];
+
         serviceConfig = {
           ExecStart   = "${pkgs.ppp}/bin/pppd file ${configFile} nodetach nolog debug";
         };
@@ -46,12 +48,6 @@ in
   };
 
   config = mkIf (cfg.connections != {}) {
-    # assertions = [
-    #   { assertion = cfg.config != null;
-    #     message   = "please provide at least one pppd connection file";
-    #   }
-    # ];
-
     boot.kernelModules = [ "ppp_generic" ];
     environment.systemPackages = [ pkgs.ppp ];
 
