@@ -1,5 +1,5 @@
 # pingLimit semantics changed
-# TODO: checkReversePath support
+# TODO: checkReversePath support... not entirely clear to be how to do this in nftables, 'fib' statement is somewhat under-documented but appears to be applicable
 # TODO: Modify libvirtd to take libvirt package as a config option, so we can pass it an overrided version that uses iptables-compat and ebtables-compat from nftables package
 # TODO: Look into docker compat issues
 { config, lib, pkgs, ... }:
@@ -18,7 +18,6 @@ let
         type = types.str;
         description = "Name of the nftables chain.";
       };
-
       definition = mkOption {
         default = "";
         example = "type filter hook input priority 0;";
