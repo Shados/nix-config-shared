@@ -85,7 +85,7 @@ let
     ${makeFamily "netdev" cfg.netdev}
   '';
 
-  natDest = if natcfg.externalIP == null then "nat masquerade" else "nat snat ${natcfg.externalIP}";
+  natDest = if natcfg.externalIP == null then "masquerade" else "snat ${natcfg.externalIP}";
 in
 
 # table family > table name > chain name
@@ -223,7 +223,7 @@ in
 
             # NAT from external ports to internal ports
             ${concatMapStrings (fwd: ''
-              meta iifname ${natcfg.externalInterface} tcp dport ${toString fwd.sourcePort} nat dnat ${fwd.destination}
+              meta iifname ${natcfg.externalInterface} tcp dport ${toString fwd.sourcePort} dnat ${fwd.destination}
             '') natcfg.forwardPorts}
           '';
           nixos-nat-post.rules = ''
@@ -234,7 +234,7 @@ in
 
             # NAT packets coming from the internal IPs
             ${concatMapStrings (range: ''
-              ip saddr ${range} meta oifname ${cfg.externalInterface} ${natDest}
+              ip saddr ${range} meta oifname ${natcfg.externalInterface} ${natDest}
             '') natcfg.internalIPs}
           '';
           PREROUTING = {
