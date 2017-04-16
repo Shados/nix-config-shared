@@ -203,7 +203,7 @@ in
             '';
             INPUT = {
               definition = "type filter hook input priority 0; policy drop";
-              rules = ''
+              rules = mkAfter ''
                 # Enable NixOS' default firewall
                 jump nixos-fw
               '';
