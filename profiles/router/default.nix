@@ -35,9 +35,15 @@ let
         default = null;
       };
       destAddr = mkOption {
-        example = "192.168.0.108:80";
+        example = "192.168.0.108";
         type = types.str;
         description = "Destination address to be forwarded to.";
+      };
+      destPort = mkOption {
+        example = 25565;
+        type = with types; nullOr int;
+        description = "Destination port to be forwarded to.";
+        default = null;
       };
       protocol = mkOption {
         example = "tcp";
