@@ -14,12 +14,9 @@ lib.mkIf (config.fragments.router.enable) {
     '';
   };
 
-  networking.sn-firewall.v4rules.filter = lib.mkOrder 1000 ''
-    # Add custom rules
-    -A lan-fw -p tcp --dport 53 -j ACCEPT
-    -A lan-fw -p udp --dport 53 -j ACCEPT
-    -A lan-fw -p udp --dport 67 -j ACCEPT
-    -A lan-fw -p udp --dport 68 -j ACCEPT
+  networking.nft-firewall.inet.filter.lan-fw.rules = lib.mkOrder 1000 ''
+    tcp dport 53 accept
+    udp dport { 53, 67, 68} accept
   '';
 
 

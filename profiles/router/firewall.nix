@@ -6,29 +6,32 @@ in
 with lib;
 
 {
-  config = mkMerge [
-    (mkIf (cfg.enable) {
-      networking.sn-firewall.enable = true;
-      networking.sn-firewall.enable_nat = true;
-      # Because I'm planning on merging sn-firewall back upstream as the default firewall, and because I want transparent compatibility, we just read the existing firewall settings :)
-      networking.firewall = {
-        checkReversePath = false; # RP filtering on the bridge breaks broadcast packets due to reasons - TODO: Figure out why. TODO: Implement custom workaround.
-      };
-      networking.sn-firewall.v4rules.filter = mkBefore ''
-        # Setup custom chains
-        -N lan-fw
+  config = mkIf (cfg.enable) {
+    networking.firewall = {
+      checkReversePath = false; # RP filtering on the bridge breaks broadcast packets due to reasons - TODO: Figure out why. TODO: Implement custom workaround.
+    };
+    networking.nft-firewall = {
+      enable = true;
+      enableNAT = true;
+      inet.filter.lan-fw.rules = mkAfter ''
+        return
       '';
-      #systemd.services.firewall.after = [ "${cfg.intBridge}-netdev.service" ];
-    })
-    (mkIf (cfg.enable) {
-      networking.sn-firewall.v4rules.filter = mkAfter ''
-        # After processing custom chains, RETURN to main chain
-        -A lan-fw -j RETURN
-        # Activate the custom chains
-        -A nixos-fw -i ${cfg.intBridge} -j lan-fw
+      inet.filter.INPUT.rules = mkBefore ''
+        meta iifname ${cfg.intBridge} jump lan-fw
       '';
-    })
-  ];
+      ip.nat.PREROUTING.rules = ''
+        meta iifname ${cfg.extInt} jump lan-fw-forwards
+      '';
+      ip.nat.lan-fw-forwards.rules = ''
+        ${concatMapStrings (pf: let portArg =
+        if pf.sourcePort != null then toString pf.sourcePort
+        else toString pf.portRange.from + "-" + toString pf.portRange.to; 
+        in ''
+          meta iifname ${cfg.extInt} ${pf.protocol} dport ${portArg} dnat ${pf.destAddr}
+        '') cfg.portForwards}
+      '';
+    };
+  };
 }
 
 # TODO: Upstream sn-firewall implementation

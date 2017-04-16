@@ -2,10 +2,51 @@
 
 with lib;
 
-let 
+let
 
   cfg = config.fragments.router;
 
+  parentConfig = config;
+  portRange = { config, ... }: let cfg = config; in let config = parentConfig; in {
+    options = {
+      from = mkOption {
+        example = 10;
+        type = types.int;
+        description = "Start of port range to forward from.";
+      };
+      to = mkOption {
+        example = 20;
+        type = types.int;
+        description = "End of port range to forward from.";
+      };
+    };
+  };
+  portForwardOpts = { config, ... }: let cfg = config; in let config = parentConfig; in {
+    options = {
+      sourcePort = mkOption {
+        example = 25565;
+        type = with types; nullOr int;
+        description = "Source port to be forwarded from.";
+        default = null;
+      };
+      portRange = mkOption {
+        example = { from = 10; to = 20; };
+        type = with types; nullOr (submodule portRange);
+        description = "Port range to forward form.";
+        default = null;
+      };
+      destAddr = mkOption {
+        example = "192.168.0.108:80";
+        type = types.str;
+        description = "Destination address to be forwarded to.";
+      };
+      protocol = mkOption {
+        example = "tcp";
+        type = types.str;
+        description = "Protocol of the port to be forwarded.";
+      };
+    };
+  };
 in
 
 {
@@ -104,6 +145,11 @@ in
         '';
         default = true;
         type = types.bool;
+      };
+      portForwards = mkOption {
+        description = "List of port forwards to enable.";
+        type = with types; listOf (submodule portForwardOpts);
+        default = [];
       };
     };
   };
