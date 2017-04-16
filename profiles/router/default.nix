@@ -6,8 +6,7 @@ let
 
   cfg = config.fragments.router;
 
-  parentConfig = config;
-  portRange = { config, ... }: let cfg = config; in let config = parentConfig; in {
+  portRange = { config, ... }: {
     options = {
       from = mkOption {
         example = 10;
@@ -21,7 +20,7 @@ let
       };
     };
   };
-  portForwardOpts = { config, ... }: let cfg = config; in let config = parentConfig; in {
+  portForwardOpts = { config, ... }: {
     options = {
       sourcePort = mkOption {
         example = 25565;

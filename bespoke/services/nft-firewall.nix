@@ -10,8 +10,7 @@ let
   natcfg = config.networking.nat;
   cfg = config.networking.nft-firewall;
 
-  parentConfig = config;
-  chainOpts = { config, name, ... }: let cfg = config; in let config = parentConfig; in {
+  chainOpts = { config, name, ... }: {
     options = {
       name = mkOption {
         example = "INPUT";
@@ -33,6 +32,7 @@ let
         description = "Rules to add to the chain.";
       };
     };
+    config = { name = mkDefault name; };
   };
 
   mkFamilyOption = family: mkOption {
