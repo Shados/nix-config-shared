@@ -243,7 +243,7 @@ in
             '';
           };
           POSTROUTING = {
-            definition = "type nat hook postrouting priority 100;";
+            definition = "type nat hook postrouting priority 0;";
             rules = ''
               jump nixos-nat-post
             '';
