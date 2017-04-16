@@ -94,8 +94,6 @@ let
 
 
   ruleset = ''
-    flush ruleset
-
     ${makeFamily "arp" cfg.arp}
     ${makeFamily "ip" cfg.ip}
     ${makeFamily "ip6" cfg.ip6}
