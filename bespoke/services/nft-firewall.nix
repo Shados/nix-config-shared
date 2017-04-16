@@ -1,6 +1,7 @@
 # pingLimit semantics changed
-# TODO: Modify libvirtd to take libvirt package as a config option, so we can pass it an overrided version that uses iptables-compat and ebtables-compat from nftables package
 # TODO: checkReversePath support
+# TODO: Modify libvirtd to take libvirt package as a config option, so we can pass it an overrided version that uses iptables-compat and ebtables-compat from nftables package
+# TODO: Look into docker compat issues
 { config, lib, pkgs, ... }:
 
 with lib;
@@ -35,38 +36,20 @@ let
     };
   };
 
-  tableOpts = { config, name, ... }: let cfg = config; in let config = parentConfig; in {
-    options = {
-      name = mkOption {
-        example = "filter";
-        type = types.str;
-        description = "Name of the nftables table.";
-      };
-
-      chains = mkOption {
-        default = [];
-        type = with types; loaOf (submodule chainOpts);
-        description = ''
-          This option defines the nftables chains for the given table.
-
-          Each attribute of this set defines a single nftables chain
-          for this table, with the attribute defining the name of the
-          chain.
-        '';
-      };
-    };
-  };
-
   mkFamilyOption = family: mkOption {
-    default = [];
-    type = with types; loaOf (submodule tableOpts);
+    default = {};
+    type = with types; attrsOf (loaOf (submodule chainOpts));
     description = ''
       This option defines the nftables tables for the
       ${family} family.
 
       Each attribute of this set defines a single nftables
       table for this family, with the attribute defining
-      the name of the table.
+      the name of the table, and the contents being another
+      attribute set.
+
+      Each child attribute set defines a single nftables
+      chain for the given table.
     '';
   };
 
@@ -82,7 +65,7 @@ let
     table ${family} ${tablename} {
       ${concatMapStrings (chain: ''
         ${chain}
-      '') (mapAttrsToList (makeChain) table.chains)}
+      '') (mapAttrsToList (makeChain) table)}
     }
   '';
 
@@ -101,6 +84,8 @@ let
     ${makeFamily "bridge" cfg.bridge}
     ${makeFamily "netdev" cfg.netdev}
   '';
+
+  natDest = if natcfg.externalIP == null then "nat masquerade" else "nat snat ${natcfg.externalIP}";
 in
 
 # table family > table name > chain name
@@ -110,7 +95,13 @@ in
   options = {
     networking.nft-firewall = {
       enable = mkEnableOption "nftables-based firewall";
-      enableDefaultRules = mkEnableOption "default firewall rules";
+      enableNAT = mkEnableOption "nftables-based NAT";
+      enableDefaultRules = mkOption {
+        default = true;
+        example = false;
+        description = "Whether to enable the default nftables-based firewall rules.";
+        type = lib.types.bool;
+      };
 
       arp = mkFamilyOption "arp";
       ip = mkFamilyOption "ip";
@@ -136,90 +127,134 @@ in
       networking.nft-firewall = {
         inet = {
           filter = {
-            chains = {
-              nixos-fw-accept.rules = ''
-                # This chain just accepts packets
-                accept
+            nixos-fw-accept.rules = ''
+              # This chain just accepts packets
+              accept
+            '';
+            nixos-fw-refuse.rules = ''
+              # This chain rejects or drops packets
+              ${if fwcfg.rejectPackets then ''
+                # Send a reset for existing TCP connections
+                tcp flags != syn reject with tcp reset
+                # Send ICMP 'port unreachable' for all else
+                ip reject with icmp type port-unreachable
+                ip6 reject with icmpv6 type port-unreachable
+              '' else ''
+                drop
+              ''}
+            '';
+            nixos-fw-log-refuse.rules = ''
+              # This chain optionally performs logging, then 
+              # jumps to the refuse chain
+              ${optionalString fwcfg.logRefusedConnections ''
+                tcp flags syn log level info prefix "rejected connection: "
+              ''}
+              ${optionalString (fwcfg.logRefusedPackets && !fwcfg.logRefusedUnicastsOnly) ''
+                meta pkttype broadcast log level info prefix "rejected broadcast: "
+                meta pkttype multicast log level info prefix "rejected multicast: "
+                meta pkttype != unicast jump nixos-fw-refuse
+              ''}
+              ${optionalString fwcfg.logRefusedPackets ''
+                log level info prefix "rejected packet: "
+              ''}
+              jump nixos-fw-refuse
+            '';
+            nixos-fw.rules = ''
+              # Accept all traffic on the trusted interfaces
+              ${flip concatMapStrings fwcfg.trustedInterfaces (iface: ''
+                meta iifname "${iface}" jump nixos-fw-accept
+              '')}
+
+              # Accept packets from established/related connections
+              ct state established,related accept
+
+              # Accept connections to allowed TCP ports
+              ${concatMapStrings (port: ''
+                tcp dport ${toString port} jump nixos-fw-accept
+              '') fwcfg.allowedTCPPorts}
+
+              # Accept connections to allowed TCP port ranges
+              ${concatMapStrings (rangeAttr:
+                let range = toString rangeAttr.from + "-" + toString rangeAttr.to; in ''
+                tcp dport ${range} jump nixos-fw-accept
+              '') fwcfg.allowedTCPPortRanges}
+
+              # Accept connections to allowed UDP ports
+              ${concatMapStrings (port: ''
+                udp dport ${toString port} jump nixos-fw-accept
+              '') fwcfg.allowedUDPPorts}
+
+              # Accept connections to allowed UDP port ranges
+              ${concatMapStrings (rangeAttr:
+                let range = toString rangeAttr.from + "-" + toString rangeAttr.to; in ''
+                udp dport ${range} jump nixos-fw-accept
+              '') fwcfg.allowedUDPPortRanges}
+
+              # Optionally respond to ICMPv4 pings
+              ${optionalString fwcfg.allowPing ''
+                ip6 nexthdr icmpv6 icmpv6 type echo-request ${optionalString (fwcfg.pingLimit != null) "limit rate ${fwcfg.pingLimit}"} accept
+                ip protocol icmp icmp type echo-request ${optionalString (fwcfg.pingLimit != null) "limit rate ${fwcfg.pingLimit}"} accept
+              ''}
+
+              # Filter rules
+
+              # Reject/drop everything else
+              jump nixos-fw-log-refuse
+            '';
+            INPUT = {
+              definition = "type filter hook input priority 0; policy drop";
+              rules = ''
+                # Enable NixOS' default firewall
+                jump nixos-fw
               '';
-              nixos-fw-refuse.rules = ''
-                # This chain rejects or drops packets
-                ${if fwcfg.rejectPackets then ''
-                  # Send a reset for existing TCP connections
-                  tcp flags != syn reject with tcp reset
-                  # Send ICMP 'port unreachable' for all else
-                  ip reject with icmp type port-unreachable
-                  ip6 reject with icmpv6 type port-unreachable
-                '' else ''
-                  drop
-                ''}
-              '';
-              nixos-fw-log-refuse.rules = ''
-                # This chain optionally performs logging, then 
-                # jumps to the refuse chain
-                ${optionalString fwcfg.logRefusedConnections ''
-                  tcp flags syn log level info prefix "rejected connection: "
-                ''}
-                ${optionalString (fwcfg.logRefusedPackets && !fwcfg.logRefusedUnicastsOnly) ''
-                  meta pkttype broadcast log level info prefix "rejected broadcast: "
-                  meta pkttype multicast log level info prefix "rejected multicast: "
-                  meta pkttype != unicast jump nixos-fw-refuse
-                ''}
-                ${optionalString fwcfg.logRefusedPackets ''
-                  log level info prefix "rejected packet: "
-                ''}
-                jump nixos-fw-refuse
-              '';
-              nixos-fw.rules = ''
-                # Accept all traffic on the trusted interfaces
-                ${flip concatMapStrings fwcfg.trustedInterfaces (iface: ''
-                  meta iifname "${iface}" jump nixos-fw-accept
-                '')}
-
-                # Accept packets from established/related connections
-                ct state established,related accept
-
-                # Accept connections to allowed TCP ports
-                ${concatMapStrings (port: ''
-                  tcp dport ${toString port} jump nixos-fw-accept
-                '') fwcfg.allowedTCPPorts}
-
-                # Accept connections to allowed TCP port ranges
-                ${concatMapStrings (rangeAttr:
-                  let range = toString rangeAttr.from + "-" + toString rangeAttr.to; in ''
-                  tcp dport ${range} jump nixos-fw-accept
-                '') fwcfg.allowedTCPPortRanges}
-
-                # Accept connections to allowed UDP ports
-                ${concatMapStrings (port: ''
-                  udp dport ${toString port} jump nixos-fw-accept
-                '') fwcfg.allowedUDPPorts}
-
-                # Accept connections to allowed UDP port ranges
-                ${concatMapStrings (rangeAttr:
-                  let range = toString rangeAttr.from + "-" + toString rangeAttr.to; in ''
-                  udp dport ${range} jump nixos-fw-accept
-                '') fwcfg.allowedUDPPortRanges}
-
-                # Optionally respond to ICMPv4 pings
-                ${optionalString fwcfg.allowPing ''
-                  ip6 nexthdr icmpv6 icmpv6 type echo-request ${optionalString (fwcfg.pingLimit != null) "limit rate ${fwcfg.pingLimit}"} accept
-                  ip protocol icmp icmp type echo-request ${optionalString (fwcfg.pingLimit != null) "limit rate ${fwcfg.pingLimit}"} accept
-                ''}
-
-                # Filter rules
-
-                # Reject/drop everything else
-                jump nixos-fw-log-refuse
-              '';
-              INPUT = {
-                definition = "type filter hook input priority 0; policy drop";
-                rules = ''
-                  # Enable NixOS' default firewall
-                  jump nixos-fw
-                '';
-              };
             };
           };
+        };
+      };
+    })
+    (mkIf cfg.enableNAT {
+      networking.nft-firewall = {
+        ip.nat = {
+          nixos-nat-pre.rules = ''
+            # Mark packets coming from the external interface(s)
+            ${concatMapStrings (iface: ''
+              meta iifname "${iface}" mark set 0x01
+            '') natcfg.internalInterfaces}
+
+            # NAT from external ports to internal ports
+            ${concatMapStrings (fwd: ''
+              meta iifname ${natcfg.externalInterface} tcp dport ${toString fwd.sourcePort} nat dnat ${fwd.destination}
+            '') natcfg.forwardPorts}
+          '';
+          nixos-nat-post.rules = ''
+            # NAT marked packets
+            ${optionalString (natcfg.internalInterfaces != []) ''
+              meta mark 0x01 oifname ${natcfg.externalInterface} ${natDest}
+            ''}
+
+            # NAT packets coming from the internal IPs
+            ${concatMapStrings (range: ''
+              ip saddr ${range} meta oifname ${cfg.externalInterface} ${natDest}
+            '') natcfg.internalIPs}
+          '';
+          PREROUTING = {
+            definition = "type nat hook prerouting priority 0;";
+            rules = ''
+              jump nixos-nat-pre
+            '';
+          };
+          POSTROUTING = {
+            definition = "type nat hook postrouting priority 100;";
+            rules = ''
+              jump nixos-nat-post
+            '';
+          };
+        };
+      };
+      boot = {
+        kernel.sysctl = {
+          "net.ipv4.conf.all.forwarding" = mkOverride 99 true;
+          "net.ipv4.conf.default.forwarding" = mkOverride 99 true;
         };
       };
     })
