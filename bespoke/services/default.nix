@@ -2,8 +2,8 @@
 
 {
   imports = [
-    ./pppd.nix
     ./nft-firewall.nix
+    ./pppd.nix
     ./sn-firewall.nix
   ];
 }
