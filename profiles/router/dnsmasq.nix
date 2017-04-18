@@ -11,6 +11,8 @@ lib.mkIf (config.fragments.router.enable) {
     extraConfig = ''
       interface=${cfg.intBridge}
       dhcp-range=${cfg.intSubnet + "." + toString (builtins.elemAt cfg.dhcpRange 0)},${cfg.intSubnet + "." + toString (builtins.elemAt cfg.dhcpRange 1)},12h
+      # https://serverfault.com/questions/255487/excessive-dhcp-requests-in-var-log-messages-dhcpinform-dhcpack-and-dhcpreques
+      dhcp-option=252,"\n"
     '';
   };
 
