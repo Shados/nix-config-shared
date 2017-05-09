@@ -4,6 +4,7 @@
 {
   imports = [
     ./backup.nix
+    ./do-init
     ./fonts.nix
     ./haveged.nix
     ./kernel
