@@ -17,6 +17,8 @@ let
 
         serviceConfig = {
           ExecStart   = "${pkgs.ppp}/bin/pppd file ${configFile} nodetach nolog debug";
+          Restart = "always";
+          RestartSec = "500ms";
         };
     };
 in
