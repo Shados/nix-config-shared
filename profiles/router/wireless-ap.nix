@@ -12,7 +12,7 @@ lib.mkIf (cfg.enable && cfg.enableWifi) {
     hwMode = "g";
     interface = cfg.wifiInt;
     ssid = cfg.wifiSSID;
-    channel = 2;
+    channel = 7;
     extraConfig =
     ''
       bridge=${cfg.intBridge}
@@ -27,26 +27,26 @@ lib.mkIf (cfg.enable && cfg.enableWifi) {
       rsn_pairwise=CCMP
 
       wmm_enabled=1
-      wmm_ac_bk_cwmin=4
-      wmm_ac_bk_cwmax=10
-      wmm_ac_bk_aifs=7
-      wmm_ac_bk_txop_limit=0
-      wmm_ac_bk_acm=0
-      wmm_ac_be_aifs=3
-      wmm_ac_be_cwmin=4
-      wmm_ac_be_cwmax=10
-      wmm_ac_be_txop_limit=0
-      wmm_ac_be_acm=0
-      wmm_ac_vi_aifs=2
-      wmm_ac_vi_cwmin=3
-      wmm_ac_vi_cwmax=4
-      wmm_ac_vi_txop_limit=94
-      wmm_ac_vi_acm=0
-      wmm_ac_vo_aifs=2
-      wmm_ac_vo_cwmin=2
-      wmm_ac_vo_cwmax=3
-      wmm_ac_vo_txop_limit=47
-      wmm_ac_vo_acm=0
+      # wmm_ac_bk_cwmin=4
+      # wmm_ac_bk_cwmax=10
+      # wmm_ac_bk_aifs=7
+      # wmm_ac_bk_txop_limit=0
+      # wmm_ac_bk_acm=0
+      # wmm_ac_be_aifs=3
+      # wmm_ac_be_cwmin=4
+      # wmm_ac_be_cwmax=10
+      # wmm_ac_be_txop_limit=0
+      # wmm_ac_be_acm=0
+      # wmm_ac_vi_aifs=2
+      # wmm_ac_vi_cwmin=3
+      # wmm_ac_vi_cwmax=4
+      # wmm_ac_vi_txop_limit=94
+      # wmm_ac_vi_acm=0
+      # wmm_ac_vo_aifs=2
+      # wmm_ac_vo_cwmin=2
+      # wmm_ac_vo_cwmax=3
+      # wmm_ac_vo_txop_limit=47
+      # wmm_ac_vo_acm=0
 
       ieee80211n=1
       wme_enabled=1
