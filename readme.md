@@ -1,7 +1,7 @@
 # ShadosNet Generic NixOS Baseline Configuration
 Contains various defaults I want, and NixOS packages/modules/extensions to existing modules (that aren't suitable for upstreaming). My individual systems generally have their own (private) repo for `/etc/nixos` that has this as a submodule.
 
-Should be mostly self-documenting. Start with `default.nix`, of course.
+Should be mostly self-documenting. Start with `default.nix`, of course. I'm aware I have (salted and hashed) passwords in the open, but using them requires you either have my SSH keys or access to my physical hardware (and the ability to generated SHA-512 collisions), in which case you can already screw me over.
 
 ## Example Usage
 `/etc/nixos/configuration.nix`:
