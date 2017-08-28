@@ -12,10 +12,7 @@
     # Terminal enhancements
     tmux
     fish
-    rxvt_unicode.terminfo
-
-    # Critical userspace tools
-    vim_configurable
+    rxvt_unicode.terminfo # Only need terminfo by default, as hardly need an X terminal on a server
 
     # VCS
     git
@@ -39,7 +36,7 @@
     gptfdisk
     parted
     telnet
-    netcat-openbsd
+    netcat-openbsd # The one true netcat
     rsync
     lsof
     psmisc
