@@ -4,7 +4,7 @@
   nixpkgs.config.packageOverrides = pkgs: rec {
     dmenu = pkgs.dmenu.override {
       patches = [
-        ./dmenu-git-20151020-fuzzymatch.diff
+        ./dmenu-fuzzymatch-20170603-f428f3e.diff
       ];
     };
   };
