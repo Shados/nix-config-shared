@@ -1,6 +1,7 @@
 { config, pkgs, ... }:
 
 {
+  # TODO: only bother enabling for systems with X >.>
   fonts = {
     fonts = with pkgs; [
       corefonts # Microsoft free fonts

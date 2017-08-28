@@ -1,3 +1,4 @@
+# This shit is all hugely old, I should probably remove it. Although muqss/bfs is rather nice.
 { config, pkgs, lib, ... }:
 
 with lib;

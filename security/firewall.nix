@@ -10,5 +10,5 @@ with pkgs.lib;
     connectionTrackingModules = [];
     autoLoadConntrackHelpers = false;
   };
-  environment.systemPackages = with pkgs; [ iptables ];
+  environment.systemPackages = with pkgs; [ iptables ]; # TODO: change this when I get around to upstreaming the nftables-based firewall module, as we'll want iptables-compat instead
 }

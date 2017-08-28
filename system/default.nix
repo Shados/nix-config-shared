@@ -18,7 +18,7 @@
 
   boot.kernelParams = [ "boot.shell_on_fail" ];
   boot.kernel.sysctl."vm.swappiness" = pkgs.lib.mkDefault 5;
-  environment.sessionVariables.TERMINFO = pkgs.lib.mkDefault "/run/current-system/sw/share/terminfo"; # TODO: Remove once fish upstream bug is fixed
+  environment.sessionVariables.TERMINFO = pkgs.lib.mkDefault "/run/current-system/sw/share/terminfo"; # TODO: the fish bug that needed this may now be fixed, should test
   services.locate.enable = false;
   services.logind.extraConfig = ''
     KillUserProcesses=no
