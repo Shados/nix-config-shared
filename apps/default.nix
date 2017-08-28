@@ -57,9 +57,4 @@
     lzop
     p7zip
   ];
-
-  # Includes kernel modules + userspace tools
-  boot.supportedFilesystems = [
-    "btrfs"
-  ];
 }
