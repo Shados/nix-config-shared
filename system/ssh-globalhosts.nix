@@ -7,7 +7,7 @@
       hostName = "git.shados.net";
       user = "gitolite";
       port = 54201;
-      keyFile = "/etc/nixos/prviate-keys/nixos-config@shados.net.id_ecdsa";
+      keyFile = "/etc/nixos/private-keys/nixos-config@shados.net.id_ecdsa";
     };
   };
 }
