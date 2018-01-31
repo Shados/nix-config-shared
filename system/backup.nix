@@ -63,6 +63,8 @@ in
         RemainAfterExit = "yes";
         ExecStart = pkgs.writeScript "set_backup_acls.sh" ''
           #!${pkgs.bash}/bin/bash
+          ${pkgs.eject}/bin/ionice -c 3 -p $$
+          ${pkgs.eject}/bin/renice -n 19 -p $$
           ${pkgs.acl.bin}/bin/setfacl -R -m u:backup:rX ${concatStringsSep " " cfg.folders}
           ${pkgs.acl.bin}/bin/setfacl -R -m d:u:backup:rX ${concatStringsSep " " cfg.folders}
         '';
