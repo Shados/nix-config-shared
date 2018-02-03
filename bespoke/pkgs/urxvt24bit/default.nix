@@ -12,9 +12,9 @@ stdenv.mkDerivation (rec {
   name = "${pname}${if perlSupport then "-with-perl" else ""}${if unicode3Support then "-with-unicode3" else ""}-${version}";
 
   src = fetchgit {
-    url     = "https://github.com/exg/rxvt-unicode";
-    rev     = "15ced41d5787a75c55189ba04f2836be47cbd957";
-    sha256  = "0p4qch245l6sikaacba8cz06ca7scb4im9l78zk1gclkk61my5si";
+    url             = "https://github.com/exg/rxvt-unicode";
+    rev             = "0767fe71f667f5be4e8967ca6ea27e2b14c19daf";
+    sha256          = "0lc2s0b0p69q37cfb6maj67gcb8bwbmgl8qbmgsh27qzq44x0ks2";
     fetchSubmodules = true;
   };
 
@@ -37,11 +37,34 @@ stdenv.mkDerivation (rec {
 
   outputs = [ "out" "terminfo" ];
 
+
   patches = [
     # ./rxvt-unicode-9.06-font-width.patch
     # ./rxvt-unicode-256-color-resources.patch
+
+    # display-wide-glyphs patches, to support some fontawesome icons (and other wide icons)
+    # see: https://github.com/blueyed/rxvt-unicode/tree/display-wide-glyphs
+    ./font-width-fix.patch
+    ./line-spacing-fix.patch
+    ./enable-wide-glyphs.patch
   ];
   # ++ stdenv.lib.optional stdenv.isDarwin ./rxvt-unicode-makefile-phony.patch;
+
+  # Handle varying patch levels
+  patchPhase = ''
+    for i in $patches; do
+      echo "Applying patch $i"
+      patch -p1 < $i || patch -p0 < $i
+    done
+  '';
+
+  configureFlags = [
+    "--enable-wide-glyphs"
+    "--with-terminfo=$terminfo/share/terminfo"
+    "--enable-256-color"
+    ''${if perlSupport then "--enable-perl" else "--disable-perl"}''
+    ''${if unicode3Support then "--enable-unicode3" else "--disable-unicode3"}''
+  ];
 
   preConfigure =
     ''
@@ -50,7 +73,6 @@ stdenv.mkDerivation (rec {
       tar xf ${libev}
       mv libev* libev
       mkdir -p $terminfo/share/terminfo
-      configureFlags="--with-terminfo=$terminfo/share/terminfo --enable-256-color ${if perlSupport then "--enable-perl" else "--disable-perl"} ${if unicode3Support then "--enable-unicode3" else "--disable-unicode3"}";
       export TERMINFO=$terminfo/share/terminfo # without this the terminfo won't be compiled by tic, see man tic
       NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE -I${freetype.dev}/include/freetype2"
       NIX_LDFLAGS="$NIX_LDFLAGS -lfontconfig -lXrender "
