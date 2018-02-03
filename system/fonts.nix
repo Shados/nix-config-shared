@@ -10,6 +10,7 @@
       dejavu_fonts
       ipafont
       source-code-pro
+      nerdfonts
     ];
     # fontconfig = {
     #   dpi = 120;
