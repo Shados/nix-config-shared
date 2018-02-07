@@ -7,6 +7,7 @@
     ./config-snapshot.nix
     ./do-init
     ./fonts.nix
+    ./graphical.nix
     ./haveged.nix
     ./kernel
     ./networking.nix
