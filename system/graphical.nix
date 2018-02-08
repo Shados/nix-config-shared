@@ -10,7 +10,6 @@ let
     pkgs.gst_all_1.gst-plugins-good
     pkgs.gst_all_1.gst-plugins-bad
     pkgs.gst_all_1.gst-libav ];
-  nixos-1703 = import <nixos-1703> {};
 
   xresources = pkgs.writeText "Xresources" (builtins.readFile ./Xresources);
 
@@ -113,8 +112,8 @@ in
       gtk-engine-murrine
       gnome3.gnome_themes_standard
 
-      nixos-1703.arc-theme
-      nixos-1703.arc-icon-theme
+      arc-theme
+      arc-icon-theme
 
       glxinfo
       lxappearance
