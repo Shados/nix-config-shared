@@ -45,6 +45,7 @@
 ! URxvt*background:            S_base03
 
 *background:              S_base03
+*borderColor:             S_base03
 *foreground:              S_base0
 *fading:                  40
 *fadeColor:               S_base03
@@ -68,28 +69,3 @@
 *color13:                 S_violet
 *color14:                 S_base1
 *color15:                 S_base3
-
-! Shados-made custom settings:
-! XTerm settings
-!xterm*faceName: Anka/Coder:size=8:antialias=false
-xterm*faceName: xft:FantasqueSansMono Nerd Font:style=Regular:size=10:antialias=true
-
-! URxvt settings
-URxvt.intensityStyles: false
-! URxvt.font: xft:Anka/Coder:size=8:antialias=true
-URxvt.font: xft:FantasqueSansMono Nerd Font:style=Regular:size=10:antialias=true
-URxvt.scrollBar: false
-URxvt.perl-ext-common: defaullt,matcher,osc-xterm-clipboard
-URxvt.url-launcher: /home/shados/technotheca/artifacts/packages/bin/ff-link
-URxvt.matcher.button: 1
-URxvt.colorUL: S_blue
-URxvt.fading: 10
-URxvt.iso14755: False
-
-! General font settings
-Xft.autohint: 0
-Xft.lcdfilter: lcddefault
-Xft.hintstyle: hintslight
-Xft.hinting: 1
-Xft.antialias: 1
-Xft.rgba: rgb
