@@ -190,6 +190,13 @@ in
         # qt56 = pkgs.qt56.override { gtkStyle = true; };
       };
     }
+    # Browser stuff {{{
+    {
+      # Avoiding using an actual derivation ref, as I may not be using the
+      # standard firefox on every box
+      services.nixosManual.browser = "/run/current-system/sw/bin/firefox";
+    }
+    # }}}
     # }}}
     # urxvt setup {{{
     {
