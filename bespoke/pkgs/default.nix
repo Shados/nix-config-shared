@@ -24,6 +24,7 @@
           urxvt_vtwheel
         ];
       };
+      pywal = callPackage ./pywal.nix {};
     };
     perlPackageOverrides = pkgs: with pkgs; {
       LinuxFD = callPackage ./urxvt/extensions/LinuxFD.nix {
