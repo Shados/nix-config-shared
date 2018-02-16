@@ -25,6 +25,7 @@
         ];
       };
       pywal = callPackage ./pywal.nix {};
+      snap = callPackage ./snap.nix {};
       pastebin = callPackage ./pastebin.nix {};
     };
     perlPackageOverrides = pkgs: with pkgs; {
