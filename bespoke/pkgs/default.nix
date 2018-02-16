@@ -25,6 +25,7 @@
         ];
       };
       pywal = callPackage ./pywal.nix {};
+      pastebin = callPackage ./pastebin.nix {};
     };
     perlPackageOverrides = pkgs: with pkgs; {
       LinuxFD = callPackage ./urxvt/extensions/LinuxFD.nix {
