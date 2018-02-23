@@ -183,6 +183,9 @@ in
         glxinfo
         lxappearance
         obconf
+
+        dunst libnotify
+        snap
       ];
       # Convenient `/etc` symlink so I can easily reload from my defaults
       environment.etc.default_xresources.source = default_xresources;

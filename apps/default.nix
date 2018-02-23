@@ -53,5 +53,7 @@
     unrar
     lzop
     p7zip
+
+    pastebin
   ];
 }
