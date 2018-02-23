@@ -6,7 +6,7 @@
 # files in the Nix store (yet), so it means any local user on the system can
 # read your configuration options. I suggest only using on single-user
 # desktop/laptop systems as a result.
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 with lib;
 let
