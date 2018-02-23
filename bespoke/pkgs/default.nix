@@ -24,7 +24,6 @@
           urxvt_vtwheel
         ];
       };
-      pywal = callPackage ./pywal.nix {};
       tmux = pkgs.tmux.overrideAttrs  (oldAttrs: {
         # This git rev includes the 'exit-empty' option to control whether or
         # not the tmux server will quit when there are no running sessions
@@ -39,6 +38,22 @@
 
       snap = callPackage ./snap.nix {};
       pastebin = callPackage ./pastebin.nix {};
+
+      pywal = callPackage ./pywal.nix {};
+      gvcci = callPackage ./gvcci.nix (
+      let
+        haselPython = pkgs.python3.override {
+          packageOverrides = self: super: {
+            hasel = super.callPackage ./hasel.nix {};
+          };
+        };
+      in
+      {
+        # hasel = callPackage ./hasel.nix {};
+        python3Packages = haselPython.pkgs;
+      });
+
+      # pythonPackages = python.pkgs;
     };
     perlPackageOverrides = pkgs: with pkgs; {
       LinuxFD = callPackage ./urxvt/extensions/LinuxFD.nix {
