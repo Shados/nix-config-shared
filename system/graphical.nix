@@ -121,13 +121,13 @@ in
             { name = "shadosnet";
               start = ''
                 # Set GTK_DATA_PREFIX so that GTK+ can find the themes
-                export GTK_DATA_PREFIX=${config.system.path}
+                export GTK_DATA_PREFIX=/run/current-system/sw/:~/.local/share/themes
 
                 # Find theme engines
-                export GTK_PATH=${config.system.path}/lib/gtk-3.0:${config.system.path}/lib/gtk-2.0
+                export GTK_PATH=/run/current-system/sw/lib/gtk-3.0:/run/current-system/sw/lib/gtk-2.0
 
                 # Find mouse icons
-                export XCURSOR_PATH=~/.icons:${config.system.path}/share/icons
+                export XCURSOR_PATH=~/.icons:/run/current-system/sw/share/icons
 
                 export GST_PLUGIN_PATH="${GST_PLUGIN_PATH}"
 
