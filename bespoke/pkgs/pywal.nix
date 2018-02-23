@@ -1,4 +1,5 @@
-{ stdenv, fetchFromGitHub, python3Packages }:
+{ stdenv, fetchFromGitHub, python3Packages
+, makeWrapper, imagemagick, python2 }:
 
 python3Packages.buildPythonApplication rec {
   name = "pywal-${version}";
@@ -12,12 +13,19 @@ python3Packages.buildPythonApplication rec {
   };
 
   doCheck = false;
+  buildInputs = [
+    makeWrapper imagemagick
+  ];
 
-  meta = {
+  postInstall = ''
+    wrapProgram $out/bin/wal --prefix PATH ':' "${stdenv.lib.makeBinPath [ imagemagick python2 ]}"
+  '';
+
+  meta = with stdenv.lib; {
     description = "Generate and change colorschemes on the fly";
     homepage = "https://github.com/dylanaraps/pywal";
-    maintainers = [ stdenv.lib.maintainers.mahe ];
-    platforms = stdenv.lib.platforms.all;
-    license = stdenv.lib.licenses.mit;
+    maintainers = [ maintainers.arobyn ];
+    platforms = platforms.all;
+    license = licenses.mit;
   };
 }
