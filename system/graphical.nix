@@ -166,6 +166,7 @@ in
 
         xmodmap
 
+        # Baseline themes / theme engines
         tango-icon-theme
         hicolor_icon_theme
         gnome2.gnome_icon_theme
@@ -174,6 +175,7 @@ in
         gtk_engines
         gtk-engine-murrine
         gnome3.gnome_themes_standard
+        gnome3.adwaita-icon-theme
 
         arc-theme
         arc-icon-theme
