@@ -1,22 +1,33 @@
-# Include a tarball of the current /etc/nixos folder in the built profile,
-# means you can conveniently inspect config for older profiles you reboot into
+# Include a copy of the current /etc/nixos folder in the built profile, and
+# symlink it to /etc to locate it more easily. Means you can conveniently
+# inspect config for older profiles you reboot into.
+#
+# Has some potential security concerns, as there is no support for private
+# files in the Nix store (yet), so it means any local user on the system can
+# read your configuration options. I suggest only using on single-user
+# desktop/laptop systems as a result.
 { config, pkgs, ... }:
 
+with lib;
 let
+  cfg = config.fragments.cfg-snapshot.enable;
   confTarball = with pkgs; stdenv.mkDerivation {
-    name = "nixos-config-snapshot.tar.xz";
+    name = "nixos-config-snapshot";
     src = /etc/nixos;
     buildInput = [ gnutar ];
     installPhase = ''
-      cp -r $src nixos-config-snapshot
-      tar -cvJf $out nixos-config-snapshot
+      cp -r $src $out
     '';
   };
 in
-
 {
-  environment.etc."nixos-snapshot.tar.xz" = {
-    source = confTarball;
-    mode = "0440";
+  options = {
+    fragments.cfg-snapshot.enable = mkEnableOption "snapshotting /etc/nixos into each system profile";
+  };
+  config = mkIf cfg {
+    environment.etc."nixos-snapshot" = {
+      source = "${confTarball}/*";
+      mode = "0550";
+    };
   };
 }
