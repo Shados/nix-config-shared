@@ -105,6 +105,7 @@ in
   config = mkIf cfg.enable (mkMerge [
     # Baseline desktop (X11) setup {{{
     {
+      fragments.remote = mkDefault false;
       environment.pathsToLink = [
         "/etc/xdg"
         # Needed for themes and backgrounds
