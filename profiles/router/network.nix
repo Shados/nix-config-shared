@@ -35,10 +35,10 @@ with lib;
     (mkIf (cfg.enable && cfg.enableBridge) {
       networking = {
         bridges.${cfg.intBridge}.interfaces = cfg.intInts;
-        interfaces.${cfg.intBridge} = {
-          ipAddress = cfg.intSubnet + ".1";
+        interfaces.${cfg.intBridge}.ipv4.addresses = [{
+          address = cfg.intSubnet + ".1";
           prefixLength = 24;
-        };
+        }];
       };
     })
   ];
