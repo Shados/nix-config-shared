@@ -11,13 +11,14 @@
 with lib;
 let
   cfg = config.fragments.cfg-snapshot.enable;
-  confTarball = with pkgs; stdenv.mkDerivation {
+  confDir = with pkgs; stdenv.mkDerivation {
     name = "nixos-config-snapshot";
     src = /etc/nixos;
     buildInput = [ gnutar ];
     installPhase = ''
       cp -r $src $out
     '';
+    dontPatchShebangs = true;
   };
 in
 {
@@ -26,7 +27,7 @@ in
   };
   config = mkIf cfg {
     environment.etc."nixos-snapshot" = {
-      source = "${confTarball}/*";
+      source = "${confDir}/*";
       mode = "0550";
     };
   };
