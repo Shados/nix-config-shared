@@ -12,7 +12,10 @@ in
     ./bespoke
     # Standard userspace tooling & applications
     ./apps
-    # Conveniently packaged system 'functional profiles', including container/VM profiles
+    # Temporary fixes that have yet to hit nixos-unstable channel
+    ./fixes
+    # Conveniently packaged system 'functional profiles', including
+    # container/VM profiles
     ./profiles
     # Security-focused configuration
     ./security
