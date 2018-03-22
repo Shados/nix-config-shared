@@ -188,12 +188,24 @@ in
         dunst libnotify
         snap
       ];
-      # Convenient `/etc` symlink so I can easily reload from my defaults
-      environment.etc.default_xresources.source = default_xresources;
       nixpkgs.config.packageOverrides = pkgs: with pkgs; {
         # qt48 = pkgs.qt48.override { gtkStyle = true; };
         # qt55 = pkgs.qt55.override { gtkStyle = true; };
         # qt56 = pkgs.qt56.override { gtkStyle = true; };
+      };
+
+      # Convenient `/etc` symlink so I can easily reload from my defaults
+      environment.etc.default_xresources.source = default_xresources;
+
+      fonts = {
+        fontconfig = {
+          cache32Bit = true;
+          # defaultFonts = {};
+          subpixel = {
+            lcdfilter = "light";
+            rgba = "rgb";
+          };
+        };
       };
     }
     # Browser stuff {{{
