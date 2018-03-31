@@ -53,6 +53,7 @@
     unrar
     lzop
     p7zip
+    rename # perl-rename
 
     pastebin
   ];
