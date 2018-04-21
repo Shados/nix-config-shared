@@ -51,7 +51,7 @@ in
       };
       time.timeZone = "Australia/Melbourne";
 
-      # Config for various standard services & progresm
+      # Config for various standard services & programs
       nix = {
         useSandbox = true;
         gc = {
@@ -62,6 +62,10 @@ in
         extraOptions = ''
           auto-optimise-store = true
         '';
+
+        # Have the builders run at low CPU and IO priority
+        daemonIONiceLevel = 7;
+        daemonNiceLevel = 19;
       };
 
       programs = {
