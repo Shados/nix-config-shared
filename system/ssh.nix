@@ -4,55 +4,10 @@
 with lib;
 
 let
-
   cfg = config.services.openssh;
   clcfg = config.programs.ssh;
 
-  sshHostOpts = { name, ... }: {
-    options = {
-      name = mkOption {
-        type = types.str;
-        description = ''
-          The name of the ssh host. If undefined, the name of the attribute set will be used.
-        '';
-        example = "shados.net";
-      };
-      hostName = mkOption {
-        type = types.str;
-        description = ''
-          The hostname of the ssh host.
-        '';
-      };
-      user = mkOption {
-        type = types.nullOr types.str;
-        description = ''
-          The user to connect to the ssh host as.
-        '';
-        default = null;
-      };
-      port = mkOption {
-        type = types.nullOr types.int;
-        description = ''
-          The port of the ssh host, leave black to use ssh_config default.
-        '';
-        default = null;
-      };
-      keyFile = mkOption {
-        type = types.nullOr types.path;
-        description = ''
-          The path to the ssh key to use for this host, leave blank if not using key-based authentication or if you want to specify this on the command line, or via default key.
-        '';
-        default = null;
-      };
-    };
-    config = {
-      name = mkDefault name;
-    };
-  };
-
-
   globalHosts = map (h: getAttr h clcfg.globalHosts) (attrNames clcfg.globalHosts);
-
 in
 
 {
@@ -72,8 +27,45 @@ in
           Global list of configured ssh_config Host entries, applied to each user. Can reference private keys in the Nix store.
         '';
         default = {};
-        type = types.loaOf types.optionSet;
-        options = [ sshHostOpts ];
+        type = types.loaOf (types.submodule ({ name, ... }: {
+          options = {
+            name = mkOption {
+              type = types.str;
+              description = ''
+                The name of the ssh host. If undefined, the name of the attribute set will be used.
+              '';
+              example = "shados.net";
+              default = name;
+            };
+            hostName = mkOption {
+              type = types.str;
+              description = ''
+                The hostname of the ssh host.
+              '';
+            };
+            user = mkOption {
+              type = types.nullOr types.str;
+              description = ''
+                The user to connect to the ssh host as.
+              '';
+              default = null;
+            };
+            port = mkOption {
+              type = types.nullOr types.int;
+              description = ''
+                The port of the ssh host, leave black to use ssh_config default.
+              '';
+              default = null;
+            };
+            keyFile = mkOption {
+              type = types.nullOr types.path;
+              description = ''
+                The path to the ssh key to use for this host, leave blank if not using key-based authentication or if you want to specify this on the command line, or via default key.
+              '';
+              default = null;
+            };
+          };
+        }));
       };
       defaultPort = mkOption {
         description = ''
