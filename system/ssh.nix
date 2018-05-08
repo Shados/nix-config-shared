@@ -92,6 +92,13 @@ in
 
         # Supporting URXVT-256color and other non-standard terms a bit better
         AcceptEnv TERMINFO
+
+        # Use within-SSH keepalives; helps to quickly reap failed ssh
+        # connections and is useful for long-living, auto-restarting SSH
+        # tunnels
+        # Send 8 seconds, 3 sequential failures == dead connection
+        ClientAliveInterval 8
+        ClientAliveCountMax 3
       '';
     };
 
