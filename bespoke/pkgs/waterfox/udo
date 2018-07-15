@@ -1,0 +1,383 @@
+[1mdiff --git a/default.nix b/default.nix[m
+[1mindex 39cbb9f..7ee8312 100644[m
+[1m--- a/default.nix[m
+[1m+++ b/default.nix[m
+[36m@@ -1,11 +1,11 @@[m
+[31m-{ lib, stdenv, fetchFromGitHub, makeDesktopItem[m
+[31m-, pkgconfig, autoconf213, bzip2, cairo[m
+[32m+[m[32m{ stdenv, fetchFromGitHub, makeDesktopItem[m
+[32m+[m[32m, pkgconfig, autoconf213, bzip2, cairo, libIDL, libpng[m
+ , dbus, dbus-glib, file, fontconfig, freetype[m
+ , hunspell, icu, libevent, libjpeg, libnotify[m
+ , libstartup_notification, libvpx, makeWrapper, libGLU_combined[m
+ , nspr, nss, pango, perl, python, sqlite[m
+ , unzip, xorg, which, yasm, zip, zlib[m
+[31m-, rustc, cargo, jemalloc, gnused, clang, ensureNewerSourcesHook[m
+[32m+[m[32m, rustc, cargo, jemalloc, gnused, ensureNewerSourcesHook, writeText, clang[m
+ [m
+ [m
+ ## Optionals[m
+[36m@@ -30,22 +30,116 @@[m
+ }:[m
+ [m
+ let[m
+[31m-  flag = tf: x: [(if tf then "--enable-${x}" else "--disable-${x}")];[m
+[32m+[m[32m  flag = tf: x: if tf then "ac_add_options --enable-${x}" else "ac_add_options --disable-${x}";[m
+   gcc = if stdenv.cc.isGNU then stdenv.cc.cc else stdenv.cc.cc.gcc;[m
+[32m+[m
+[32m+[m[32m  mozconfig = writeText "mozconfig" ''[m
+[32m+[m[32m    export CC=clang[m
+[32m+[m[32m    export CXX=clang++[m
+[32m+[m[32m    export LDFLAGS="-Wl,-z,norelro,-O3,--sort-common,--as-needed,--relax,-z,combreloc,-z,global,--no-omagic"[m
+[32m+[m
+[32m+[m[32m    ac_add_options --enable-optimize="-O3 -msse2 -mfpmath=sse -march=native -mtune=native -fcolor-diagnostics -w"[m
+[32m+[m[32m    ac_add_options --enable-rust-simd # on x86 requires SSE2[m
+[32m+[m[32m    mk_add_options AUTOCLOBBER=1[m
+[32m+[m[32m    mk_add_options MOZ_OBJDIR=objdir[m
+[32m+[m
+[32m+[m[32m    ac_add_options --target=x86_64-pc-linux-gnu[m
+[32m+[m
+[32m+[m[32m    ac_add_options --enable-application=browser[m
+[32m+[m
+[32m+[m[32m    # System libraries[m
+[32m+[m[32m    ac_add_options --with-system-jpeg[m
+[32m+[m[32m    ac_add_options --with-system-zlib[m
+[32m+[m[32m    ac_add_options --with-system-bz2[m
+[32m+[m[32m    ac_add_options --with-system-libevent[m
+[32m+[m[32m    ac_add_options --with-system-libvpx[m
+[32m+[m[32m    ac_add_options --with-system-png[m
+[32m+[m[32m    ac_add_options --with-system-icu[m
+[32m+[m[32m    ac_add_options --with-system-nspr[m
+[32m+[m[32m    ac_add_options --with-system-nss[m
+[32m+[m[32m    ac_add_options --enable-system-ffi[m
+[32m+[m[32m    ac_add_options --enable-system-hunspell[m
+[32m+[m[32m    ac_add_options --enable-system-sqlite[m
+[32m+[m
+[32m+[m[32m    # system cairo without layers acceleration may result in choppy video playback[m
+[32m+[m[32m    ac_add_options --enable-system-cairo[m
+[32m+[m[32m    ac_add_options --enable-system-pixman[m
+[32m+[m[32m    ac_add_options --enable-default-toolkit=cairo-gtk${if gtk3Support then "3" else "2"}[m
+[32m+[m
+[32m+[m[32m    ac_add_options --enable-startup-notification[m
+[32m+[m[32m    ac_add_options --enable-content-sandbox[m
+[32m+[m
+[32m+[m[32m    ac_add_options --disable-tests[m
+[32m+[m[32m    ac_add_options --disable-necko-wifi[m
+[32m+[m[32m    ac_add_options --disable-updater[m
+[32m+[m[32m    ac_add_options --enable-jemalloc[m
+[32m+[m[32m    ac_add_options --disable-maintenance-service[m
+[32m+[m[32m    ac_add_options --disable-gconf[m
+[32m+[m
+[32m+[m[32m    ac_add_options --target=x86_64-pc-linux-gnu[m
+[32m+[m
+[32m+[m[32m    ac_add_options --enable-release[m
+[32m+[m[32m    ac_add_options --enable-strip[m
+[32m+[m[32m    ac_add_options --with-pthreads[m
+[32m+[m
+[32m+[m[32m    ac_add_options --with-app-name=waterfox[m
+[32m+[m[32m    ac_add_options --with-app-basename=Waterfox[m
+[32m+[m[32m    ac_add_options --with-branding=browser/branding/unofficial[m
+[32m+[m[32m    ac_add_options --with-distribution-id=org.waterfoxproject[m
+[32m+[m
+[32m+[m[32m    # library and chrome format[m
+[32m+[m[32m    ac_add_options --enable-chrome-format=omni[m
+[32m+[m
+[32m+[m
+[32m+[m[32m    # Features[m
+[32m+[m[32m    ${if drmSupport then "ac_add_options --enable-eme=widevine" else "ac_add_options --disable-eme"}[m
+[32m+[m[32m    ${flag geolocationSupport "mozril-geoloc"}[m
+[32m+[m[32m    ${flag safeBrowsingSupport "safe-browsing"}[m
+[32m+[m[32m    ${flag alsaSupport "alsa"}[m
+[32m+[m[32m    ${flag pulseaudioSupport "pulseaudio"}[m
+[32m+[m[32m    ${flag ffmpegSupport "ffmpeg"}[m
+[32m+[m[32m    ${stdenv.lib.optionalString (!ffmpegSupport) "ac_add_options --disable-gstreamer"}[m
+[32m+[m[32m    ${flag webrtcSupport "webrtc"}[m
+[32m+[m[32m    ${flag crashreporterSupport "crashreporter"}[m
+[32m+[m[32m    ${stdenv.lib.optionalString googleAPISupport[m
+[32m+[m[32m    # Google API key used by Chromium and Firefox.[m
+[32m+[m[32m    # Note: These are for NixOS/nixpkgs use ONLY. For your own distribution,[m
+[32m+[m[32m    # please get your own set of keys.[m
+[32m+[m[32m    ''[m
+[32m+[m[32m      echo "AIzaSyDGi15Zwl11UNe6Y-5XW_upsfyw31qwZPI" > $TMPDIR/ga[m
+[32m+[m[32m      ac_add_options "--with-google-api-keyfile=$TMPDIR/ga"[m
+[32m+[m[32m    ''}[m
+[32m+[m[32m    ac_add_options --disable-libproxy[m
+[32m+[m[32m    ac_add_options --disable-js-shell[m
+[32m+[m[32m    ac_add_options --disable-verify-mar[m
+[32m+[m[32m    ac_add_options --disable-webspeech[m
+[32m+[m[32m    ac_add_options --disable-gamepad[m
+[32m+[m[32m    ac_add_options --disable-elf-hack[m
+[32m+[m[32m    ac_add_options --disable-mobile-optimize[m
+[32m+[m[32m    ac_add_options --disable-debug[m
+[32m+[m[32m    ac_add_options --disable-debug-symbols[m
+[32m+[m[32m    ac_add_options --disable-profiling[m
+[32m+[m[32m    ac_add_options --disable-signmar[m
+[32m+[m[32m    # Stylo some issues in FF56 and forks based on it. TODO look into enabling[m
+[32m+[m[32m    # this as Waterfox updates[m
+[32m+[m[32m    ac_add_options --disable-stylo[m
+[32m+[m[32m  '';[m
+ in[m
+ [m
+ stdenv.mkDerivation rec {[m
+   name = "waterfox-${version}";[m
+   version = "56.1.0";[m
+ [m
+[31m-  # src = fetchFromGitHub {[m
+[31m-  #   owner  = "MrAlex94";[m
+[31m-  #   repo   = "Waterfox";[m
+[31m-  #   rev    = version;[m
+[31m-  #   #sha256 = "0nc6fwsxsflbmaljkjw4llnq8d9rh8538l2vqzl96xfwcffdpbzd";[m
+[31m-  #   sha256 = "08kfxqw4c1ir2d782v5y40pp7nwaj5pzapkk64b10k7i9l5yyypx";[m
+[31m-  # };[m
+[31m-  src = /home/shados/technotheca/tmp/src/waterfox/Waterfox;[m
+[32m+[m[32m  src = fetchFromGitHub {[m
+[32m+[m[32m    owner  = "MrAlex94";[m
+[32m+[m[32m    repo   = "Waterfox";[m
+[32m+[m[32m    rev    = version;[m
+[32m+[m[32m    #sha256 = "0nc6fwsxsflbmaljkjw4llnq8d9rh8538l2vqzl96xfwcffdpbzd";[m
+[32m+[m[32m    sha256 = "08kfxqw4c1ir2d782v5y40pp7nwaj5pzapkk64b10k7i9l5yyypx";[m
+[32m+[m[32m  };[m
+[32m+[m[32m  # src = /home/shados/technotheca/tmp/src/waterfox/Waterfox;[m
+[32m+[m
+[32m+[m[32m  src-vendorjs = ./vendor.js;[m
+ [m
+   patches = [[m
+     <nixpkgs/pkgs/applications/networking/browsers/firefox/env_var_for_system_dir.patch>[m
+[36m@@ -75,157 +169,40 @@[m [mstdenv.mkDerivation rec {[m
+     bzip2 cairo dbus dbus-glib file fontconfig freetype[m
+     hunspell icu libevent libjpeg libnotify libstartup_notification[m
+     libvpx makeWrapper libGLU_combined nspr nss pango perl pkgconfig[m
+[31m-    sqlite unzip yasm zip zlib[m
+[32m+[m[32m    sqlite unzip yasm zip zlib libIDL libpng[m
+     jemalloc gtk2[m
+   ] ++ (with xorg; [[m
+     libX11 libXext libXft libXi libXrender libXScrnSaver[m
+     libXt pixman scrnsaverproto xextproto[m
+   ])[m
+[31m-  ++ lib.optional alsaSupport alsaLib[m
+[31m-  ++ lib.optional pulseaudioSupport libpulseaudio[m
+[31m-  ++ lib.optionals ffmpegSupport [ gstreamer gst-plugins-base gst_all_1.gst-plugins-base ][m
+[31m-  ++ lib.optional gtk3Support gtk3;[m
+[32m+[m[32m  ++ stdenv.lib.optional alsaSupport alsaLib[m
+[32m+[m[32m  ++ stdenv.lib.optional pulseaudioSupport libpulseaudio[m
+[32m+[m[32m  ++ stdenv.lib.optionals ffmpegSupport [ gstreamer gst-plugins-base gst_all_1.gst-plugins-base ][m
+[32m+[m[32m  ++ stdenv.lib.optional gtk3Support gtk3;[m
+ [m
+   nativeBuildInputs = [[m
+[31m-    autoconf213 which gnused pkgconfig perl python cargo rustc[m
+[32m+[m[32m    autoconf213 which gnused pkgconfig perl python cargo rustc clang[m
+     (ensureNewerSourcesHook { year = "1980"; })[m
+   ][m
+[31m-  ++ lib.optional gtk3Support wrapGAppsHook;[m
+[32m+[m[32m  ++ stdenv.lib.optional gtk3Support wrapGAppsHook;[m
+ [m
+   NIX_CFLAGS_COMPILE = "-I${nspr.dev}/include/nspr -I${nss.dev}/include/nss";[m
+ [m
+[31m-  preConfigure = ''[m
+[31m-    # remove distributed configuration files[m
+[31m-    rm -f configure[m
+[31m-    rm -f js/src/configure[m
+[31m-    rm -f .mozconfig*[m
+[31m-    make -f client.mk configure-files[m
+[31m-    configureScript="$(realpath ./configure)"[m
+[31m-    # cxxLib=$( echo -n ${gcc}/include/c++/* )[m
+[31m-    # archLib=$cxxLib/$( ${gcc}/bin/gcc -dumpmachine )[m
+[31m-  '' + lib.optionalString googleAPISupport ''[m
+[31m-    # Google API key used by Chromium and Firefox.[m
+[31m-    # Note: These are for NixOS/nixpkgs use ONLY. For your own distribution,[m
+[31m-    # please get your own set of keys.[m
+[31m-    echo "AIzaSyDGi15Zwl11UNe6Y-5XW_upsfyw31qwZPI" > $TMPDIR/ga[m
+[31m-    configureFlagsArray+=("--with-google-api-keyfile=$TMPDIR/ga")[m
+[31m-  '' + ''[m
+[31m-    cd obj-*[m
+[31m-  '';[m
+ [m
+[31m-  configureFlags = [[m
+[31m-    "--enable-application=browser"[m
+[31m-    # System libraries[m
+[31m-    "--with-system-jpeg"[m
+[31m-    "--with-system-zlib"[m
+[31m-    "--with-system-bz2"[m
+[31m-    "--with-system-libevent"[m
+[31m-    "--with-system-libvpx"[m
+[31m-    "--with-system-png"[m
+[31m-    "--with-system-icu"[m
+[31m-    "--with-system-nspr"[m
+[31m-    "--with-system-nss"[m
+[31m-    "--enable-system-ffi"[m
+[31m-    "--enable-system-hunspell"[m
+[31m-    "--enable-system-pixman"[m
+[31m-    "--enable-system-sqlite"[m
+[31m-    # system cairo without layers acceleration may result in choppy video playback[m
+[31m-    "--enable-system-cairo"[m
+[31m-[m
+[31m-    "--enable-default-toolkit=cairo-gtk${if gtk3Support then "3" else "2"}"[m
+[31m-    "--enable-startup-notification"[m
+[31m-    "--enable-content-sandbox"[m
+[31m-[m
+[31m-    "--disable-tests"[m
+[31m-    "--disable-necko-wifi"[m
+[31m-    "--disable-updater"[m
+[31m-    "--enable-jemalloc"[m
+[31m-    "--disable-maintenance-service"[m
+[31m-    "--disable-gconf"[m
+[31m-[m
+[31m-    "--target=x86_64-pc-linux-gnu"[m
+[31m-    # "--prefix=$out"[m
+[31m-    # "--libdir=/opt"[m
+[31m-[m
+[31m-    "--enable-release"[m
+[31m-    "--enable-optimize"[m
+[31m-    "--enable-strip"[m
+[31m-    "--with-pthreads"[m
+[31m-    # "--disable-installer"[m
+[31m-[m
+[31m-    "--with-app-name=waterfox"[m
+[31m-    "--with-app-basename=Waterfox"[m
+[31m-    "--with-branding=browser/branding/unofficial"[m
+[31m-    "--with-distribution-id=org.waterfoxproject"[m
+[31m-[m
+[31m-    # library and chrome format[m
+[31m-    "--enable-chrome-format=omni"[m
+[31m-    # "--x-libraries=/usr/lib"[m
+[31m-[m
+[31m-[m
+[31m-    # Features[m
+[31m-    "--disable-libproxy"[m
+[31m-    "--disable-js-shell"[m
+[31m-    "--disable-verify-mar"[m
+[31m-    "--disable-webspeech"[m
+[31m-    "--disable-gamepad"[m
+[31m-    "--disable-elf-hack"[m
+[31m-    "--disable-mobile-optimize"[m
+[31m-    "--disable-debug"[m
+[31m-    "--disable-debug-symbols"[m
+[31m-    "--disable-profiling"[m
+[31m-    "--disable-signmar"[m
+[31m-    "--disable-stylo"[m
+[31m-[m
+[31m-  ][m
+[31m-  ++ [ "${if drmSupport then "--enable-eme=widevine" else "--disable-eme"}" ][m
+[31m-  ++ flag geolocationSupport "mozril-geoloc"[m
+[31m-  ++ flag safeBrowsingSupport "safe-browsing"[m
+[31m-  ++ flag alsaSupport "alsa"[m
+[31m-  ++ flag pulseaudioSupport "pulseaudio"[m
+[31m-  ++ flag ffmpegSupport "ffmpeg"[m
+[31m-  ++ lib.optional (!ffmpegSupport) "--disable-gstreamer"[m
+[31m-  ++ flag webrtcSupport "webrtc"[m
+[31m-  ++ flag crashreporterSupport "crashreporter";[m
+[31m-[m
+[31m-  # configurePhase = ''[m
+[31m-  #[m
+[31m-  #   export AUTOCONF=${autoconf213}/bin/autoconf[m
+[31m-  #   export MOZBUILD_STATE_PATH=$(pwd)/.mozbuild[m
+[31m-  #   export MOZ_CONFIG=$(pwd)/.mozconfig[m
+[31m-  #   export builddir=$(pwd)/build[m
+[31m-  #   mkdir -p $MOZBUILD_STATE_PATH $builddir[m
+[31m-  #   cat << EOF > $MOZ_CONFIG[m
+[31m-  #   . $src/browser/config/mozconfig[m
+[31m-  #   # export CC=clang[m
+[31m-  #   # export CXX=clang++[m
+[31m-  #   export LDFLAGS="-Wl,-z,norelro,-O3,--sort-common,--as-needed,--relax,-z,combreloc,-z,global,--no-omagic"[m
+[31m-  #[m
+[31m-  #   # ac_add_options --enable-optimize="-O2"[m
+[31m-  #   mk_add_options AUTOCLOBBER=1[m
+[31m-  #   mk_add_options MOZ_MAKE_FLAGS=-j6[m
+[31m-  #[m
+[31m-  #[m
+[31m-  #   EOF[m
+[31m-  # '';[m
+[31m-[m
+[31m-  # Before 58 we have to run `make -f client.mk configure-files` at[m
+[31m-  # the top level, and then run `./configure` in the obj-* dir (see[m
+[31m-  # above), but in 58 we have to instead run `./mach configure` at the[m
+[31m-  # top level and then run `make` in obj-*. (We can also run the[m
+[31m-  # `make` at the top level in 58, but then we would have to `cd` to[m
+[31m-  # `make install` anyway. This is ugly, but simple.)[m
+[31m-  postConfigure = ''[m
+[31m-    cat << EOF > ../.mozconfig[m
+[31m-      ac_add_options --enable-optimize="-O3 -msse2 -mfpmath=sse -march=native -mtune=native -fcolor-diagnostics -w"[m
+[31m-      # CC="${clang}/bin/clang";[m
+[31m-      # CXX="${clang}/bin/clang++";[m
+[31m-      LDFLAGS="-Wl,-z,norelro,-O3,--sort-common,--as-needed,--relax,-z,combreloc,-z,global,--no-omagic";[m
+[31m-    EOF[m
+[32m+[m[32m  configurePhase = ''[m
+[32m+[m[32m    echo "Copying pre-created mozconfig into place"[m
+[32m+[m[32m    cp -f ${mozconfig} .mozconfig[m
+[32m+[m[32m  '' + stdenv.lib.optionalString enableParallelBuilding ''[m
+[32m+[m[32m    echo "Enabling parallel building"[m
+[32m+[m[32m    echo "mk_add_options MOZ_MAKE_FLAGS=-j$NIX_BUILD_CORES" >> .mozconfig[m
+   '';[m
+ [m
+   enableParallelBuilding = true;[m
+ [m
+[32m+[m[32m  buildPhase = ''[m
+[32m+[m[32m    make -j$NIX_BUILD_CORES -f client.mk build[m
+[32m+[m[32m  '';[m
+[32m+[m
+   preInstall = ''[m
+     # The following is needed for startup cache creation on grsecurity kernels.[m
+     paxmark m dist/bin/xpcshell[m
+[36m@@ -243,13 +220,23 @@[m [mstdenv.mkDerivation rec {[m
+     mkdir -p $out/share/applications[m
+     cp ${desktopItem}/share/applications/* $out/share/applications[m
+ [m
+[32m+[m[32m    mkdir -p $out/lib/${name}/browser/defaults/preferences[m
+[32m+[m[32m    cp $src-vendorjs $out/lib/${name}/browser/defaults/preferences/vendor.js[m
+[32m+[m
+[32m+[m[32m    # Don't include bundled dictionaries[m
+[32m+[m[32m    if [[ -d $out/lib/${name}/dictionaries ]]; then[m
+[32m+[m[32m      rm -rf $out/lib/${name}/dictionaries/[m
+[32m+[m[32m    fi[m
+[32m+[m[32m    if [[ -d $out/lib/${name}/hyphenation ]]; then[m
+[32m+[m[32m      rm -rf $out/lib/${name}/hyphenation/[m
+[32m+[m[32m    fi[m
+[32m+[m
+     for n in 16 22 24 32 48 256; do[m
+       size=$n"x"$n[m
+       mkdir -p $out/share/icons/hicolor/$size/apps[m
+[31m-      # cp $src/browser/branding/official/default$n.png \[m
+[31m-      #    $out/share/icons/hicolor/$size/apps/waterfox.png[m
+       # fix missing icons[m
+[31m-      if [ ! -f "$src/browser/branding/unofficial/default$n.png" ]; then[m
+[32m+[m[32m      if [[ ! -f "$src/browser/branding/unofficial/default$n.png" ]]; then[m
+[32m+[m[32m        echo "Copying missing icon for size $n"[m
+         cp $src/browser/branding/official/default$n.png \[m
+            $out/share/icons/hicolor/$size/apps/waterfox.png[m
+       else[m
+[36m@@ -261,19 +248,19 @@[m [mstdenv.mkDerivation rec {[m
+ [m
+   postFixup = ''[m
+     # Fix notifications. LibXUL uses dlopen for this, unfortunately; see #18712.[m
+[31m-    patchelf --set-rpath "${lib.getLib libnotify[m
+[32m+[m[32m    patchelf --set-rpath "${stdenv.lib.getLib libnotify[m
+       }/lib:$(patchelf --print-rpath "$out"/lib/waterfox*/libxul.so)" \[m
+         "$out"/lib/waterfox*/libxul.so[m
+   '';[m
+ [m
+[31m-  # doInstallCheck = true;[m
+[31m-  # installCheckPhase = ''[m
+[31m-  #   # Some basic testing[m
+[31m-  #   "$out/bin/waterfox" --version[m
+[31m-  # '';[m
+[32m+[m[32m  doInstallCheck = true;[m
+[32m+[m[32m  installCheckPhase = ''[m
+[32m+[m[32m    # Some basic testing[m
+[32m+[m[32m    "$out/bin/waterfox" --version[m
+[32m+[m[32m  '';[m
+ [m
+   passthru = {[m
+[31m-    browserName = "firefox";[m
+[32m+[m[32m    browserName = "waterfox";[m
+     # inherit version updateScript;[m
+     isFirefox3Like = true;[m
+     isTorBrowserLike = false;[m
+[36m@@ -281,7 +268,7 @@[m [mstdenv.mkDerivation rec {[m
+     inherit nspr;[m
+     inherit ffmpegSupport;[m
+     gssSupport = false;[m
+[31m-  } // lib.optionalAttrs gtk3Support { inherit gtk3; };[m
+[32m+[m[32m  } // stdenv.lib.optionalAttrs gtk3Support { inherit gtk3; };[m
+ [m
+   meta = with stdenv.lib; {[m
+     description = "A web browser designed for privacy and user choice";[m

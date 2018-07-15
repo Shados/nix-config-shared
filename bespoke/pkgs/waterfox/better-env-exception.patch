@@ -1,0 +1,21 @@
+diff -rupN source/python/mozbuild/mozbuild/configure/options.py source-patched/python/mozbuild/mozbuild/configure/options.py
+--- source/python/mozbuild/mozbuild/configure/options.py	2018-04-09 10:45:38.519805594 +1000
++++ source-patched/python/mozbuild/mozbuild/configure/options.py	2018-04-09 10:46:25.853131125 +1000
+@@ -163,7 +163,7 @@ class Option(object):
+                     'Environment variable name must be a string')
+             if not env.isupper():
+                 raise InvalidOptionError(
+-                    'Environment variable name must be all uppercase')
++                    'Environment variable name ({}) must be all uppercase'.format(env))
+         if nargs not in (None, '?', '*', '+') and not (
+                 isinstance(nargs, int) and nargs >= 0):
+             raise InvalidOptionError(
+@@ -276,7 +276,7 @@ class Option(object):
+                     'Option must start with two dashes instead of one')
+             if name.islower():
+                 raise InvalidOptionError(
+-                    'Environment variable name must be all uppercase')
++                    'Environment variable name ({}) must be all uppercase'.format(name))
+         return '', name, values
+ 
+     @staticmethod

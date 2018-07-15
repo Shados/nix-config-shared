@@ -53,6 +53,26 @@
         python3Packages = haselPython.pkgs;
       });
 
+      waterfox = let
+        waterfox-unwrapped = callPackage ./waterfox {
+          # # https://forum.palemoon.org/viewtopic.php?f=57&t=15296#p111146
+          # stdenv = overrideCC stdenv gcc5;
+          # stdenv = overrideCC clangStdenv gcc5;
+          stdenv = llvmPackages_6.libcxxStdenv;
+          llvmPackages = llvmPackages_6;
+          inherit (gnome2) libIDL;
+          libpng = libpng_apng;
+          python = python2;
+          gnused = gnused_422;
+          icu = icu59;
+          hunspell = pkgs.hunspell.override {
+            stdenv = llvmPackages_6.libcxxStdenv;
+          };
+        };
+      in wrapFirefox waterfox-unwrapped {
+        browserName = "waterfox";
+      };
+
       # pythonPackages = python.pkgs;
     };
     perlPackageOverrides = pkgs: with pkgs; {
