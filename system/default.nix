@@ -9,7 +9,6 @@
     ./fonts.nix
     ./graphical.nix
     ./haveged.nix
-    ./kernel
     ./networking.nix
     ./sound.nix
     ./ssh.nix
