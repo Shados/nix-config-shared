@@ -1,6 +1,9 @@
 { config, pkgs, ... }:
 
 {
+  imports = [
+    ./kernels
+  ];
   nixpkgs.config = {
     packageOverrides = pkgs: with pkgs; rec {
       rxvt_unicode = callPackage ./urxvt {
