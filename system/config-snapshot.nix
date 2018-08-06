@@ -19,6 +19,10 @@ let
       cp -r $src $out
     '';
     dontPatchShebangs = true;
+
+    # Local-only
+    allowSubstitutes = false;
+    preferLocalBuild = true;
   };
 in
 {
