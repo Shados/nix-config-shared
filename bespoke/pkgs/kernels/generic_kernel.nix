@@ -1,4 +1,4 @@
-{ stdenv, buildPackages, hostPlatform, fetchurl, perl, buildLinux
+{ stdenv, writeText, buildPackages, hostPlatform, fetchurl, perl, buildLinux
 , version, verHash
 , customVersion ? null , kernelPatches
 , ... } @ args:
@@ -17,7 +17,7 @@ assert hasPatch "ck" -> ! hasPatch "pds";
 buildLinux (args // rec {
   extraConfig = ''
     ${optionalString (! isNull customVersion) "LOCALVERSION ${customVersion}"}
-  '' + optionalString (hasPatch "gcc-optimize") ''
+  '' + optionalString (hasPatch "pure-mnative") ''
     MNATIVE y # -march=native kernel optimizations
   '' + optionalString (hasPatch "uksm") ''
     UKSM y # Ultra Kernel Same-page Matching

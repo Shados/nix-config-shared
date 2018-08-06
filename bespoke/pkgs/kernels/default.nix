@@ -1,13 +1,13 @@
-{ config, pkgs, ... }:
-# Most of my patches are selected from the conveniently-packaged set hosted at:
-# https://gitlab.com/sirlucjan/kernel-patches
-# graysky's gcc patch and ck's patch sent are taken directly from their sources
+{ config, lib, pkgs, ... }:
+# - Most of my patches are selected from the conveniently-packaged set hosted at:
+#   https://gitlab.com/sirlucjan/kernel-patches
+# - ck's patch set is taken from its page (http://users.on.net/~ckolivas/kernel/)
+# - Other patches typically have their source listed in the patch
+
 # Modifications:
 # - ck1 modified to remove modDirVersion/EXTRAVERSION changes
 
-# TODOs:
-# - [ ] Handle kernel -march more explicitly
-# - [ ] Prefer local build for the native kernel -march
+with lib;
 
 let
   kernels = { # {{{
@@ -22,9 +22,19 @@ let
   }; # }}}
 
   patches = { # {{{
-    gcc-optimize = {
-      "4.9" = [ { name = "gcc-optimize"; patch = ./patches/4.13+-gcc_v4.9+-enable_additional_cpu_optimizations.patch; } ];
-      "8.1" = [ { name = "gcc-optimize"; patch = ./patches/4.13+-gcc_v8.1+-enable_additional_cpu_optimizations.patch; } ];
+    mnative = stdenv: singleton {
+      name = "pure-mnative";
+      patch = let
+        # Effectively enable use of -march=native by using a local-only impure
+        # derivation to determine its actual value, then pass that as input to the
+        # pure kernel derivation in the form of a patch
+        mNativeOptions = builtins.readFile (pkgs.callPackage ./march.nix { inherit stdenv; });
+        purifiedPatch = patchTemplate: pkgs.runCommand "purify-patch" {
+          inherit patchTemplate mNativeOptions;
+        } ''
+          substituteAll $patchTemplate $out
+        '';
+      in purifiedPatch ./patches/4.13+-pure-mnative.patch.template;
     };
 
     other = {
@@ -72,11 +82,6 @@ let
 
   nixos_patches = with pkgs; [
     kernelPatches.bridge_stp_helper kernelPatches.modinst_arg_list_too_long
-  ];
-  baseline_patches = nixos_patches ++ patches.gcc-optimize."4.9";
-
-  sn_4_15_patch_baseline = baseline_patches ++ sn_patches "4.15" [
-    "bfq-improvements" "uksm"
   ];
 
   # .config partials {{{
@@ -142,27 +147,25 @@ in
         customVersion = "-${name}.shados.net";
       } // mAttrs);
     in
-    mkLinuxPackage newLinux;
+      mkLinuxPackage newLinux;
+    gcc8Stdenv = overrideCC stdenv gcc8;
   in rec {
-    kernel_dreamlogic_4_15 = mkSNLinux "dreamlogic" "4.15" (
-      sn_4_15_patch_baseline ++ sn_patches "4.15" [ "ck" ]
-    ) {};
     kernel_dreamlogic_4_17 = mkSNLinux "dreamlogic" "4.17" (
-      nixos_patches ++ patches.gcc-optimize."8.1" ++ sn_patches "4.17" [
+      nixos_patches ++ patches.mnative gcc8Stdenv ++ sn_patches "4.17" [
         "fixes" "bfq-improvements" "uksm"
         "ck"
       ])
-    {
-      stdenv = overrideCC stdenv gcc8;
-    };
+      {
+        stdenv = gcc8Stdenv;
+      };
     kernel_greymatters_4_17 = mkSNLinux "greymatters" "4.17" (
-      nixos_patches ++ patches.gcc-optimize."8.1" ++ sn_patches "4.17" [
+      nixos_patches ++ patches.mnative gcc8Stdenv ++ sn_patches "4.17" [
         "fixes" "bfq-improvements" "uksm"
         "ck"
       ]
       ++ patches.other.kvm-preemption-warning)
-    {
-      stdenv = overrideCC stdenv gcc8;
-    };
+      {
+        stdenv = gcc8Stdenv;
+      };
   };
 }
