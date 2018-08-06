@@ -11,19 +11,14 @@
 with lib;
 let
   cfg = config.fragments.cfg-snapshot.enable;
-  confDir = with pkgs; stdenv.mkDerivation {
-    name = "nixos-config-snapshot";
+  confDir = pkgs.runCommand "snapshot-nixos-config" {
     src = /etc/nixos;
-    buildInput = [ gnutar ];
-    installPhase = ''
-      cp -r $src $out
-    '';
-    dontPatchShebangs = true;
-
     # Local-only
     allowSubstitutes = false;
     preferLocalBuild = true;
-  };
+  } ''
+    cp -r $src $out
+  '';
 in
 {
   options = {
