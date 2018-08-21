@@ -20,7 +20,6 @@
     subversion
 
     # Debugging/sysadmin/System information
-    nix-repl
     nox
     iftop
     iotop
@@ -30,7 +29,6 @@
     nmap
     openssl
     pciutils
-    nix-repl
     sysstat
     mtr
     gptfdisk
