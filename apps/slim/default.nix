@@ -1,4 +1,9 @@
-{ config, pkgs, ... }:
+{ config, lib, pkgs, ... }:
+
+let
+  x_env = config.services.xserver.displayManager.job.environment;
+  inherit (builtins) hasAttr getAttr;
+in
 
 {
   services.xserver.displayManager = {
@@ -7,14 +12,14 @@
     };
   };
   environment.sessionVariables = {
-    SLIM_CFGFILE = toString (pkgs.writeText "slim_with_lock.conf" (
-      (builtins.readFile config.services.xserver.displayManager.job.environment.SLIM_CFGFILE)
+    SLIM_CFGFILE = lib.mkIf (hasAttr "SLIM_CFGFILE" x_env) (toString (pkgs.writeText "slim_with_lock.conf" (
+      (builtins.readFile (getAttr "SLIM_CFGFILE" x_env))
       + ''
         dpms_standby_timeout 0
         dpms_off_timeout 0
         bell 0
       ''
-    ));
-    SLIM_THEMESDIR = toString config.services.xserver.displayManager.job.environment.SLIM_THEMESDIR;
+    )));
+    SLIM_THEMESDIR = lib.mkIf (hasAttr "SLIM_THEMESDIR" x_env) (toString (getAttr "SLIM_THEMESDIR" x_env));
   };
 }
