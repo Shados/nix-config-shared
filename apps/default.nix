@@ -7,6 +7,10 @@
     ./vim.nix
   ];
 
+  nixpkgs.config.packageOverrides = pkgs: {
+    dunst = pkgs.dunst.override { dunstify = true; }; # Add the `dunstify` notifier binary to $out
+  };
+
   # Base set of system-wide packages
   environment.systemPackages = with pkgs; [
     # Terminal enhancements
