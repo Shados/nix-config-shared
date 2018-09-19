@@ -10,6 +10,7 @@
     ./graphical.nix
     ./haveged.nix
     ./networking.nix
+    ./nix.nix
     ./sound.nix
     ./ssh.nix
     # Global ssh_config Host definitions
