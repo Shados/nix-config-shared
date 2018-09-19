@@ -120,6 +120,9 @@
         python3Packages = haselPython.pkgs;
       });
 
+      clangd = callPackage ./langservers/clangd.nix {};
+      vscode-css-langserver = callPackage ./langservers/vscode-css-languageserver-bin {};
+
       waterfox = let
         waterfox-unwrapped = callPackage ./waterfox {
           # # https://forum.palemoon.org/viewtopic.php?f=57&t=15296#p111146
