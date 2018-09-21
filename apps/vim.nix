@@ -132,7 +132,7 @@ let
     };
     rust = {
       minimal = [
-        ["racer", rustracer]
+        ["racer" rustracer]
       ];
       full = [
         ["rls" rustup]
