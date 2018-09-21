@@ -63,6 +63,8 @@ let
   langPkgDefs = with pkgs; {
     bash = {
       minimal = [
+        shellcheck
+        shfmt
       ];
       full = [
         bash-language-server
