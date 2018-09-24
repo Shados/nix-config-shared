@@ -3,6 +3,7 @@
 {
   imports = [
     ./kernels
+    ./vim-support
   ];
   nixpkgs.overlays = [
     # Pinned old flashplayer versions
@@ -119,10 +120,6 @@
         # hasel = callPackage ./hasel.nix {};
         python3Packages = haselPython.pkgs;
       });
-
-      clangd = callPackage ./langservers/clangd.nix {};
-      vscode-css-langserver = callPackage ./langservers/vscode-css-languageserver-bin {};
-      bash-language-server = callPackage ./langservers/bash-language-server {};
 
       waterfox = let
         waterfox-unwrapped = callPackage ./waterfox {
