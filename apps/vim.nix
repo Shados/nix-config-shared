@@ -54,6 +54,13 @@ let
         ["hie-wrapper" hies]
       ];
     };
+    json = {
+      minimal = [
+        fixjson
+      ];
+      full = [
+      ];
+    };
     lua = with lua52Packages; {
       minimal = [
         ["luac" lua]
