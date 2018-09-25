@@ -71,7 +71,6 @@ let
     };
     python = with python36Packages; {
       minimal = [
-        flake8 # Linting/static checking
         black # Strict style auto-formatting
         isort # Auto-sorts import statements
       ];
@@ -212,9 +211,12 @@ in
       ];
     }
     (mkIf (cfg.languageSupport.python != "none") {
+      # Linting, style, and other static checking
       sn.programs.flake8 = {
         enable = true;
         plugins = with pkgs.python36Packages; [
+          # Provides some extra classes of exceptions; specifically we want
+          # this for B950 for better compatibility with Black
           flake8-bugbear
         ];
       };

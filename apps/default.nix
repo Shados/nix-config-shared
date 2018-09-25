@@ -3,6 +3,7 @@
 {
   imports = [
     ./dmenu
+    ./flake8.nix
     ./slim
     ./vim.nix
   ];
