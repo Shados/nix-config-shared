@@ -1,4 +1,4 @@
-{ stdenv, fetchPypi, buildPythonPackage,  attrs, flake8 }:
+{ stdenv, fetchPypi, buildPythonPackage, attrs, flake8 }:
 
 buildPythonPackage rec {
   name = "${pname}-${version}";

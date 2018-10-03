@@ -17,6 +17,7 @@
         packageOverrides = self: super: {
           # General language-specific support tools
           flake8-bugbear = super.callPackage ./flake8-bugbear.nix { };
+          flake8-per-file-ignores = super.callPackage ./flake8-per-file-ignores.nix { };
         };
       };
       python36Packages = super.recurseIntoAttrs self.python36.pkgs;

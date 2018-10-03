@@ -218,6 +218,10 @@ in
           # Provides some extra classes of exceptions; specifically we want
           # this for B950 for better compatibility with Black
           flake8-bugbear
+          # Mostly used to ignore E265 in nix-shell shebang Python scripts.
+          # TODO implement my own plugin for this, so I don't need to litter
+          # .flake8 config files around with my scripts.
+          flake8-per-file-ignores
         ];
       };
     })
