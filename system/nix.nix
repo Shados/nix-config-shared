@@ -12,8 +12,8 @@
     '';
 
     # Have the builders run at low CPU and IO priority
-    daemonIONiceLevel = 7;
-    daemonNiceLevel = 19;
+    daemonIONiceLevel = lib.mkDefault 7;
+    daemonNiceLevel = lib.mkDefault 19;
     trustedUsers = [
       "root"
       "shados"
