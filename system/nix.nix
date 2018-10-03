@@ -18,5 +18,9 @@
       "root"
       "shados"
     ];
+
+    binaryCaches = lib.mkOrder 999 [
+      "https://cache.nixos.org/"
+    ];
   };
 }
