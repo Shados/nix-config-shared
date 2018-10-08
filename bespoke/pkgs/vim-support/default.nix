@@ -12,15 +12,11 @@
       bash-language-server = super.callPackage ./langservers/bash-language-server { };
 
       # Python overrides
-      python36 = super.python36.override {
-        # Careful, we're using a different self and super here!
-        packageOverrides = self: super: {
-          # General language-specific support tools
-          flake8-bugbear = super.callPackage ./flake8-bugbear.nix { };
-          flake8-per-file-ignores = super.callPackage ./flake8-per-file-ignores.nix { };
-        };
-      };
-      python36Packages = super.recurseIntoAttrs self.python36.pkgs;
+      pythonOverrides = self.buildPythonOverrides (pyself: pysuper: {
+        # General language-specific support tools
+        flake8-bugbear = pysuper.callPackage ./flake8-bugbear.nix { };
+        flake8-per-file-ignores = pysuper.callPackage ./flake8-per-file-ignores.nix { };
+      }) super.pythonOverrides;
     })
   ];
 }
