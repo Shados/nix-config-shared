@@ -56,5 +56,34 @@
         } // builtins.listToAttrs overriddenPythons)
       ];
     }
+    {
+      # Get cython working with python 3.7
+      nixpkgs.overlays = [(self: super: {
+        pythonOverrides = super.buildPythonOverrides (pyself: pysuper: let
+          fixedCython = pysuper.cython.overrideAttrs(oldAttrs: rec {
+            inherit (oldAttrs) pname;
+            name = "${pname}-${version}";
+            version = "0.28.5";
+
+            src = pysuper.fetchPypi {
+              inherit pname version;
+              sha256 = "b64575241f64f6ec005a4d4137339fb0ba5e156e826db2fdb5f458060d9979e0";
+            };
+
+            patches = [
+              (super.fetchpatch {
+                name = "Cython-fix-test-py3.7.patch";
+                url = https://github.com/cython/cython/commit/eae37760bfbe19e7469aa41269480b84ce12b6cd.patch;
+                sha256 = "0irk53psrs05kzzlvbfv7s3q02x5lsnk5qrv0zd1ra3mw2sfyym6";
+              })
+            ];
+          });
+        in {
+          cython = if (super.lib.versionOlder (super.lib.getVersion pysuper.cython) "0.28.5")
+            then fixedCython
+            else pysuper.cython;
+        }) super.pythonOverrides;
+      })];
+    }
   ];
 }
