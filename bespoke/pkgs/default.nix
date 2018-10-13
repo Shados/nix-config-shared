@@ -8,6 +8,7 @@
   nixpkgs.overlays = [
     # Pinned old flashplayer versions
     (self: super: let
+      # Helpers {{{
       extractNPAPIFlash = ver: super.runCommand "flash_player_npapi_linux_${ver}.x86_64.tar.gz" {
           src = flashSrcs."${ver}";
         } ''
@@ -24,8 +25,9 @@
             cp $f $out
           done
         '';
+      mkFlashUrl = ver: "https://fpdownload.macromedia.com/pub/flashplayer/installers/archive/fp_${ver}_archive.zip";
       mkFlashSrc = ver: sha256: super.fetchurl {
-        url = "https://fpdownload.macromedia.com/pub/flashplayer/installers/archive/fp_${ver}_archive.zip";
+        url = mkFlashUrl ver;
         inherit sha256;
       };
       mkFlashSrcs = verHashList: let
@@ -34,25 +36,33 @@
             value = mkFlashSrc name (builtins.elemAt vh 1);
           }) verHashList;
         in builtins.listToAttrs version_attrs;
+      # }}}
       flashSrcs = mkFlashSrcs [
         [ "30.0.0.113" "117hw34bxf5rncfqn6bwvb66k2jv99avv1mxnc2pgvrh63bp3isp" ]
         [ "30.0.0.134" "1cffzzkg6h8bns3npkk4a87qqfnz0nlr7k1zjfc2s2wzbi7a94cc" ]
       ];
     in {
       flashplayer = let
-        curFlashVer = super.lib.getVersion super.flashplayer;
-      in if builtins.hasAttr curFlashVer flashSrcs
-        then super.flashplayer.overrideAttrs (oldAttrs: rec {
-          src = extractNPAPIFlash curFlashVer;
-        })
-        else super.flashplayer;
+          curFlashVer = super.lib.getVersion super.flashplayer;
+        in if builtins.hasAttr curFlashVer flashSrcs
+          then super.flashplayer.overrideAttrs (oldAttrs: rec {
+            src = extractNPAPIFlash curFlashVer;
+          })
+          else super.flashplayer;
       flashplayer-standalone = let
-        curFlashVer = super.lib.getVersion super.flashplayer-standalone;
-      in if builtins.hasAttr curFlashVer flashSrcs
-        then super.flashplayer-standalone.overrideAttrs (oldAttrs: rec {
-          src = extractStandaloneFlash curFlashVer;
-        })
-        else super.flashplayer;
+          curFlashVer = super.lib.getVersion super.flashplayer-standalone;
+        in if builtins.hasAttr curFlashVer flashSrcs
+          then super.flashplayer-standalone.overrideAttrs (oldAttrs: rec {
+            src = extractStandaloneFlash curFlashVer;
+          })
+          else super.flashplayer;
+      # Helper so you can do e.g. `nix-prefetch-flash 30.0.0.134` to prefetch
+      # and get the sha256 hash
+      nix-prefetch-flash = super.writeScriptBin "nix-prefetch-flash" ''
+          #!${super.dash}/bin/dash
+          url="${mkFlashUrl "$1"}"
+          nix-prefetch-url "$url"
+        '';
     })
     # Fix flashplayer-standalone hw gpu stuff
     (self: super: {
@@ -69,6 +79,7 @@
       });
     })
   ];
+
   nixpkgs.config = {
     packageOverrides = pkgs: with pkgs; rec {
       rxvt_unicode = callPackage ./urxvt {
