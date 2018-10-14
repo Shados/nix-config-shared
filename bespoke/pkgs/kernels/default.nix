@@ -7,8 +7,6 @@
 # Modifications:
 # - ck1 modified to remove modDirVersion/EXTRAVERSION changes
 
-with lib;
-
 let
   kernels = { # {{{
     "4.15" = {
@@ -21,7 +19,7 @@ let
     };
   }; # }}}
 
-  patches = { # {{{
+  patches = with lib; { # {{{
     mnative = stdenv: singleton {
       name = "pure-mnative";
       patch = let
@@ -74,7 +72,7 @@ let
         { name = "ck"; patch = ./patches/4.17-ck1.patch; }
       ];
       pds = [
-        { name = "pds"; patch = ./patches/4.17-pds-098s.patch; } 
+        { name = "pds"; patch = ./patches/4.17-pds-098s.patch; }
       ];
     };
   }; # }}}
@@ -129,43 +127,52 @@ let
 in
 
 {
-  boot.kernelParams = [
-    # Enable use of multi-queue (MQ) block IO scheduling mode
-    # "scsi_mod.use_blk_mq=1"
-    # Default IO scheduler to bfq-sq
-    # "elevator=bfq-mq"
+  config = lib.mkMerge [
+    {
+      boot.kernelParams = [
+        # Enable use of multi-queue (MQ) block IO scheduling mode
+        # "scsi_mod.use_blk_mq=1"
+        # Default IO scheduler to bfq-sq
+        # "elevator=bfq-mq"
+      ];
+      boot.kernel.sysctl = {
+        "kernel.unprivileged_userns_clone" = 1; # As we have a patch to implement this sysctl; it isn't expected by NixOS yet
+      };
+    }
+    # Expose the kernel-customization/creation functions as part of pkgs.
+    # mkBefore ensures this is done prior to any attempt to use this, in an
+    # evaluation-order-independent manner.
+    { nixpkgs.overlays = lib.mkBefore [(self: super: {
+        sn.kernelLib = with self.sn.kernelLib; {
+          mkLinuxPackage = kernel: super.recurseIntoAttrs (super.linuxPackagesFor kernel);
+          mkLinux = name: version: patches: { ... } @ mAttrs: let
+              newLinux = super.callPackage ./generic_kernel.nix (kernels.${version} // {
+                kernelPatches = patches;
+                extraConfig = kconfig.${name};
+                customVersion = "-${name}.shados.net";
+              } // mAttrs);
+            in
+              mkLinuxPackage newLinux;
+          gcc8Stdenv = with super; overrideCC stdenv gcc8;
+        };
+      })];
+    }
+    { nixpkgs.overlays = [(self: super: with super.sn.kernelLib; {
+        kernel_dreamlogic_4_17 = mkLinux "dreamlogic" "4.17" (
+          nixos_patches ++ patches.mnative gcc8Stdenv ++ sn_patches "4.17" [
+            "fixes" "bfq-improvements" "uksm"
+            "ck"
+          ]) {
+            stdenv = gcc8Stdenv;
+          };
+        kernel_greymatters_4_17 = mkLinux "greymatters" "4.17" (
+          nixos_patches ++ patches.mnative gcc8Stdenv ++ sn_patches "4.17" [
+            "fixes" "bfq-improvements" "uksm"
+            "ck"
+          ] ++ patches.other.kvm-preemption-warning) {
+            stdenv = gcc8Stdenv;
+          };
+      })];
+    }
   ];
-  boot.kernel.sysctl = {
-    "kernel.unprivileged_userns_clone" = 1; # As we have a patch to implement this sysctl; it isn't expected by NixOS yet
-  };
-  nixpkgs.config.packageOverrides = with pkgs; let
-    mkLinuxPackage = kernel: recurseIntoAttrs (linuxPackagesFor kernel);
-    mkSNLinux = name: version: patches: { ... } @ mAttrs: let
-      newLinux = callPackage ./generic_kernel.nix (kernels.${version} // {
-        kernelPatches = patches;
-        extraConfig = kconfig.${name};
-        customVersion = "-${name}.shados.net";
-      } // mAttrs);
-    in
-      mkLinuxPackage newLinux;
-    gcc8Stdenv = overrideCC stdenv gcc8;
-  in rec {
-    kernel_dreamlogic_4_17 = mkSNLinux "dreamlogic" "4.17" (
-      nixos_patches ++ patches.mnative gcc8Stdenv ++ sn_patches "4.17" [
-        "fixes" "bfq-improvements" "uksm"
-        "ck"
-      ])
-      {
-        stdenv = gcc8Stdenv;
-      };
-    kernel_greymatters_4_17 = mkSNLinux "greymatters" "4.17" (
-      nixos_patches ++ patches.mnative gcc8Stdenv ++ sn_patches "4.17" [
-        "fixes" "bfq-improvements" "uksm"
-        "ck"
-      ]
-      ++ patches.other.kvm-preemption-warning)
-      {
-        stdenv = gcc8Stdenv;
-      };
-  };
 }
