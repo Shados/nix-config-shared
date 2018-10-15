@@ -1,57 +1,18 @@
-{ stdenv, writeText, buildPackages, hostPlatform, fetchurl, perl, buildLinux
+{ stdenv, buildLinux
 , version
-, customVersion ? null , kernelPatches
+, customVersion ? null
+, extraConfig
 , ... } @ args:
 
 with stdenv.lib;
-
 let
-  hasPatch = reqPatch: (builtins.filter (patch: patch.name == reqPatch) kernelPatches) != [];
-in
-
-
-# PDS-mq and MUQSS patches can't be applied at the same time, currently, which
-# is not surprising as they are both forks of the same previous scheduler (BFS)
-assert hasPatch "ck" -> ! hasPatch "pds";
-
-buildLinux (args // rec {
-  extraConfig = ''
+  baseKConfig = ''
     ${optionalString (! isNull customVersion) "LOCALVERSION ${customVersion}"}
-  '' + optionalString (hasPatch "pure-mnative") ''
-    MNATIVE y # -march=native kernel optimizations
-  '' + optionalString (hasPatch "uksm") ''
-    UKSM y # Ultra Kernel Same-page Matching
-  '' + optionalString (hasPatch "bfq-improvements") ''
-    BLK_CGROUP y
-    BLK_WBT y # CoDeL-based writeback throttling
-    BLK_WBT_SQ y
-    BLK_WBT_MQ y
-    IOSCHED_BFQ n
-    BFQ_GROUP_IOSCHED? n
-
-    SCSI_MQ_DEFAULT n
-    DM_MQ_DEFAULT n
-    MQ_IOSCHED_BFQ y
-    MQ_BFQ_GROUP_IOSCHED y
-
-    IOSCHED_BFQ_SQ y
-    BFQ_SQ_GROUP_IOSCHED y
-    DEFAULT_BFQ_SQ y
-  '' + optionalString (hasPatch "ck") ''
-    SCHED_MUQSS y
-    RQ_SMT y # RQ_MC is better for 6 or less cores, apparently, as a rule of thumb
-  '' + optionalString (hasPatch "pds") ''
-    SCHED_PDS y
-  '' + optionalString (hasPatch "ck" || hasPatch "pds") ''
-    # Because both are based on BFS, they are many of the same negative deps
-    CFS_BANDWIDTH? n
-    RT_GROUP_SCHED? n
-    SCHED_AUTOGROUP? n
   '' + ''
     # Disable some unnecessary debugging config
     # ?-appended ones are to mark them as 'optional' to
     # generate-config.pl, so it doesn't error when 'make config' doesn't
-    # ask about them (as pre-reqs for them are disabled)
+    # ask about them (as pre-reqs for them may be disabled)
     DYNAMIC_DEBUG n
     DEBUG_DEVRES? n
     DEBUG_STACK_USAGE? n
@@ -148,6 +109,10 @@ buildLinux (args // rec {
     ZRAM? n
     ZSMALLOC? n
   '';
+in
+
+buildLinux (args // {
+  extraConfig = baseKConfig + extraConfig;
 
   # modDirVersion needs to be x.y.z, will automatically add .0 if needed
   modDirVersion = concatStrings (intersperse "." (take 3 (splitString "." "${version}.0"))) + optionalString (! isNull customVersion) customVersion;

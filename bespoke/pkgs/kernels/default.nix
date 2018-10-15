@@ -7,17 +7,12 @@
 # Modifications:
 # - ck1 modified to remove modDirVersion/EXTRAVERSION changes
 
-# Refactor planning:
-# - Patch-focused workflow/usage makes sense.
-# - Should also have first-class support for .config modification, separate to any patching.
-# - Patches can have .config fragments.
-# - Patches can have NixOS `config` options.
-# - Patches can have assertions that apply to the state of the final kernel (!)
-# - Patches specify a set of kernel versions they can be applied to
-# - Patches can have dependencies on one another? But I don't actually need that so far.
-# Conclusion: I need a fixed-point maybe? A three-way one like that
-# pythonOverrides dude? Actually I can do the assertions without this?
-
+# Future TODO planning, in some kind of 'order of fuckery required':
+# - Patches could have dependencies on one another? But I don't actually need that so far.
+# - Patches could have assertions that apply to the state of the final kernel.
+# - Patches could specifiy NixOS modules (that is, provide `{ imports = ...;
+#   options = ...; config = ...; }` attribute sets that would be added to the
+#   system modules if a kernel using them is set in `boot.kernelPackages`).
 {
   config = lib.mkMerge [
     # Some generic configuration
@@ -32,27 +27,30 @@
         # As we have a patch to implement this sysctl; it isn't expected by
         # NixOS yet
         # TODO tie this to the patch that implements it -- allow associating
-        # `config` sets with patches?!
-        "kernel.unprivileged_userns_clone" = 1; 
+        # NixOS module `config` sets with patches?!
+        "kernel.unprivileged_userns_clone" = 1;
       };
     }
-    # Expose the kernel-customization/creation functions as part of pkgs.
+    # Expose the kernel-customization/creation functions as part of `pkgs`.
     # mkBefore ensures this is done prior to any attempt to use this, in an
     # evaluation-order-independent manner.
     { nixpkgs.overlays = lib.mkBefore [(self: super: {
         sn.kernelLib = with self.sn.kernelLib; with super.lib; {
           mkLinuxPackage = kernel: super.recurseIntoAttrs (super.linuxPackagesFor kernel);
-          mkLinux = name: ver: patches: { ... } @ mAttrs: let
-              newLinux = super.callPackage ./generic_kernel.nix (rec {
-                version = selectKernelVer ver;
-                src = kernelSources.${version};
-                kernelPatches = patches;
-                extraConfig = kconfig.${name};
-                customVersion = "-${name}.shados.net";
-              } // mAttrs);
-            in
-              mkLinuxPackage newLinux;
-          gcc8Stdenv = with super; overrideCC stdenv gcc8;
+          mkLinux = name: ver: patchFuncs: kConfig: { ... } @ mAttrs: let
+            newLinux = super.callPackage ./generic_kernel.nix (let
+              version = selectKernelVer ver;
+              rawPatches = patchesFor version patchFuncs;
+              kernelPatches = foldl' (collectedPatches: rawPatch: collectedPatches ++ rawPatch.patches or [ ]) [ ] rawPatches;
+              patchConfig = foldl' (collectedConfig: rawPatch: collectedConfig + rawPatch.kConfig or "") "" rawPatches;
+            in {
+              inherit version kernelPatches;
+              src = kernelSources.${version};
+              extraConfig = kConfig + patchConfig;
+              customVersion = "-${name}.shados.net";
+            } // mAttrs);
+          in
+            mkLinuxPackage newLinux;
 
           # Kernel sources {{{
           mkKernelSource = version: sha256: super.fetchurl {
@@ -64,9 +62,9 @@
             sourceList;
           # If given majorMinor instead of exact version, choose the most-recent
           selectKernelVer = version: let
-              approxMatches = filterAttrs (v: _src: versions.majorMinor v == version || v == version) kernelSources;
-              sortedMatches = sort (versionOlder) (attrNames approxMatches);
-            in assert sortedMatches != []; head sortedMatches;
+            approxMatches = filterAttrs (v: _src: versions.majorMinor v == version || v == version) kernelSources;
+            sortedMatches = sort (versionOlder) (attrNames approxMatches);
+          in assert sortedMatches != []; head sortedMatches;
 
           kernelSources = mkKernelSources {
             "4.15.18" = "0hdg5h91zwypsgb1lp1m5q1iak1g00rml54fh6j7nj8dgrqwv29z";
@@ -74,11 +72,32 @@
           };
           # }}}
 
-          # Available custom patches {{{
+          # Available patches {{{
+          approxVer = super.lib.versions.majorMinor;
+
+          patchDefWithConfig = kConfig: verPatches: kVer: let
+            patchVers = patchesWithConfig kConfig verPatches;
+            ver = approxVer kVer;
+          in assert hasAttr ver patchVers; patchVers.${ver};
+          patchesWithConfig = kConfig: verPatches: mapAttrs (version: patches: { inherit patches kConfig; }) verPatches;
+
+          patchesFor = kVer: patchFuncs: map (patchFunc: patchFunc kVer) patchFuncs;
+
+          soloPatch = name: patch: [ { inherit name patch; } ];
+          ckpdsSharedConfig = ''
+            # Because ck-patchset's MUQSS and PDS are both based on BFS, they
+            # are many of the same negative deps
+            CFS_BANDWIDTH? n
+            RT_GROUP_SCHED? n
+            SCHED_AUTOGROUP? n
+          '';
           patches = with super.lib; {
-            mnative = stdenv: singleton {
-              name = "pure-mnative";
-              patch = let
+            # TODO add equivalent to this back
+            # # PDS-mq and MUQSS patches can't be applied at the same time, currently, which
+            # # is not surprising as they are both forks of the same previous scheduler (BFS)
+            # assert hasPatch "ck" -> ! hasPatch "pds";
+            mnative = stdenv: _kVer: {
+              patches = let
                 # Effectively enable use of -march=native by using a local-only impure
                 # derivation to determine its actual value, then pass that as input to the
                 # pure kernel derivation in the form of a patch
@@ -88,61 +107,85 @@
                 } ''
                   substituteAll $patchTemplate $out
                 '';
-              in purifiedPatch ./patches/4.13+-pure-mnative.patch.template;
+              in soloPatch "mnative" (purifiedPatch ./patches/4.13+-pure-mnative.patch.template);
+              kConfig = ''
+                MNATIVE y # -march=native kernel optimizations
+              '';
+            };
+            # TODO update this to take into account the differing standard
+            # patches for various versions?
+            nixos = _kver: {
+              patches = with super.kernelPatches; [
+                bridge_stp_helper
+                modinst_arg_list_too_long
+              ];
+              kConfig = "";
             };
 
-            other = {
-              kvm-preemption-warning = [ { name = "kvm-preemption-warning"; patch = ./patches/kvm-fix-preemption-warnings-in-kvm_vcpu_block.patch; } ];
-            };
+            bfq = patchDefWithConfig ''
+                BLK_CGROUP y
+                BLK_WBT y # CoDeL-based writeback throttling
+                BLK_WBT_SQ y
+                BLK_WBT_MQ y
+                IOSCHED_BFQ n
+                BFQ_GROUP_IOSCHED? n
 
-            "4.15" = {
-              uksm = [
-                { name = "uksm"; patch = ./patches/4.15-uksm.patch; }
-              ];
-              bfq-improvements = [
-                { name = "bfq-improvements"; patch = ./patches/4.15-bfq-sq-mq-git-20180404.patch; }
-              ];
-              ck = [
-                { name = "ck"; patch = ./patches/4.15-ck1.patch; }
-              ];
-              pds = [
-                { name = "pds"; patch = ./patches/4.15-pds-098k.patch; }
-              ];
-            };
+                SCSI_MQ_DEFAULT n
+                DM_MQ_DEFAULT n
+                MQ_IOSCHED_BFQ y
+                MQ_BFQ_GROUP_IOSCHED y
 
-            "4.17" = {
-              fixes = [
+                IOSCHED_BFQ_SQ y
+                BFQ_SQ_GROUP_IOSCHED y
+                DEFAULT_BFQ_SQ y
+              '' {
+                "4.15" = soloPatch "bfq" ./patches/4.15-bfq-sq-mq-git-20180404.patch;
+                "4.17" = [
+                  { name = "bfq"; patch = ./patches/4.17-bfq-sq-mq-v8r12-2K180625.patch; }
+                  { name = "bfq-fixes-1"; patch = ./patches/4.17-0100-Check-presence-on-tree-of-every-entity-after-every-a.patch; }
+                  { name = "bfq-fixes-2"; patch = ./patches/4.17-0915-block-fixes-from-pfkernel.patch; }
+                  { name = "bfq-fixes-3"; patch = ./patches/4.17-0916-block-fixes-from-pfkernel.patch; }
+                ];
+              };
+            ck = patchDefWithConfig (''
+                SCHED_MUQSS y
+                RQ_SMT y # RQ_MC is better for 6 or less cores, apparently, as a rule of thumb
+              '' + ckpdsSharedConfig) {
+                "4.15" = soloPatch "ck" ./patches/4.15-ck1.patch;
+                "4.17" = soloPatch "ck" ./patches/4.17-ck1.patch;
+              };
+            fixes = patchDefWithConfig "" {
+              "4.17" = [
                 { name = "sysctl-disallow-newuser"; patch = ./patches/4.17-0001-add-sysctl-to-disallow-unprivileged-CLONE_NEWUSER-by.patch; }
                 { name = "revert-i915-alternate-fix-mode"; patch = ./patches/4.17-0002-Revert-drm-i915-edp-Allow-alternate-fixed-mode-for-e.patch; }
               ];
-              bfq-improvements = [
-                { name = "bfq-improvements"; patch = ./patches/4.17-bfq-sq-mq-v8r12-2K180625.patch; }
-                { name = "tree-entity-presence"; patch = ./patches/4.17-0100-Check-presence-on-tree-of-every-entity-after-every-a.patch; }
-                { name = "pfkernel-block-fixes-1"; patch =./patches/4.17-0915-block-fixes-from-pfkernel.patch; }
-                { name = "pfkernel-block-fixes-2"; patch =./patches/4.17-0916-block-fixes-from-pfkernel.patch; }
-              ];
-              uksm = [
-                { name = "uksm"; patch = ./patches/4.17-uksm.patch; }
-              ];
-              ck = [
-                { name = "ck"; patch = ./patches/4.17-ck1.patch; }
-              ];
-              pds = [
-                { name = "pds"; patch = ./patches/4.17-pds-098s.patch; }
-              ];
             };
-          }; # }}}
-
-          snPatches = version: patchnames: builtins.foldl' (col: pname: col ++ patches.${version}.${pname}) [ ] patchnames;
-
-          # TODO update this to take into account the differing standard
-          # patches for various versions?
-          nixosPatches = with super; [
-            kernelPatches.bridge_stp_helper kernelPatches.modinst_arg_list_too_long
-          ];
-
+            kvm-preemption-warning = _kVer: {
+              patches = soloPatch "kvm-preemption-warning" ./patches/kvm-fix-preemption-warnings-in-kvm_vcpu_block.patch;
+            };
+            pds = patchDefWithConfig (''
+                SCHED_PDS y
+              '' + ckpdsSharedConfig) {
+                "4.15" = soloPatch "pds" ./patches/4.15-pds-098k.patch;
+                "4.17" = soloPatch "pds" ./patches/4.17-pds-098s.patch;
+              };
+            uksm = patchDefWithConfig ''
+                UKSM y # Ultra Kernel Same-page Matching
+              '' {
+                "4.15" = soloPatch "uksm" ./patches/4.15-uksm.patch;
+                "4.17" = soloPatch "uksm" ./patches/4.17-uksm.patch;
+              };
+          };
+          # }}}
+        };
+      })];
+    }
+    # Some machine-specific kernels, mostly as examples. On most machines this
+    # is used, I just set `boot.kernelPackages = with pkgs.sn.kernelLib; mkLinux ...`
+    # directly.
+    { nixpkgs.overlays = [(self: super: with super.sn.kernelLib; with super.lib; let
           # .config partials {{{
-          kconfig = {
+          kConfig = {
             dreamlogic = ''
               # Disable hardware I don't/won't use on this box
               VGA_SWITCHEROO n # Hybrid graphics support
@@ -183,25 +226,18 @@
             '';
           };
           # }}}
-        };
-      })];
-    }
-    { nixpkgs.overlays = [(self: super: with super.sn.kernelLib; {
-        kernel_dreamlogic_4_17 = mkLinux "dreamlogic" "4.17" (
-          nixosPatches ++ patches.mnative gcc8Stdenv ++ snPatches "4.17" [
-            "fixes" "bfq-improvements" "uksm"
-            "ck"
-          ]) {
-            stdenv = gcc8Stdenv;
-          };
-        kernel_greymatters_4_17 = mkLinux "greymatters" "4.17" (
-          nixosPatches ++ patches.mnative gcc8Stdenv ++ snPatches "4.17" [
-            "fixes" "bfq-improvements" "uksm"
-            "ck"
-          ] ++ patches.other.kvm-preemption-warning) {
-            stdenv = gcc8Stdenv;
-          };
-      })];
+          gcc8Stdenv = with super; overrideCC stdenv gcc8;
+        in {
+          kernels.dreamlogic = mkLinux "dreamlogic" "4.17" (with patches;
+            [ nixos fixes bfq uksm ck ] ++ singleton (mnative gcc8Stdenv))
+            kConfig.dreamlogic
+            { stdenv = gcc8Stdenv; };
+          kernels.greymatters = mkLinux "greymatters" "4.17" (with patches;
+            [ nixos fixes bfq uksm ck kvm-preemption-warning ] ++ singleton (mnative gcc8Stdenv))
+            kConfig.greymatters
+            { stdenv = gcc8Stdenv; };
+        }
+      )];
     }
   ];
 }
