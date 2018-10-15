@@ -1,5 +1,5 @@
 { stdenv, writeText, buildPackages, hostPlatform, fetchurl, perl, buildLinux
-, version, verHash
+, version
 , customVersion ? null , kernelPatches
 , ... } @ args:
 
@@ -154,11 +154,6 @@ buildLinux (args // rec {
 
   # branchVersion needs to be x.y
   extraMeta.branch = concatStrings (intersperse "." (take 2 (splitString "." version)));
-
-  src = fetchurl {
-    url = "mirror://kernel/linux/kernel/v4.x/linux-${version}.tar.xz";
-    sha256 = verHash;
-  };
 } // (args.argsOverride or {}))
 
 

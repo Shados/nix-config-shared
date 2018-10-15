@@ -6,6 +6,18 @@
 
 # Modifications:
 # - ck1 modified to remove modDirVersion/EXTRAVERSION changes
+
+# Refactor planning:
+# - Patch-focused workflow/usage makes sense.
+# - Should also have first-class support for .config modification, separate to any patching.
+# - Patches can have .config fragments.
+# - Patches can have NixOS `config` options.
+# - Patches can have assertions that apply to the state of the final kernel (!)
+# - Patches specify a set of kernel versions they can be applied to
+# - Patches can have dependencies on one another? But I don't actually need that so far.
+# Conclusion: I need a fixed-point maybe? A three-way one like that
+# pythonOverrides dude? Actually I can do the assertions without this?
+
 {
   config = lib.mkMerge [
     # Some generic configuration
@@ -28,10 +40,12 @@
     # mkBefore ensures this is done prior to any attempt to use this, in an
     # evaluation-order-independent manner.
     { nixpkgs.overlays = lib.mkBefore [(self: super: {
-        sn.kernelLib = with self.sn.kernelLib; {
+        sn.kernelLib = with self.sn.kernelLib; with super.lib; {
           mkLinuxPackage = kernel: super.recurseIntoAttrs (super.linuxPackagesFor kernel);
-          mkLinux = name: version: patches: { ... } @ mAttrs: let
-              newLinux = super.callPackage ./generic_kernel.nix (kernels.${version} // {
+          mkLinux = name: ver: patches: { ... } @ mAttrs: let
+              newLinux = super.callPackage ./generic_kernel.nix (rec {
+                version = selectKernelVer ver;
+                src = kernelSources.${version};
                 kernelPatches = patches;
                 extraConfig = kconfig.${name};
                 customVersion = "-${name}.shados.net";
@@ -41,16 +55,24 @@
           gcc8Stdenv = with super; overrideCC stdenv gcc8;
 
           # Kernel sources {{{
-          kernels = {
-            "4.15" = {
-              version = "4.15.18";
-              verHash = "0hdg5h91zwypsgb1lp1m5q1iak1g00rml54fh6j7nj8dgrqwv29z";
-            };
-            "4.17" = {
-              version = "4.17.4";
-              verHash = "0n5by04hshjdc8mh86yg4zkq9y6hhvjx78ialda9ysv2ac63gmk6";
-            };
-          }; # }}}
+          mkKernelSource = version: sha256: super.fetchurl {
+            url = "mirror://kernel/linux/kernel/v4.x/linux-${version}.tar.xz";
+            inherit sha256;
+          };
+          mkKernelSources = sourceList: mapAttrs
+            (ver: sha256: mkKernelSource ver sha256)
+            sourceList;
+          # If given majorMinor instead of exact version, choose the most-recent
+          selectKernelVer = version: let
+              approxMatches = filterAttrs (v: _src: versions.majorMinor v == version || v == version) kernelSources;
+              sortedMatches = sort (versionOlder) (attrNames approxMatches);
+            in assert sortedMatches != []; head sortedMatches;
+
+          kernelSources = mkKernelSources {
+            "4.15.18" = "0hdg5h91zwypsgb1lp1m5q1iak1g00rml54fh6j7nj8dgrqwv29z";
+            "4.17.4"  = "0n5by04hshjdc8mh86yg4zkq9y6hhvjx78ialda9ysv2ac63gmk6";
+          };
+          # }}}
 
           # Available custom patches {{{
           patches = with super.lib; {
