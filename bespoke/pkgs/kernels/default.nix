@@ -264,8 +264,8 @@
           # }}}
           gcc8Stdenv = with super; overrideCC stdenv gcc8;
         in {
-          kernels.dreamlogic = mkLinux "dreamlogic" "4.17" (with patches;
-            [ nixos fixes bfq uksm ck ] ++ singleton (mnative gcc8Stdenv))
+          kernels.dreamlogic = mkLinux "dreamlogic" "4.18" (with patches;
+            [ nixos bfq uksm ck ] ++ singleton (mnative gcc8Stdenv))
             kConfig.dreamlogic
             { stdenv = gcc8Stdenv; };
           kernels.greymatters = mkLinux "greymatters" "4.17" (with patches;
