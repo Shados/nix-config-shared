@@ -63,7 +63,7 @@
           # If given majorMinor instead of exact version, choose the most-recent
           selectKernelVer = version: let
             approxMatches = filterAttrs (v: _src: versions.majorMinor v == version || v == version) kernelSources;
-            sortedMatches = sort (versionOlder) (attrNames approxMatches);
+            sortedMatches = reverseList (sort (versionOlder) (attrNames approxMatches));
           in assert sortedMatches != []; head sortedMatches;
 
           kernelSources = mkKernelSources {
