@@ -66,9 +66,13 @@
             sortedMatches = reverseList (sort (versionOlder) (attrNames approxMatches));
           in assert sortedMatches != []; head sortedMatches;
 
+          # For these, get the hash with:
+          # nix-prefetch-url https://cdn.kernel.org/pub/linux/kernel/v4.x/linux-${version}.tar.xz
           kernelSources = mkKernelSources {
             "4.15.18" = "0hdg5h91zwypsgb1lp1m5q1iak1g00rml54fh6j7nj8dgrqwv29z";
             "4.17.4"  = "0n5by04hshjdc8mh86yg4zkq9y6hhvjx78ialda9ysv2ac63gmk6";
+            "4.18.12" = "1icz2nkhkb1xhpmc9gxfhc3ywkni8nywk25ixrmgcxp5rgcmlsl4";
+            "4.18.14" = "1lv2hpxzlk1yzr5dcjb0q0ylvlwx4ln2jvfvf01b9smr1lvd3iin";
           };
           # }}}
 
@@ -122,6 +126,7 @@
               kConfig = "";
             };
 
+            # General BFQ improvements, and multi-queue BFQ
             bfq = patchDefWithConfig ''
                 BLK_CGROUP y
                 BLK_WBT y # CoDeL-based writeback throttling
@@ -146,6 +151,15 @@
                   { name = "bfq-fixes-2"; patch = ./patches/4.17/0915-block-fixes-from-pfkernel.patch; }
                   { name = "bfq-fixes-3"; patch = ./patches/4.17/0916-block-fixes-from-pfkernel.patch; }
                 ];
+                "4.18" = [
+                  { name = "bfq"; patch = ./patches/4.18/bfq-sq-mq-v9r1-2K181012.patch; }
+                  { name = "bfq-fixes-1"; patch = ./patches/4.18/0100-Check-presence-on-tree-of-every-entity-after-every-a.patch; }
+                  { name = "bfq-fixes-2"; patch = ./patches/4.18/0915-fixes-from-pfkernel-v4.18.10.patch; }
+                  { name = "bfq-fixes-3"; patch = ./patches/4.18/0916-fixes-from-pfkernel-v4.18.7.patch; }
+                  { name = "bfq-fixes-4"; patch = ./patches/4.18/0917-fixes-from-pfkernel.patch; }
+                  { name = "bfq-fixes-5"; patch = ./patches/4.18/0918-fixes-from-pfkernel.patch; }
+                  { name = "bfq-fixes-6"; patch = ./patches/4.18/0919-fixes-from-pfkernel.patch; }
+                ];
               };
             ck = patchDefWithConfig (''
                 SCHED_MUQSS y
@@ -153,6 +167,7 @@
               '' + ckpdsSharedConfig) {
                 "4.15" = soloPatch "ck" ./patches/4.15/ck1.patch;
                 "4.17" = soloPatch "ck" ./patches/4.17/ck1.patch;
+                "4.18" = soloPatch "ck" ./patches/4.18/ck1.patch;
               };
             fixes = patchDefWithConfig "" {
               "4.17" = [
@@ -168,12 +183,33 @@
               '' + ckpdsSharedConfig) {
                 "4.15" = soloPatch "pds" ./patches/4.15/pds-098k.patch;
                 "4.17" = soloPatch "pds" ./patches/4.17/pds-098s.patch;
+                "4.18" = [
+                  { name = "pds-1"; patch = ./patches/4.18/0001-pds-4.18-merge-v0.98u.patch; }
+                  { name = "pds-2"; patch = ./patches/4.18/0002-pds-4.18-drop-irrelevant-bits-merged-by-mistake.patch; }
+                  { name = "pds-3"; patch = ./patches/4.18/0003-pds-4.18-merge-v0.98v.patch; }
+                  { name = "pds-4"; patch = ./patches/4.18/0004-pds-4.18-merge-v0.98w.patch; }
+                  { name = "pds-5"; patch = ./patches/4.18/0005-pds-4.18-merge-v0.98x.patch; }
+                  { name = "pds-6"; patch = ./patches/4.18/0006-pds-Enable-SMT_NICE-scheduling.patch; }
+                  { name = "pds-7"; patch = ./patches/4.18/0007-Tag-PDS-0.98y.patch; }
+                  { name = "pds-8"; patch = ./patches/4.18/0008-pds-Replace-task_queued-by-task_on_rq_queued.patch; }
+                  { name = "pds-9"; patch = ./patches/4.18/0009-pds-Don-t-balance-on-an-idle-task.patch; }
+                  { name = "pds-10"; patch = ./patches/4.18/0010-pds-Improve-idle-task-SMT_NICE-handling-in-ttwu.patch; }
+                  { name = "pds-11"; patch = ./patches/4.18/0011-pds-Re-mapping-SCHED_DEADLINE-to-SCHED_FIFO.patch; }
+                  { name = "pds-12"; patch = ./patches/4.18/0012-Tag-PDS-0.98z.patch; }
+                  { name = "pds-13"; patch = ./patches/4.18/0013-pds-Fix-sugov_kthread_create-fail-to-set-policy.patch; }
+                  { name = "pds-14"; patch = ./patches/4.18/0014-pds-Fix-task-burst-fairness-issue.patch; }
+                  { name = "pds-15"; patch = ./patches/4.18/0015-Tag-PDS-0.99a.patch; }
+                ];
               };
             uksm = patchDefWithConfig ''
                 UKSM y # Ultra Kernel Same-page Matching
               '' {
                 "4.15" = soloPatch "uksm" ./patches/4.15/uksm.patch;
                 "4.17" = soloPatch "uksm" ./patches/4.17/uksm.patch;
+                "4.18" = [
+                  { name = "uksm-1"; patch = ./patches/4.18/0001-uksm-4.18-initial-submission.patch; }
+                  { name = "uksm-2"; patch = ./patches/4.18/0002-uksm-4.18-rework-exit_mmap-locking.patch; }
+                ];
               };
           };
           # }}}
