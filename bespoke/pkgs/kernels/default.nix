@@ -139,25 +139,25 @@
                 BFQ_SQ_GROUP_IOSCHED y
                 DEFAULT_BFQ_SQ y
               '' {
-                "4.15" = soloPatch "bfq" ./patches/4.15-bfq-sq-mq-git-20180404.patch;
+                "4.15" = soloPatch "bfq" ./patches/4.15/bfq-sq-mq-git-20180404.patch;
                 "4.17" = [
-                  { name = "bfq"; patch = ./patches/4.17-bfq-sq-mq-v8r12-2K180625.patch; }
-                  { name = "bfq-fixes-1"; patch = ./patches/4.17-0100-Check-presence-on-tree-of-every-entity-after-every-a.patch; }
-                  { name = "bfq-fixes-2"; patch = ./patches/4.17-0915-block-fixes-from-pfkernel.patch; }
-                  { name = "bfq-fixes-3"; patch = ./patches/4.17-0916-block-fixes-from-pfkernel.patch; }
+                  { name = "bfq"; patch = ./patches/4.17/bfq-sq-mq-v8r12-2K180625.patch; }
+                  { name = "bfq-fixes-1"; patch = ./patches/4.17/0100-Check-presence-on-tree-of-every-entity-after-every-a.patch; }
+                  { name = "bfq-fixes-2"; patch = ./patches/4.17/0915-block-fixes-from-pfkernel.patch; }
+                  { name = "bfq-fixes-3"; patch = ./patches/4.17/0916-block-fixes-from-pfkernel.patch; }
                 ];
               };
             ck = patchDefWithConfig (''
                 SCHED_MUQSS y
                 RQ_SMT y # RQ_MC is better for 6 or less cores, apparently, as a rule of thumb
               '' + ckpdsSharedConfig) {
-                "4.15" = soloPatch "ck" ./patches/4.15-ck1.patch;
-                "4.17" = soloPatch "ck" ./patches/4.17-ck1.patch;
+                "4.15" = soloPatch "ck" ./patches/4.15/ck1.patch;
+                "4.17" = soloPatch "ck" ./patches/4.17/ck1.patch;
               };
             fixes = patchDefWithConfig "" {
               "4.17" = [
-                { name = "sysctl-disallow-newuser"; patch = ./patches/4.17-0001-add-sysctl-to-disallow-unprivileged-CLONE_NEWUSER-by.patch; }
-                { name = "revert-i915-alternate-fix-mode"; patch = ./patches/4.17-0002-Revert-drm-i915-edp-Allow-alternate-fixed-mode-for-e.patch; }
+                { name = "sysctl-disallow-newuser"; patch = ./patches/4.17/0001-add-sysctl-to-disallow-unprivileged-CLONE_NEWUSER-by.patch; }
+                { name = "revert-i915-alternate-fix-mode"; patch = ./patches/4.17/0002-Revert-drm-i915-edp-Allow-alternate-fixed-mode-for-e.patch; }
               ];
             };
             kvm-preemption-warning = _kVer: {
@@ -166,14 +166,14 @@
             pds = patchDefWithConfig (''
                 SCHED_PDS y
               '' + ckpdsSharedConfig) {
-                "4.15" = soloPatch "pds" ./patches/4.15-pds-098k.patch;
-                "4.17" = soloPatch "pds" ./patches/4.17-pds-098s.patch;
+                "4.15" = soloPatch "pds" ./patches/4.15/pds-098k.patch;
+                "4.17" = soloPatch "pds" ./patches/4.17/pds-098s.patch;
               };
             uksm = patchDefWithConfig ''
                 UKSM y # Ultra Kernel Same-page Matching
               '' {
-                "4.15" = soloPatch "uksm" ./patches/4.15-uksm.patch;
-                "4.17" = soloPatch "uksm" ./patches/4.17-uksm.patch;
+                "4.15" = soloPatch "uksm" ./patches/4.15/uksm.patch;
+                "4.17" = soloPatch "uksm" ./patches/4.17/uksm.patch;
               };
           };
           # }}}
