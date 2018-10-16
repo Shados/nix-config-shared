@@ -156,7 +156,7 @@
                   { name = "bfq-fixes-1"; patch = ./patches/4.18/0100-Check-presence-on-tree-of-every-entity-after-every-a.patch; }
                   { name = "bfq-fixes-2"; patch = ./patches/4.18/0915-fixes-from-pfkernel-v4.18.10.patch; }
                   { name = "bfq-fixes-3"; patch = ./patches/4.18/0916-fixes-from-pfkernel-v4.18.7.patch; }
-                  { name = "bfq-fixes-4"; patch = ./patches/4.18/0917-fixes-from-pfkernel.patch; }
+                  # { name = "bfq-fixes-4"; patch = ./patches/4.18/0917-fixes-from-pfkernel.patch; } # Included in 4.18.14 at least
                   { name = "bfq-fixes-5"; patch = ./patches/4.18/0918-fixes-from-pfkernel.patch; }
                   { name = "bfq-fixes-6"; patch = ./patches/4.18/0919-fixes-from-pfkernel.patch; }
                 ];
@@ -247,7 +247,7 @@
               SCSI_LOWLEVEL_PCMCIA n
 
               # Embed r8169 for use with netconsole
-              r8169 y
+              r8169? y
             '';
             greymatters = ''
               # Disable hardware I don't/won't use on this box
