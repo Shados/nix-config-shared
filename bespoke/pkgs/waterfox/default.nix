@@ -6,8 +6,7 @@
 , nspr, nss, pango, perl, python, sqlite
 , unzip, xorg, which, yasm, zip, zlib, libIDL, libpng
 , rustc, cargo, jemalloc, gnused, ensureNewerSourcesHook, llvmPackages
-# , fetchFromGitHub
-, fetchgit
+, fetchFromGitHub
 
 
 ## Optionals
@@ -38,24 +37,13 @@ in
 
 stdenv.mkDerivation rec {
   name = "waterfox-${version}";
-  version = "56.2.2";
+  version = "56.2.4";
 
-  # src = fetchFromGitHub {
-  #   owner  = "MrAlex94";
-  #   repo   = "Waterfox";
-  #   rev    = "9a88873ce5ec3755a4719949a1346346aaa5bac5";
-  #   #sha256 = "0nc6fwsxsflbmaljkjw4llnq8d9rh8538l2vqzl96xfwcffdpbzd";
-  #   # 56.1.0: sha256 = "08kfxqw4c1ir2d782v5y40pp7nwaj5pzapkk64b10k7i9l5yyypx";
-  #   # sha256 = "19siqabdvq7nsnjawbllh8q5iv1a7pwb7nhi0027x5xdqs01723k";
-  #   sha256 = "0raxm2k46zzm25nn9h3r4b89bd46c1wkyfg9bqmhjc6cv0a0pr8x";
-  # };
-  # src = /home/shados/technotheca/tmp/src/waterfox/Waterfox;
-  src = fetchgit {
-    url             = "https://github.com/MrAlex94/Waterfox";
-  #   rev             = "eb9e7d6bffad754061248f424212851706bfdb8e";
-    rev             = "9a88873ce5ec3755a4719949a1346346aaa5bac5";
-    sha256          = "0np6v0b0k09pcgz8712khqsz6j50bgjcjjn19fibnl7i7rf55h0x";
-    fetchSubmodules = true;
+  src = fetchFromGitHub {
+    owner  = "MrAlex94";
+    repo   = "Waterfox";
+    rev    = version;
+    sha256 = "1gbiygpzb7nxpnazfdsckv4k3ha20q8sjic03dc7hgbm00jfqxsl";
   };
   src_vendorjs = ./vendor.js;
 
