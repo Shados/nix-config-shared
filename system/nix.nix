@@ -1,6 +1,9 @@
 { config, lib, pkgs, ... }:
+with lib;
 {
   nix = {
+    # 0 will auto-detect the number of physical cores and use that
+    buildCores = mkDefault 0;
     useSandbox = true;
     gc = {
       automatic = true;
@@ -12,14 +15,14 @@
     '';
 
     # Have the builders run at low CPU and IO priority
-    daemonIONiceLevel = lib.mkDefault 7;
-    daemonNiceLevel = lib.mkDefault 19;
+    daemonIONiceLevel = mkDefault 7;
+    daemonNiceLevel = mkDefault 19;
     trustedUsers = [
       "root"
       "shados"
     ];
 
-    binaryCaches = lib.mkOrder 999 [
+    binaryCaches = mkOrder 999 [
       "https://cache.nixos.org/"
     ];
   };
