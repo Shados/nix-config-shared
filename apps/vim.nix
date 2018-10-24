@@ -69,7 +69,7 @@ let
       full = [
       ];
     };
-    python = with python36Packages; {
+    python = with python3Packages; {
       minimal = [
         black # Strict style auto-formatting
         isort # Auto-sorts import statements
@@ -99,6 +99,13 @@ let
     vim = {
       minimal = [
         ["vint" vim-vint] # Vim linter
+      ];
+      full = [
+      ];
+    };
+    yaml = {
+      minimal = with python3Packages; [
+        yamllint
       ];
       full = [
       ];
@@ -214,7 +221,7 @@ in
       # Linting, style, and other static checking
       sn.programs.flake8 = {
         enable = true;
-        plugins = with pkgs.python36Packages; [
+        plugins = with pkgs.python3Packages; [
           # Provides some extra classes of exceptions; specifically we want
           # this for B950 for better compatibility with Black
           flake8-bugbear
