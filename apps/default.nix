@@ -30,6 +30,7 @@
     iftop
     iotop
     atop
+    smem
     nethogs
     tcpdump
     nmap

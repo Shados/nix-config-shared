@@ -41,6 +41,8 @@
         [ "30.0.0.113" "117hw34bxf5rncfqn6bwvb66k2jv99avv1mxnc2pgvrh63bp3isp" ]
         [ "30.0.0.134" "1cffzzkg6h8bns3npkk4a87qqfnz0nlr7k1zjfc2s2wzbi7a94cc" ]
         [ "30.0.0.154" "14p0lcj8x09ivk1h786mj0plzz2lkvxkbw3w15fym7pd0nancz88" ]
+        [ "31.0.0.108" "06kvwlzw2bjkcxzd1qvrdvlp0idvm54d1rhzn5vq1vqdhs0lnv76" ]
+        # [ "31.0.0.122" "" ]
       ];
     in {
       flashplayer = let
@@ -56,7 +58,7 @@
           then super.flashplayer-standalone.overrideAttrs (oldAttrs: rec {
             src = extractStandaloneFlash curFlashVer;
           })
-          else super.flashplayer;
+          else super.flashplayer-standalone;
       # Helper so you can do e.g. `nix-prefetch-flash 30.0.0.134` to prefetch
       # and get the sha256 hash
       nix-prefetch-flash = super.writeScriptBin "nix-prefetch-flash" ''
