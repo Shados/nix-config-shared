@@ -4,7 +4,7 @@ let
   cfg = config.fragments.router;
 in
 
-lib.mkIf (config.fragments.router.enable) {
+lib.mkIf (cfg.enable && cfg.enableDhcp) {
   services.dnsmasq = {
     enable = true;
     servers = config.networking.nameservers;

@@ -151,6 +151,13 @@ in
         default = true;
         type = types.bool;
       };
+      enableDhcp = mkOption {
+        description = ''
+          Whether or not to enable running a DHCP server for the internal interfaces and subnet.
+        '';
+        default = true;
+        type = types.bool;
+      };
       portForwards = mkOption {
         description = "List of port forwards to enable.";
         type = with types; listOf (submodule portForwardOpts);
