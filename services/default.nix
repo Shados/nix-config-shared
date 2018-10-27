@@ -8,5 +8,6 @@
     ./quassel.nix
     ./samba.nix
     ./teamspeak3.nix
+    ./wireguard.nix
   ];
 }
