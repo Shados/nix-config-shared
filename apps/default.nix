@@ -26,7 +26,6 @@
 
     # Debugging/sysadmin/System information
     manpages # Linux kernel dev ones, e.g. man 5 proc
-    nox
     iftop
     iotop
     atop
