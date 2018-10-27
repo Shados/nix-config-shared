@@ -40,6 +40,7 @@ in
   config = mkMerge [
     (mkIf cfg.remote {
       i18n.consoleKeyMap = ./system/sn.map.gz;
+      systemd.enableEmergencyMode = mkDefault false;
     })
     {
       boot.cleanTmpDir = true;
