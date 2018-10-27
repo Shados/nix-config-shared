@@ -55,6 +55,7 @@ in
       shell = "/run/current-system/sw/bin/rssh";
     };
     # Ensure ACLs are set for backup directories so that the backup user can actually read them
+    # TODO timer, default daily + optional config
     systemd.services.set_backup_acls = {
       wantedBy = [ "multi-user.target" ];
       unitConfig.RequiresMountsFor = "${concatStringsSep " " cfg.folders}";
@@ -63,8 +64,8 @@ in
         RemainAfterExit = "yes";
         ExecStart = pkgs.writeScript "set_backup_acls.sh" ''
           #!${pkgs.bash}/bin/bash
-          ${pkgs.eject}/bin/ionice -c 3 -p $$
-          ${pkgs.eject}/bin/renice -n 19 -p $$
+          ${pkgs.utillinux}/bin/ionice -c 3 -p $$
+          ${pkgs.utillinux}/bin/renice -n 19 -p $$
           ${pkgs.acl.bin}/bin/setfacl -R -m u:backup:rX ${concatStringsSep " " cfg.folders}
           ${pkgs.acl.bin}/bin/setfacl -R -m d:u:backup:rX ${concatStringsSep " " cfg.folders}
         '';
