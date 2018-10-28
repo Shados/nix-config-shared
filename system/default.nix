@@ -12,6 +12,7 @@
     ./memory.nix
     ./networking.nix
     ./nix.nix
+    ./smtp.nix
     ./sound.nix
     ./ssh.nix
     # Global ssh_config Host definitions
