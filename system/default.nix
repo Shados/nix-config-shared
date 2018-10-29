@@ -1,5 +1,7 @@
 # System configuration changes
-{ config, pkgs, ... }:
+{ config, lib, pkgs, ... }:
+
+with lib;
 
 {
   imports = [
@@ -20,7 +22,7 @@
     ./users.nix
   ];
 
-  boot.kernelParams = [ "boot.shell_on_fail" ];
+  boot.kernelParams = mkIf (! config.fragments.remote) [ "boot.shell_on_fail" ];
   environment.sessionVariables.TERMINFO = pkgs.lib.mkDefault "/run/current-system/sw/share/terminfo"; # TODO: the fish bug that needed this may now be fixed, should test
   services.locate.enable = false;
   services.logind.extraConfig = ''
