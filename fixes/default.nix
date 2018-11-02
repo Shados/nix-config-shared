@@ -39,27 +39,30 @@
     {
       nixpkgs.overlays = lib.mkBefore [
         (self: super: let
-          pyNames = [
-            "python27" "python34" "python35" "python36" "python37"
-            "pypy"
-          ];
-          overriddenPython = name: [
-            { inherit name; value = super.${name}.override { packageOverrides = self.pythonOverrides; }; }
-            { name = "${name}Packages"; value = super.recurseIntoAttrs self.${name}.pkgs; }
-          ];
-          overriddenPythons = builtins.concatLists (map overriddenPython pyNames);
-        in {
-          pythonOverrides = pyself: pysuper: {};
-          # The below is a straight wrapper for clarity of intent, use like:
-          # pythonOverrides = buildPythonOverrides (pyself: pysuper: { ... # overrides }) super.pythonOverrides;
-          buildPythonOverrides = newOverrides: currentOverrides: super.lib.composeExtensions newOverrides currentOverrides;
-        } // builtins.listToAttrs overriddenPythons)
+            pyNames = [
+              "python27" "python34" "python35" "python36" "python37"
+              "pypy"
+            ];
+            overriddenPython = name: [
+              { inherit name; value = super.${name}.override { packageOverrides = self.pythonOverrides; }; }
+              { name = "${name}Packages"; value = super.recurseIntoAttrs self.${name}.pkgs; }
+            ];
+            overriddenPythons = builtins.concatLists (map overriddenPython pyNames);
+          in {
+            pythonOverrides = pyself: pysuper: {};
+            sn = (super.sn or { }) // {
+              # The below is a straight wrapper for clarity of intent, use like:
+              # pythonOverrides = buildPythonOverrides (pyself: pysuper: { ... # overrides }) super.pythonOverrides;
+              buildPythonOverrides = newOverrides: currentOverrides: super.lib.composeExtensions newOverrides currentOverrides;
+            };
+          } // builtins.listToAttrs overriddenPythons
+        )
       ];
     }
     {
       # Get cython working with python 3.7
       nixpkgs.overlays = [(self: super: {
-        pythonOverrides = super.buildPythonOverrides (pyself: pysuper: let
+        pythonOverrides = super.sn.buildPythonOverrides (pyself: pysuper: let
           fixedCython = pysuper.cython.overrideAttrs(oldAttrs: rec {
             inherit (oldAttrs) pname;
             name = "${pname}-${version}";

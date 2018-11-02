@@ -35,7 +35,7 @@
     # mkBefore ensures this is done prior to any attempt to use this, in an
     # evaluation-order-independent manner.
     { nixpkgs.overlays = lib.mkBefore [(self: super: {
-        sn.kernelLib = with self.sn.kernelLib; with super.lib; {
+        sn = (super.sn or {}) // { kernelLib = with self.sn.kernelLib; with super.lib; {
           mkLinuxPackage = kernel: super.recurseIntoAttrs (super.linuxPackagesFor kernel);
           mkLinux = name: ver: patchFuncs: kConfig: { ... } @ mAttrs: let
             newLinux = super.callPackage ./generic_kernel.nix (let
@@ -213,7 +213,7 @@
               };
           };
           # }}}
-        };
+        }; };
       })];
     }
     # Some machine-specific kernels, mostly as examples. On most machines this

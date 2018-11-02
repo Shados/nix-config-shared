@@ -12,7 +12,7 @@
       bash-language-server = super.callPackage ./langservers/bash-language-server { };
 
       # Python overrides
-      pythonOverrides = self.buildPythonOverrides (pyself: pysuper: {
+      pythonOverrides = self.sn.buildPythonOverrides (pyself: pysuper: {
         # General language-specific support tools
         flake8-bugbear = pysuper.callPackage ./flake8-bugbear.nix { };
         flake8-per-file-ignores = pysuper.callPackage ./flake8-per-file-ignores.nix { };
