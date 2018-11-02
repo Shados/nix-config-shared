@@ -81,6 +81,24 @@
         # '';
       });
     })
+    # Lua package overrides
+    (self: super: super.sn.defineLuaPackageOverrides super (luaself: luasuper: {
+      # alt-getopt = super.callPackage ./alt-getopt.nix { inherit (super.luaPackages) buildLuaPackage; };
+      argparse = super.callPackage ./luaPackages/argparse.nix {
+        inherit (luasuper) lua buildLuaPackage;
+      };
+
+      moonscript = super.callPackage ./luaPackages/moonscript.nix rec {
+        inherit (luasuper) lua buildLuaPackage lpeg luafilesystem;
+        inherit (luaself) argparse;
+        luarocks = super.luarocks.override { inherit lua; };
+      };
+
+      moonpick = super.callPackage ./luaPackages/moonpick.nix {
+        inherit (luasuper) buildLuaPackage;
+        inherit (luaself) moonscript;
+      };
+    }))
   ];
 
   nixpkgs.config = {
