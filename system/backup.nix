@@ -56,12 +56,20 @@ in
     };
     # Ensure ACLs are set for backup directories so that the backup user can actually read them
     # TODO timer, default daily + optional config
-    systemd.services.set_backup_acls = {
+    systemd.timers.set_backup_acls = {
       wantedBy = [ "multi-user.target" ];
+      unitConfig.RequiresMountsFor = "${concatStringsSep " " cfg.folders}";
+      timerConfig = {
+        OnBootSec = "5m";
+        OnUnitInactiveSec = "1h";
+        AccuracySec = "5m";
+      };
+    };
+    systemd.services.set_backup_acls = {
       unitConfig.RequiresMountsFor = "${concatStringsSep " " cfg.folders}";
       serviceConfig = {
         Type = "oneshot";
-        RemainAfterExit = "yes";
+        RemainAfterExit = "no";
         ExecStart = pkgs.writeScript "set_backup_acls.sh" ''
           #!${pkgs.bash}/bin/bash
           ${pkgs.utillinux}/bin/ionice -c 3 -p $$
