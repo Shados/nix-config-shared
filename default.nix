@@ -1,5 +1,5 @@
 # Baseline SN NixOS configuration
-{ config, pkgs, lib, ... }:
+{ config, lib, pkgs, ... }:
 
 with lib;
 let
@@ -14,6 +14,8 @@ in
     ./apps
     # Temporary fixes that have yet to hit nixos-unstable channel
     ./fixes
+    # Re-usable library functions that don't necessarily fit anywhere else
+    ./lib
     # Conveniently packaged system 'functional profiles', including
     # container/VM profiles
     ./profiles
