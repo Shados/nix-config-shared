@@ -19,12 +19,12 @@ stdenv.mkDerivation (rec {
   };
 
   libptytty = fetchurl {
-    url = "http://download.openpkg.org/components/cache/libptytty/libptytty-1.8.tar.gz";
+    url = "http://dist.schmorp.de/libptytty/libptytty-1.8.tar.gz";
     sha256 = "0byc9miy2fk5qzf4vnvsj0gxkfhj2izv8kipd9ywn080pj17yc6b";
   };
 
   libev = fetchurl {
-    url = "http://download.openpkg.org/components/cache/libev/libev-4.22.tar.gz";
+    url = "http://dist.schmorp.de/libev/libev-4.24.tar.gz";
     sha256 = "1mhvy38g9947bbr0n0hzc34zwfvvfd99qgzpkbap8g2lmkl7jq3k";
   };
 
