@@ -15,7 +15,7 @@ let
       '';
       # Improve the behaviour on transient failures
       serviceConfig = {
-        Restart = mkDefault "on-abnormal";
+        Restart = mkDefault "always";
         RestartSec = mkDefault 3;
         Type = mkForce "simple";
       };
