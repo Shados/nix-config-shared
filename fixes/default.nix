@@ -40,7 +40,7 @@
       nixpkgs.overlays = lib.mkBefore [
         (self: super: let
             pyNames = [
-              "python27" "python34" "python35" "python36" "python37"
+              "python27" "python35" "python36" "python37"
               "pypy"
             ];
             overriddenPython = name: [
