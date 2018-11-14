@@ -73,6 +73,7 @@
             "4.17.4"  = "0n5by04hshjdc8mh86yg4zkq9y6hhvjx78ialda9ysv2ac63gmk6";
             "4.18.12" = "1icz2nkhkb1xhpmc9gxfhc3ywkni8nywk25ixrmgcxp5rgcmlsl4";
             "4.18.14" = "1lv2hpxzlk1yzr5dcjb0q0ylvlwx4ln2jvfvf01b9smr1lvd3iin";
+            "4.18.16" = "1rjjkhl8lz4y4sn7icy8mp6p1x7rvapybp51p92sanbjy3i19fmy";
           };
           # }}}
 
@@ -268,8 +269,9 @@
             [ nixos bfq uksm ck ] ++ singleton (mnative gcc8Stdenv))
             kConfig.dreamlogic
             { stdenv = gcc8Stdenv; };
-          kernels.greymatters = mkLinux "greymatters" "4.17" (with patches;
-            [ nixos fixes bfq uksm ck kvm-preemption-warning ] ++ singleton (mnative gcc8Stdenv))
+          kernels.greymatters = mkLinux "greymatters" "4.18" (with patches;
+            # [ nixos uksm ck kvm-preemption-warning ] ++ singleton (mnative gcc8Stdenv))
+            [ nixos uksm ck ] ++ singleton (mnative gcc8Stdenv))
             kConfig.greymatters
             { stdenv = gcc8Stdenv; };
         }
