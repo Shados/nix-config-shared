@@ -64,6 +64,14 @@ in
               '';
               default = null;
             };
+            extraConfig = mkOption {
+              type = with types; nullOr lines;
+              default = null;
+              description = ''
+                Extra lines of ssh_config to be appended to this Host entry.
+              '';
+              example = "ProxyCommand openssl s_client -connect %h:%p -quiet 2>/dev/null";
+            };
           };
         }));
       };
@@ -113,6 +121,7 @@ in
           ${optionalString (host.user != null) ''User ${toString host.user}''}
           ${optionalString (host.port != null) ''Port ${toString host.port}''}
           ${optionalString (host.keyFile != null) ''IdentityFile ${toString host.keyFile}''}
+          ${optionalString (host.extraConfig != null) host.extraConfig}
       '')}
       Match all
         Port ${toString clcfg.defaultPort}
