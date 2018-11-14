@@ -32,8 +32,8 @@ buildLuaPackage rec {
 
     for prog in $out/bin/*; do
       wrapProgram $prog               \
-        --set LUA_PATH "${luaPath}/?.lua;$LUA_PATH"   \
-        --set LUA_CPATH "$LUA_CPATH"
+        --prefix LUA_PATH  ';' "${luaPath}/?.lua;$LUA_PATH"   \
+        --prefix LUA_CPATH ';' "$LUA_CPATH"
     done
   '';
 

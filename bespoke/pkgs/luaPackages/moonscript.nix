@@ -46,9 +46,9 @@ buildLuaPackage rec {
     cp -rv moon moonscript ${luaPath}/
 
     for prog in $out/bin/*; do
-      wrapProgram $prog               \
-        --set LUA_PATH "${luaPath}/?.lua;$LUA_PATH"   \
-        --set LUA_CPATH "$LUA_CPATH"
+      wrapProgram $prog                                       \
+        --prefix LUA_PATH  ';' "${luaPath}/?.lua;$LUA_PATH"   \
+        --prefix LUA_CPATH ';' "$LUA_CPATH"
     done
   '';
 
