@@ -60,8 +60,8 @@
       ];
     }
     {
-      # Get cython working with python 3.7
-      nixpkgs.overlays = [(self: super: {
+      nixpkgs.overlays = [(self: super: with super.lib; {
+        # Get cython working with python 3.7
         pythonOverrides = super.sn.buildPythonOverrides (pyself: pysuper: let
           fixedCython = pysuper.cython.overrideAttrs(oldAttrs: rec {
             inherit (oldAttrs) pname;
@@ -82,10 +82,22 @@
             ];
           });
         in {
-          cython = if (super.lib.versionOlder (super.lib.getVersion pysuper.cython) "0.28.5")
+          cython = if (versionOlder (getVersion pysuper.cython) "0.28.5")
             then fixedCython
             else pysuper.cython;
         }) super.pythonOverrides;
+        # Patch spurious O_TMPFILE logging in older xorg
+        xorg = super.xorg // {
+          xorgserver = let
+            fixedXorgserver = super.xorg.xorgserver.overrideAttrs(oldAttrs: {
+              patches = oldAttrs.patches or [] ++ [
+                ./xorg-tmpfile.patch
+              ];
+            });
+          in if (versionOlder (getVersion super.xorg.xorgserver) "1.20")
+            then fixedXorgserver
+            else super.xorg.xorgserver;
+        };
       })];
     }
   ];
