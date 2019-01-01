@@ -6,6 +6,7 @@ with lib;
 {
   imports = [
     ./backup.nix
+    ./builders.nix
     ./config-snapshot.nix
     ./do-init
     ./fonts.nix
