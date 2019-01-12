@@ -1,6 +1,6 @@
 { config, pkgs, lib, ... }:
 
-let 
+let
   cfg = config.fragments.router;
   natcfg = config.networking.nat;
   natDest = if natcfg.externalIP == null then "masquerade" else "snat ${natcfg.externalIP}";
@@ -11,17 +11,20 @@ with lib;
   config = mkMerge [
     (mkIf (cfg.enable) {
       networking.firewall = {
-        checkReversePath = false; # RP filtering on the bridge breaks broadcast packets due to reasons - TODO: Figure out why. TODO: Implement custom workaround.
+        # RP filtering on the bridge breaks broadcast packets due to reasons
+        # - TODO Figure out why.
+        # - TODO Implement custom workaround.
+        checkReversePath = false;
       };
       networking.nft-firewall = {
         enable = true;
         enableNAT = true;
         # Setup lan-specific firewall chain
-        inet.filter.lan-fw.rules = mkAfter ''
-          return # Return back to the main chain when we're done
-        '';
         inet.filter.INPUT.rules = mkBefore ''
           meta iifname ${cfg.intBridge} jump lan-fw
+        '';
+        inet.filter.lan-fw.rules = mkAfter ''
+          return # Return back to the main chain when we're done
         '';
         ip.nat = {
           PREROUTING.rules = ''

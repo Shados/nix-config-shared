@@ -16,11 +16,8 @@ lib.mkIf (cfg.enable && cfg.enableDhcp) {
     '';
   };
 
-  networking.nft-firewall.inet.filter.lan-fw.rules = lib.mkOrder 1000 ''
+  networking.nft-firewall.inet.filter.lan-fw.rules = ''
     tcp dport 53 accept
-    udp dport { 53, 67, 68} accept
+    udp dport {53, 67, 68} accept
   '';
-
-
-  # TODO: Nov 13 20:55:49 l1.shados.net dnsmasq[22485]: dnsmasq: cannot open or create lease file /var/lib/misc/dnsmasq.leases: No such file or directory 
 }
