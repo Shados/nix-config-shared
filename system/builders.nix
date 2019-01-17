@@ -74,14 +74,12 @@ in
     # Per-builder config
     singleton {
       nix.buildMachines = mapAttrsToList (name: node: {
-        hostName = node.address;
+        hostName = mkSshHostName name;
         inherit sshUser;
         sshKey = node.sshKeyFile;
       } // node.machineSpec) cfg.nodes;
-      programs.ssh.globalHosts = mapAttrs' (name: node: let
-        hostName = mkSshHostName name;
-      in nameValuePair
-        hostName
+      programs.ssh.globalHosts = mapAttrs' (name: node: nameValuePair
+        (mkSshHostName name)
         { hostName = node.address;
           user = sshUser;
           port = sshPort;
