@@ -125,17 +125,6 @@
           urxvt_vtwheel
         ];
       };
-      tmux = pkgs.tmux.overrideAttrs  (oldAttrs: {
-        # This git rev includes the 'exit-empty' option to control whether or
-        # not the tmux server will quit when there are no running sessions
-        name = "tmux-git";
-        src = fetchFromGitHub {
-          owner   = "tmux";
-          repo    = "tmux";
-          rev     = "9464b94f64eb5e8889e856458305256bacc3f94d";
-          sha256  = "19kg0h8rlpz7pkg13y3zdd2j437ihhiggg7sf0w1kzh7zvvvl4fc";
-        };
-      });
 
       snap = callPackage ./snap.nix {};
       pastebin = callPackage ./pastebin.nix {};
