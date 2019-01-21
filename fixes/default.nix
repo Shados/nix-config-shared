@@ -71,6 +71,19 @@
             then fixedXorgserver
             else super.xorg.xorgserver;
         };
+        # Use mosh newer than 1.3.2 to get proper truecolor support
+        mosh = if versionAtLeast (getVersion super.mosh) "1.3.3"
+          then super.mosh
+          else super.mosh.overrideAttrs (oldAttrs: rec {
+              name = "${pname}-${version}";
+              pname = "mosh";
+              version = "unstable-2018-08-30";
+              src = super.fetchFromGitHub {
+                owner = "mobile-shell"; repo = pname;
+                rev = "944fd6c796338235c4f3d8daf4959ff658f12760";
+                sha256 = "0fwrdqizwnn0kmf8bvlz334va526mlbm1kas9fif0jmvl1q11ayv";
+              };
+            });
       })];
     }
   ];
