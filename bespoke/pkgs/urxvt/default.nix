@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, fetchgit, perlSupport, libX11, libXt, libXft, ncurses, perl,
+{ stdenv, fetchurl, perlSupport, libX11, libXt, libXft, ncurses, perl,
   fontconfig, freetype, pkgconfig, libXrender, gdkPixbufSupport, gdk_pixbuf,
   unicode3Support }:
 
@@ -11,23 +11,10 @@ stdenv.mkDerivation (rec {
 
   name = "${pname}${if perlSupport then "-with-perl" else ""}${if unicode3Support then "-with-unicode3" else ""}-${version}";
 
-  src = fetchgit {
-    url             = "https://github.com/exg/rxvt-unicode";
-    rev             = "0767fe71f667f5be4e8967ca6ea27e2b14c19daf";
-    sha256          = "0lc2s0b0p69q37cfb6maj67gcb8bwbmgl8qbmgsh27qzq44x0ks2";
-    fetchSubmodules = true;
+  src = fetchurl {
+    url = "http://dist.schmorp.de/rxvt-unicode/Attic/rxvt-unicode-${version}.tar.bz2";
+    sha256 = "1pddjn5ynblwfrdmskylrsxb9vfnk3w4jdnq2l8xn2pspkljhip9";
   };
-
-  libptytty = fetchurl {
-    url = "http://dist.schmorp.de/libptytty/libptytty-1.8.tar.gz";
-    sha256 = "0byc9miy2fk5qzf4vnvsj0gxkfhj2izv8kipd9ywn080pj17yc6b";
-  };
-
-  libev = fetchurl {
-    url = "http://dist.schmorp.de/libev/libev-4.24.tar.gz";
-    sha256 = "1mhvy38g9947bbr0n0hzc34zwfvvfd99qgzpkbap8g2lmkl7jq3k";
-  };
-
 
   buildInputs =
     [ libX11 libXt libXft ncurses /* required to build the terminfo file */
@@ -39,6 +26,7 @@ stdenv.mkDerivation (rec {
 
 
   patches = [
+    # NixOS upstream patches
     # ./rxvt-unicode-9.06-font-width.patch
     # ./rxvt-unicode-256-color-resources.patch
 
@@ -47,6 +35,12 @@ stdenv.mkDerivation (rec {
     ./font-width-fix.patch
     ./line-spacing-fix.patch
     ./enable-wide-glyphs.patch
+
+    # 24-bit color patch, based on https://github.com/spudowiar/rxvt-unicode
+    (fetchurl {
+      url = "https://gist.githubusercontent.com/dan-santana/63271adf12171e0fc0bc/raw/70c6343d1c0b3bca0aba4f587ed501e6cbd98d00/24-bit-color.patch";
+      sha256 = "06bn0b12hi2mzk7k0vm9zp43h6wq5d2y38mpwb0ksk8jf3jszq7f";
+    })
   ];
   # ++ stdenv.lib.optional stdenv.isDarwin ./rxvt-unicode-makefile-phony.patch;
 
@@ -61,26 +55,23 @@ stdenv.mkDerivation (rec {
   configureFlags = [
     "--enable-wide-glyphs"
     "--with-terminfo=$terminfo/share/terminfo"
-    "--enable-256-color"
+    # "--enable-256-color"
+    "--enable-24-bit-color"
     ''${if perlSupport then "--enable-perl" else "--disable-perl"}''
     ''${if unicode3Support then "--enable-unicode3" else "--disable-unicode3"}''
   ];
 
   preConfigure =
     ''
-      tar xf ${libptytty}
-      mv libptytty* libptytty
-      tar xf ${libev}
-      mv libev* libev
       mkdir -p $terminfo/share/terminfo
       export TERMINFO=$terminfo/share/terminfo # without this the terminfo won't be compiled by tic, see man tic
       NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE -I${freetype.dev}/include/freetype2"
-      NIX_LDFLAGS="$NIX_LDFLAGS -lfontconfig -lXrender "
+      NIX_LDFLAGS="$NIX_LDFLAGS -lfontconfig -lXrender -lpthread "
     ''
     # make urxvt find its perl file lib/perl5/site_perl is added to PERL5LIB automatically
     + stdenv.lib.optionalString perlSupport ''
-      mkdir -p $out/lib/perl5
-      ln -s $out/{lib/urxvt,lib/perl5/site_perl}
+      mkdir -p $out/$(dirname ${perl.libPrefix})
+      ln -s $out/lib/urxvt $out/${perl.libPrefix}
     '';
 
   postInstall = ''
