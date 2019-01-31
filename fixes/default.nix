@@ -33,58 +33,91 @@
       ];
     }
     {
-      nixpkgs.overlays = [(self: super: with super.lib; {
-        # Get cython working with python 3.7
-        pythonOverrides = super.sn.buildPythonOverrides (pyself: pysuper: let
-          fixedCython = pysuper.cython.overrideAttrs(oldAttrs: rec {
-            inherit (oldAttrs) pname;
-            name = "${pname}-${version}";
-            version = "0.28.5";
+      nixpkgs.overlays = [
+        (self: super: with super.lib; {
+          # Get cython working with python 3.7
+          pythonOverrides = super.sn.buildPythonOverrides (pyself: pysuper: let
+            fixedCython = pysuper.cython.overrideAttrs(oldAttrs: rec {
+              inherit (oldAttrs) pname;
+              name = "${pname}-${version}";
+              version = "0.28.5";
 
-            src = pysuper.fetchPypi {
-              inherit pname version;
-              sha256 = "b64575241f64f6ec005a4d4137339fb0ba5e156e826db2fdb5f458060d9979e0";
-            };
+              src = pysuper.fetchPypi {
+                inherit pname version;
+                sha256 = "b64575241f64f6ec005a4d4137339fb0ba5e156e826db2fdb5f458060d9979e0";
+              };
 
-            patches = [
-              (super.fetchpatch {
-                name = "Cython-fix-test-py3.7.patch";
-                url = https://github.com/cython/cython/commit/eae37760bfbe19e7469aa41269480b84ce12b6cd.patch;
-                sha256 = "0irk53psrs05kzzlvbfv7s3q02x5lsnk5qrv0zd1ra3mw2sfyym6";
-              })
-            ];
-          });
-        in {
-          cython = if (versionOlder (getVersion pysuper.cython) "0.28.5")
-            then fixedCython
-            else pysuper.cython;
-        }) super.pythonOverrides;
-        # Patch spurious O_TMPFILE logging in older xorg
-        xorg = super.xorg // {
-          xorgserver = let
-            fixedXorgserver = super.xorg.xorgserver.overrideAttrs(oldAttrs: {
-              patches = oldAttrs.patches or [] ++ [
-                ./xorg-tmpfile.patch
+              patches = [
+                (super.fetchpatch {
+                  name = "Cython-fix-test-py3.7.patch";
+                  url = https://github.com/cython/cython/commit/eae37760bfbe19e7469aa41269480b84ce12b6cd.patch;
+                  sha256 = "0irk53psrs05kzzlvbfv7s3q02x5lsnk5qrv0zd1ra3mw2sfyym6";
+                })
               ];
             });
-          in if (versionOlder (getVersion super.xorg.xorgserver) "1.20")
-            then fixedXorgserver
-            else super.xorg.xorgserver;
-        };
-        # Use mosh newer than 1.3.2 to get proper truecolor support
-        mosh = if versionAtLeast (getVersion super.mosh) "1.3.3"
-          then super.mosh
-          else super.mosh.overrideAttrs (oldAttrs: rec {
+          in {
+            cython = if (versionOlder (getVersion pysuper.cython) "0.28.5")
+              then fixedCython
+              else pysuper.cython;
+          }) super.pythonOverrides;
+          # Patch spurious O_TMPFILE logging in older xorg
+          xorg = super.xorg // {
+            xorgserver = let
+              fixedXorgserver = super.xorg.xorgserver.overrideAttrs(oldAttrs: {
+                patches = oldAttrs.patches or [] ++ [
+                  ./xorg-tmpfile.patch
+                ];
+              });
+            in if (versionOlder (getVersion super.xorg.xorgserver) "1.20")
+              then fixedXorgserver
+              else super.xorg.xorgserver;
+          };
+          # Use mosh newer than 1.3.2 to get proper truecolor support
+          mosh = if versionAtLeast (getVersion super.mosh) "1.3.3"
+            then super.mosh
+            else super.mosh.overrideAttrs (oldAttrs: rec {
+                name = "${pname}-${version}";
+                pname = "mosh";
+                version = "unstable-2018-08-30";
+                src = super.fetchFromGitHub {
+                  owner = "mobile-shell"; repo = pname;
+                  rev = "944fd6c796338235c4f3d8daf4959ff658f12760";
+                  sha256 = "0fwrdqizwnn0kmf8bvlz334va526mlbm1kas9fif0jmvl1q11ayv";
+                };
+              });
+        })
+        # Fixes nixpkgs#53492; remove after nixpkgs#53505 merged
+        (self: super: with super.lib; {
+          pythonOverrides = super.sn.buildPythonOverrides (pyself: pysuper: {
+            kaptan = if versionAtLeast (getVersion pysuper.kaptan) "0.5.11"
+              then pysuper.kaptan
+              else pysuper.kaptan.overridePythonAttrs (oldAttrs: rec {
+                inherit (oldAttrs) pname;
+                version = "0.5.11";
+
+                src = pysuper.fetchPypi {
+                  inherit pname version;
+                  sha256 = "8403d6e48200c3f49cb6d6b3dcb5898aa5ab9d820831655bf9a2403e00cd4207";
+                };
+
+                doCheck = false;
+              });
+          }) super.pythonOverrides;
+
+          tmuxp = if versionAtLeast (getVersion super.tmuxp) "1.5.0a1"
+            then super.tmuxp
+            else super.tmuxp.overrideAttrs (oldAttrs: rec {
+              inherit (oldAttrs) pname;
               name = "${pname}-${version}";
-              pname = "mosh";
-              version = "unstable-2018-08-30";
-              src = super.fetchFromGitHub {
-                owner = "mobile-shell"; repo = pname;
-                rev = "944fd6c796338235c4f3d8daf4959ff658f12760";
-                sha256 = "0fwrdqizwnn0kmf8bvlz334va526mlbm1kas9fif0jmvl1q11ayv";
+              version = "1.5.0a1";
+
+              src = super.pythonPackages.fetchPypi {
+                inherit pname version;
+                sha256 = "88b6ece3ff59a0882b5c5bff169cc4c1d688161fe61e5553b0a0802ff64b6da8";
               };
             });
-      })];
+        })
+      ];
     }
   ];
 }
