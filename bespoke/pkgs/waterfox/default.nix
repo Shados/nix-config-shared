@@ -80,7 +80,7 @@ stdenv.mkDerivation rec {
     jemalloc gtk2 
   ] ++ (with xorg; [
     libX11 libXext libXft libXi libXrender libXScrnSaver
-    libXt pixman scrnsaverproto xextproto
+    libXt pixman
   ])
   ++ lib.optional alsaSupport alsaLib
   ++ lib.optional pulseaudioSupport libpulseaudio
@@ -201,11 +201,11 @@ stdenv.mkDerivation rec {
 
   preInstall = ''
     # The following is needed for startup cache creation on grsecurity kernels.
-    paxmark m dist/bin/xpcshell
+    # paxmark m dist/bin/xpcshell
   '';
   postInstall = ''
     # For grsecurity kernels
-    paxmark m $out/lib/waterfox*/{waterfox,waterfox-bin,plugin-container}
+    # paxmark m $out/lib/waterfox*/{waterfox,waterfox-bin,plugin-container}
 
     # Remove SDK cruft. FIXME: move to a separate output?
     rm -rf $out/share/idl $out/include $out/lib/waterfox-devel-*
