@@ -2,10 +2,11 @@
 
 {
   nixpkgs.config.packageOverrides = pkgs: rec {
-    dmenu = pkgs.dmenu.override {
+    dmenu = pkgs.dmenu.overrideAttrs(oldAttrs: {
+      patchFlags = "-p2";
       patches = [
-        ./dmenu-fuzzymatch-20170603-f428f3e.diff
+        ./fuzzymatch.patch
       ];
-    };
+    });
   };
 }

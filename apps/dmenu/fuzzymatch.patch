@@ -2,10 +2,10 @@ Author: Jan Christoph Ebersbach <jceb@e-jc.de>
 URL: http://tools.suckless.org/dmenu/patches/fuzzymatch
 Add add fuzzy matching to dmenu
 
-Index: dmenu-patches/dmenu.c
+Index: dmenu-patches/dmenu/dmenu.c
 ===================================================================
---- dmenu-patches.orig/dmenu.c
-+++ dmenu-patches/dmenu.c
+--- dmenu-patches.orig/dmenu/dmenu.c
++++ dmenu-patches/dmenu/dmenu.c
 @@ -1,6 +1,7 @@
  /* See LICENSE file for copyright and license details. */
  #include <ctype.h>
@@ -14,7 +14,7 @@ Index: dmenu-patches/dmenu.c
  #include <stdio.h>
  #include <stdlib.h>
  #include <string.h>
-@@ -31,6 +32,7 @@ struct item {
+@@ -34,6 +35,7 @@ struct item {
  	char *text;
  	struct item *left, *right;
  	int out;
@@ -22,7 +22,7 @@ Index: dmenu-patches/dmenu.c
  };
  
  static char text[BUFSIZ] = "";
-@@ -209,9 +211,94 @@ grabkeyboard(void)
+@@ -212,9 +214,94 @@ grabkeyboard(void)
  	die("cannot grab keyboard");
  }
  
@@ -117,7 +117,7 @@ Index: dmenu-patches/dmenu.c
  	static char **tokv = NULL;
  	static int tokn = 0;
  
-@@ -656,6 +743,8 @@ main(int argc, char *argv[])
+@@ -704,6 +791,8 @@ main(int argc, char *argv[])
  			topbar = 0;
  		else if (!strcmp(argv[i], "-f"))   /* grabs keyboard before reading stdin */
  			fast = 1;
@@ -126,10 +126,10 @@ Index: dmenu-patches/dmenu.c
  		else if (!strcmp(argv[i], "-i")) { /* case-insensitive item matching */
  			fstrncmp = strncasecmp;
  			fstrstr = cistrstr;
-Index: dmenu-patches/config.def.h
+Index: dmenu-patches/dmenu/config.def.h
 ===================================================================
---- dmenu-patches.orig/config.def.h
-+++ dmenu-patches/config.def.h
+--- dmenu-patches.orig/dmenu/config.def.h
++++ dmenu-patches/dmenu/config.def.h
 @@ -2,6 +2,7 @@
  /* Default settings; can be overriden by command line. */
  
@@ -137,17 +137,17 @@ Index: dmenu-patches/config.def.h
 +static int fuzzy = 1;                      /* -F  option; if 0, dmenu doesn't use fuzzy matching     */
  /* -fn option overrides fonts[0]; default X11 font or font set */
  static const char *fonts[] = {
- 	"monospace:size=10"
-Index: dmenu-patches/config.mk
+ 	"Hack:size=8.5:antialias=true:autohint=false"
+Index: dmenu-patches/dmenu/config.mk
 ===================================================================
---- dmenu-patches.orig/config.mk
-+++ dmenu-patches/config.mk
+--- dmenu-patches.orig/dmenu/config.mk
++++ dmenu-patches/dmenu/config.mk
 @@ -20,7 +20,7 @@ FREETYPEINC = /usr/include/freetype2
  
  # includes and libs
- INCS = -I${X11INC} -I${FREETYPEINC}
--LIBS = -L${X11LIB} -lX11 ${XINERAMALIBS} ${FREETYPELIBS}
-+LIBS = -L${X11LIB} -lX11 ${XINERAMALIBS} ${FREETYPELIBS} -lm
+ INCS = -I$(X11INC) -I$(FREETYPEINC)
+-LIBS = -L$(X11LIB) -lX11 $(XINERAMALIBS) $(FREETYPELIBS)
++LIBS = -L$(X11LIB) -lX11 $(XINERAMALIBS) $(FREETYPELIBS) -lm
  
  # flags
- CPPFLAGS = -D_DEFAULT_SOURCE -D_BSD_SOURCE -D_XOPEN_SOURCE=700 -D_POSIX_C_SOURCE=200809L -DVERSION=\"${VERSION}\" ${XINERAMAFLAGS}
+ CPPFLAGS = -D_DEFAULT_SOURCE -D_BSD_SOURCE -D_XOPEN_SOURCE=700 -D_POSIX_C_SOURCE=200809L -DVERSION=\"$(VERSION)\" $(XINERAMAFLAGS)
