@@ -6,7 +6,13 @@ in
 {
   options = {
     sn.memory = {
-      enableOvercommit = mkEnableOption "Linux virtual memory overcommit";
+      enableOvercommit = mkOption {
+        type = with types; bool;
+        default = true;
+        description = ''
+          Whether or not to enable Linxu virtual memory overcommit.
+        '';
+      };
     };
   };
   config = mkMerge [
