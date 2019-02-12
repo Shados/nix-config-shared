@@ -1,9 +1,9 @@
-{ stdenv, symlinkJoin, rxvt_unicode, makeWrapper, plugins }:
+{ stdenv, makePerlPath, symlinkJoin, rxvt_unicode, makeWrapper, plugins }:
 
 let
   rxvt_name = builtins.parseDrvName rxvt_unicode.name;
   extraLibs = builtins.concatLists (map (x: x.extraLibs or []) plugins);
-  perlPaths = stdenv.lib.concatStringsSep " " (map (x: stdenv.lib.makePerlPath [x]) extraLibs);
+  perlPaths = stdenv.lib.concatStringsSep " " (map (x: makePerlPath [x]) extraLibs);
 in
 symlinkJoin {
   name = "${rxvt_name.name}-with-plugins-${rxvt_name.version}";

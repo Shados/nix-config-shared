@@ -114,6 +114,7 @@
         SubExporter DataOptList ParamsUtil SubInstall;
       };
       rxvt_unicode-with-plugins = callPackage ./urxvt/wrapper.nix {
+        inherit (perlPackages) makePerlPath;
         plugins = [
           urxvt-config-reload
           urxvt_autocomplete_all_the_things
