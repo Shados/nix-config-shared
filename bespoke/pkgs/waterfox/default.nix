@@ -37,13 +37,13 @@ in
 
 stdenv.mkDerivation rec {
   name = "waterfox-${version}";
-  version = "56.2.4";
+  version = "56.2.7";
 
   src = fetchFromGitHub {
     owner  = "MrAlex94";
     repo   = "Waterfox";
     rev    = version;
-    sha256 = "1gbiygpzb7nxpnazfdsckv4k3ha20q8sjic03dc7hgbm00jfqxsl";
+    sha256 = "13knxikzwj0i9jblqsk6wl5hsr58i3dps1j4mf374g1c2yv4530d";
   };
   src_vendorjs = ./vendor.js;
 
