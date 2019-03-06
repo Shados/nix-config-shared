@@ -2,12 +2,12 @@
 {
   nixpkgs.overlays = [(self: super: with super.lib; {
     cataclysm-dda-git = (super.cataclysm-dda-git.overrideAttrs(oldAttrs: rec {
-      version = "2019-02-25";
+      version = "2019-03-05"; # jenkinks build #8566 https://ci.narc.ro/job/Cataclysm-Multijob/8566/
       name = "cataclysm-dda-git-${version}";
       src = super.fetchgit {
         url = "https://github.com/CleverRaven/Cataclysm-DDA.git";
-        rev = "f76242ff62fce4030a6728831e8131f279de89f7";
-        sha256 = "0y4q9a545bdlvpdbj7vs4a167vrcbhmfyw9d776cxjf3kk9w94sa";
+        rev = "d5cafd3e5a785f43164e3ff3e1cb60dd7fefde94";
+        sha256 = "1macfiwmrpcmzvdhaha9pcd2jgzlv1c8jclbsxjfakcp0llncbha";
         leaveDotGit = true;
       };
       makeFlags = oldAttrs.makeFlags ++ [
