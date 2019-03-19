@@ -7,7 +7,7 @@
       src = super.fetchgit {
         url = "https://github.com/CleverRaven/Cataclysm-DDA.git";
         rev = "d5cafd3e5a785f43164e3ff3e1cb60dd7fefde94";
-        sha256 = "1macfiwmrpcmzvdhaha9pcd2jgzlv1c8jclbsxjfakcp0llncbha";
+        sha256 = "1j8xsfqprqqaimfsfsi3f1isgsix3wrdjcyk8wppyizqfk06zyc4";
         leaveDotGit = true;
       };
       makeFlags = oldAttrs.makeFlags ++ [
