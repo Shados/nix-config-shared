@@ -85,6 +85,18 @@
                   sha256 = "0fwrdqizwnn0kmf8bvlz334va526mlbm1kas9fif0jmvl1q11ayv";
                 };
               });
+          monero = if versionOlder (getVersion super.monero) "0.14.0.2"
+            then super.monero.overrideAttrs (oldAttrs: rec{
+                name = "monero-${version}";
+                version = "0.14.0.2";
+                src = super.fetchgit {
+                url = "https://github.com/monero-project/monero.git";
+                rev = "v${version}";
+                sha256 = "1471iy6c8dfdqcmcwcp0m7fp9xl74dcm5hqlfdfi217abhawfs8k";
+              };
+              buildInputs = oldAttrs.buildInputs or [] ++ singleton super.libsodium;
+            })
+            else super.monero;
         })
         # Fixes nixpkgs#53492; remove after nixpkgs#53505 merged
         (self: super: with super.lib; {
