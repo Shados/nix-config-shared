@@ -86,7 +86,7 @@
                 };
               });
           monero = if versionOlder (getVersion super.monero) "0.14.0.2"
-            then super.monero.overrideAttrs (oldAttrs: rec{
+            then super.monero.overrideAttrs (oldAttrs: rec {
                 name = "monero-${version}";
                 version = "0.14.0.2";
                 src = super.fetchgit {
@@ -97,6 +97,15 @@
               buildInputs = oldAttrs.buildInputs or [] ++ singleton super.libsodium;
             })
             else super.monero;
+          # Remove once we have upstream fix from https://github.com/pimutils/vdirsyncer/pull/788
+          vdirsyncer = super.vdirsyncer.overrideAttrs (oldAttrs: rec {
+            patches = oldAttrs.patches ++ [
+              (super.fetchpatch {
+                url = https://github.com/pimutils/vdirsyncer/pull/788.patch;
+                sha256 = "0vl942ii5iad47y63v0ngmhfp37n30nxyk4j7h64b95fk38vfwx9";
+              })
+            ];
+          });
         })
         # Fixes nixpkgs#53492; remove after nixpkgs#53505 merged
         (self: super: with super.lib; {
