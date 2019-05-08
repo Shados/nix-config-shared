@@ -20,6 +20,7 @@ with lib;
     ./ssh.nix
     # Global ssh_config Host definitions
     ./ssh-globalhosts.nix
+    ./systemd.nix
     ./users.nix
   ];
 

@@ -2,7 +2,7 @@
 
 {
   users.mutableUsers = false;
-  users.extraUsers.shados = {
+  users.users.shados = {
     createHome = true;
     home = "/home/shados";
     description = "Alexei Robyn";
@@ -20,6 +20,7 @@
       "/etc/nixos/modules/keys/shados@sn-u1-malkieri.id_ecdsa.pub"
     ];
     passwordFile = "/etc/nixos/modules/passwords/shados";
+    linger = true;
   };
   security.initialRootPassword = "$6$t6l9e3mAk$rohvE4HsBPPbsy1pQmtZSVvYUX0Gjl.seA/h6xYiKHc5ZSug0HAe/4F1EDq8XO.7aRrnfv2f9eDMf4kGKIDQ6/";
   services.openssh.allowed_users = [ "shados" ];
