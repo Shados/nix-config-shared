@@ -105,6 +105,7 @@ let
     VIDEO_STK1160_COMMON? n
     MEDIA_ATTACH? n
     USELIB? n
+    USB_CONFIGFS_F_TCM? n
 
     # not using zram
     ZRAM? n

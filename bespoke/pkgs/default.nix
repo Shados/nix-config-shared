@@ -5,7 +5,7 @@
     ./kernels
     ./vim-support
   ];
-  environment.systemPackages = with pkgs; lib.optional config.fragments.remote nix-prefetch-flash;
+  environment.systemPackages = with pkgs; lib.optional (!config.fragments.remote) nix-prefetch-flash;
   nixpkgs.overlays = [
     # Pinned old flashplayer versions
     (self: super: let
@@ -44,6 +44,7 @@
         [ "30.0.0.154" "14p0lcj8x09ivk1h786mj0plzz2lkvxkbw3w15fym7pd0nancz88" ]
         [ "31.0.0.108" "06kvwlzw2bjkcxzd1qvrdvlp0idvm54d1rhzn5vq1vqdhs0lnv76" ]
         [ "31.0.0.122" "1rnxqw8kn96cqf821fl209bcmqva66j2p3wq9x4d43d8lqmsazhv" ]
+        [ "32.0.0.171" "1zln5m82va44nzypkx5hdkq6kk3gh7g4sx3q603hw8rys0bq22bb" ]
       ];
     in {
       flashplayer = let

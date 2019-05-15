@@ -13,6 +13,8 @@
 # - Patches could specifiy NixOS modules (that is, provide `{ imports = ...;
 #   options = ...; config = ...; }` attribute sets that would be added to the
 #   system modules if a kernel using them is set in `boot.kernelPackages`).
+# - Look into recent improvements in standard nixos kernel configuration mechanisms
+# - Use structured configuration for .config fragments instead of strings
 {
   config = lib.mkMerge [
     # Some generic configuration
@@ -74,6 +76,7 @@
             "4.18.12" = "1icz2nkhkb1xhpmc9gxfhc3ywkni8nywk25ixrmgcxp5rgcmlsl4";
             "4.18.14" = "1lv2hpxzlk1yzr5dcjb0q0ylvlwx4ln2jvfvf01b9smr1lvd3iin";
             "4.18.16" = "1rjjkhl8lz4y4sn7icy8mp6p1x7rvapybp51p92sanbjy3i19fmy";
+            "5.1" = "0hghjkxgf1p8mfm04a9ckjvyrnp71jp3pbbp0qsx35rzwzk7nsnh";
           };
           # }}}
 
@@ -91,7 +94,7 @@
           soloPatch = name: patch: [ { inherit name patch; } ];
           ckpdsSharedConfig = ''
             # Because ck-patchset's MUQSS and PDS are both based on BFS, they
-            # are many of the same negative deps
+            # share many of the same negative deps
             CFS_BANDWIDTH? n
             RT_GROUP_SCHED? n
             SCHED_AUTOGROUP? n
@@ -117,13 +120,15 @@
                 MNATIVE y # -march=native kernel optimizations
               '';
             };
-            # TODO update this to take into account the differing standard
-            # patches for various versions?
-            nixos = _kver: {
+            # TODO further take into account the differing standard patches for
+            # various versions?
+            nixos = kVer: let
+              ver = approxVer kVer;
+            in {
               patches = with super.kernelPatches; [
                 bridge_stp_helper
                 modinst_arg_list_too_long
-              ];
+              ] ++ optional (versionAtLeast ver "5.0") export_kernel_fpu_functions;
               kConfig = "";
             };
 
@@ -131,19 +136,19 @@
             bfq = patchDefWithConfig ''
                 BLK_CGROUP y
                 BLK_WBT y # CoDeL-based writeback throttling
-                BLK_WBT_SQ y
-                BLK_WBT_MQ y
-                IOSCHED_BFQ n
+                BLK_WBT_SQ? y
+                BLK_WBT_MQ? y
+                IOSCHED_BFQ? n
                 BFQ_GROUP_IOSCHED? n
 
-                SCSI_MQ_DEFAULT n
-                DM_MQ_DEFAULT n
-                MQ_IOSCHED_BFQ y
-                MQ_BFQ_GROUP_IOSCHED y
+                SCSI_MQ_DEFAULT? n
+                DM_MQ_DEFAULT? n
+                MQ_IOSCHED_BFQ? y
+                MQ_BFQ_GROUP_IOSCHED? y
 
-                IOSCHED_BFQ_SQ y
-                BFQ_SQ_GROUP_IOSCHED y
-                DEFAULT_BFQ_SQ y
+                IOSCHED_BFQ_SQ? y
+                BFQ_SQ_GROUP_IOSCHED? y
+                DEFAULT_BFQ_SQ? y
               '' {
                 "4.15" = soloPatch "bfq" ./patches/4.15/bfq-sq-mq-git-20180404.patch;
                 "4.17" = [
@@ -161,6 +166,18 @@
                   { name = "bfq-fixes-5"; patch = ./patches/4.18/0918-fixes-from-pfkernel.patch; }
                   { name = "bfq-fixes-6"; patch = ./patches/4.18/0919-fixes-from-pfkernel.patch; }
                 ];
+                "5.1" = [
+                  { name = "bfq-paolo"; patch = ./patches/5.1/bfq-paolo/0001-block-bfq-delete-bfq-prefix-from-cgroup-filenames.patch; }
+                  { name = "bfq-patches-1"; patch = ./patches/5.1/bfq-patches/0001-block-bfq-increase-idling-for-weight-raised-queues.patch; }
+                  { name = "bfq-patches-2"; patch = ./patches/5.1/bfq-patches/0002-block-bfq-do-not-idle-for-lowest-weight-queues.patch; }
+                  { name = "bfq-patches-3"; patch = ./patches/5.1/bfq-patches/0003-block-bfq-tune-service-injection-basing-on-request-s.patch; }
+                  { name = "bfq-patches-4"; patch = ./patches/5.1/bfq-patches/0004-block-bfq-do-not-merge-queues-on-flash-storage-with-.patch; }
+                  { name = "bfq-patches-5"; patch = ./patches/5.1/bfq-patches/0005-block-bfq-do-not-tag-totally-seeky-queues-as-soft-rt.patch; }
+                  { name = "bfq-patches-6"; patch = ./patches/5.1/bfq-patches/0006-block-bfq-always-protect-newly-created-queues-from-e.patch; }
+                  { name = "bfq-patches-7"; patch = ./patches/5.1/bfq-patches/0007-block-bfq-print-SHARED-instead-of-pid-for-shared-que.patch; }
+                  { name = "bfq-patches-8"; patch = ./patches/5.1/bfq-patches/0008-block-bfq-save-resume-weight-on-a-queue-merge-split.patch; }
+                  { name = "bfq-patches-9"; patch = ./patches/5.1/bfq-patches/0009-doc-block-bfq-add-information-on-bfq-execution-time.patch; }
+                ];
               };
             ck = patchDefWithConfig (''
                 SCHED_MUQSS y
@@ -172,7 +189,6 @@
               };
             fixes = patchDefWithConfig "" {
               "4.17" = [
-                { name = "sysctl-disallow-newuser"; patch = ./patches/4.17/0001-add-sysctl-to-disallow-unprivileged-CLONE_NEWUSER-by.patch; }
                 { name = "revert-i915-alternate-fix-mode"; patch = ./patches/4.17/0002-Revert-drm-i915-edp-Allow-alternate-fixed-mode-for-e.patch; }
               ];
             };
@@ -212,6 +228,31 @@
                   { name = "uksm-2"; patch = ./patches/4.18/0002-uksm-4.18-rework-exit_mmap-locking.patch; }
                 ];
               };
+            # Various block layer, disk hardware, and general disk IO patches
+            disk = patchDefWithConfig "" {
+              "5.1" = [
+                { name = "blk-patches-1"; patch = ./patches/5.1/blk-patches/0001-blk-throttle-verify-format-of-bandwidth-limit-and-de.patch; }
+                { name = "blk-patches-2"; patch = ./patches/5.1/blk-patches/0002-blkcg-Prevent-priority-inversion-problem-during-sync.patch; }
+                { name = "blk-patches-3"; patch = ./patches/5.1/blk-patches/0003-blkcg-Prevent-priority-inversion-problem-during-sync.patch; }
+                { name = "blk-patches-4"; patch = ./patches/5.1/blk-patches/0004-blk-mq-Use-static_rqs-to-iterate-busy-tags-v2.patch; }
+                { name = "blk-patches-5"; patch = ./patches/5.1/blk-patches/0005-blk-mq-fix-races-related-with-freeing-queue.patch; }
+                { name = "blk-patches-6"; patch = ./patches/5.1/blk-patches/0006-blk-mq-Fix-memory-leak-in-error-handling.patch; }
+                { name = "block-patches-1"; patch = ./patches/5.1/block-patches/0001-block-break-loop-when-getting-target-major-number-in.patch; }
+                { name = "block-patches-2"; patch = ./patches/5.1/block-patches/0002-block-Remove-redundant-unlikely-annotation.patch; }
+                { name = "block-patches-3"; patch = ./patches/5.1/block-patches/0003-block-Fix-a-WRITE-SAME-BUG_ON.patch; }
+                { name = "block-patches-4"; patch = ./patches/5.1/block-patches/0004-block-loop-set-GENHD_FL_NO_PART_SCAN-after-blkdev_re.patch; }
+                { name = "block-patches-5"; patch = ./patches/5.1/block-patches/0005-block-Init-flush-rq-ref-count-to-1.patch; }
+                { name = "block-patches-6"; patch = ./patches/5.1/block-patches/0006-block-Code-cleanup-for-bio_find_or_create_slab.patch; }
+                { name = "block-patches-7"; patch = ./patches/5.1/block-patches/0007-block-Don-t-check-if-adjacent-bvecs-in-one-bio-can-b.patch; }
+                { name = "block-patches-8"; patch = ./patches/5.1/block-patches/0008-block-Fix-use-after-free-of-gendisk.patch; }
+                { name = "block-patches-9"; patch = ./patches/5.1/block-patches/0009-block-Add-a-req_bvec-helper.patch; }
+                { name = "block-patches-10"; patch = ./patches/5.1/block-patches/0010-block-Skip-media-change-event-handling-if-unsupporte.patch; }
+                { name = "iouring-patches-1"; patch = ./patches/5.1/iouring-patches/0001-io_uring-fix-shadowed-variable-ret-return-code-being.patch; }
+                { name = "iouring-patches-2"; patch = ./patches/5.1/iouring-patches/0002-io_uring-restructure-io_-read-write-control-flow.patch; }
+                { name = "scsi-patches-1"; patch = ./patches/5.1/scsi-patches/0001-scsi-sd-block-Fix-regressions-in-read-only-block-dev.patch; }
+                { name = "scsi-patches-2"; patch = ./patches/5.1/scsi-patches/0002-scsi-sd-block-Update-fix-regressions-in-read-only-bl.patch; }
+              ];
+            };
           };
           # }}}
         }; };
@@ -265,13 +306,12 @@
           # }}}
           gcc8Stdenv = with super; overrideCC stdenv gcc8;
         in {
-          kernels.dreamlogic = mkLinux "dreamlogic" "4.18" (with patches;
-            [ nixos bfq uksm ck ] ++ singleton (mnative gcc8Stdenv))
+          kernels.dreamlogic = mkLinux "dreamlogic" "5.1" (with patches;
+            [ nixos bfq disk ] ++ singleton (mnative gcc8Stdenv))
             kConfig.dreamlogic
             { stdenv = gcc8Stdenv; };
-          kernels.greymatters = mkLinux "greymatters" "4.18" (with patches;
-            # [ nixos uksm ck kvm-preemption-warning ] ++ singleton (mnative gcc8Stdenv))
-            [ nixos uksm ck ] ++ singleton (mnative gcc8Stdenv))
+          kernels.greymatters = mkLinux "greymatters" "5.1" (with patches;
+            [ nixos bfq disk kvm-preemption-warning ] ++ singleton (mnative gcc8Stdenv))
             kConfig.greymatters
             { stdenv = gcc8Stdenv; };
         }
