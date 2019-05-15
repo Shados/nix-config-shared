@@ -61,9 +61,9 @@ let
       full = [
       ];
     };
-    lua = with lua52Packages; {
+    lua = with luajitPackages; {
       minimal = [
-        ["luac" lua]
+        ["luac" luajit]
         luacheck
       ];
       full = [
@@ -117,7 +117,6 @@ let
     in if isString pkg then
       parse pkg
     else parse pkg.name;
-
 
   concatOxford = stringList: let
       commaSeparated = concatStringSep ", " (init stringList);
@@ -179,20 +178,59 @@ in
         '';
       };
       languageSupport = langSupportOpts langPkgDefs;
+      luaModules = mkOption {
+        type = with types; listOf package;
+        default = with pkgs.luajitPackages; [
+          inspect luafilesystem
+        ];
+        description = ''
+          List of Luajit packages to make available to neovim plugins.
+        '';
+      };
     };
   };
 
   config = mkMerge [
     {
       environment.systemPackages = let
-          pkgToString = pkg: getPkgName pkg;
-          languageSupportPackages = concatLists (mapAttrsToList (mkLangPkgList) langPkgDefs);
-        in with pkgs; [
-          neovim
-          neovim-remote
-          silver-searcher # `ag`
-          universal-ctags
-        ] ++ languageSupportPackages;
+        pkgToString = pkg: getPkgName pkg;
+        languageSupportPackages = concatLists (mapAttrsToList (mkLangPkgList) langPkgDefs);
+        nvimWithLuaModules = { stdenv, neovim, makeWrapper, luaModules ? [] }:
+          with stdenv.lib; stdenv.mkDerivation {
+            name = "neovim-with-luamodules-${getVersion neovim}";
+            preferLocalBuild = true;
+            buildInputs = [
+              makeWrapper
+            ];
+            propagatedBuildInputs = luaModules;
+            buildCommand = let
+              makeLuaPath = drv: "${drv}/share/lua/5.1";
+              makeLuaCPath = drv: "${drv}/lib/lua/5.1";
+            in ''
+              makeWrapper "$(readlink -v --canonicalize-existing "${neovim}/bin/nvim")" \
+                "$out/bin/nvim" \
+                --suffix LUA_PATH ';' '${concatMapStringsSep ";" (module:
+                    "${makeLuaPath module}/?/init.lua;${makeLuaPath module}/?.lua"
+                  ) luaModules}' \
+                --suffix LUA_CPATH ';' '${concatMapStringsSep ";" (module:
+                    "${makeLuaCPath module}/?/init.so;${makeLuaCPath module}/?.so"
+                  ) luaModules}'
+            '';
+            meta = neovim.meta // {
+              description = neovim.meta.description;
+              hydraPlatforms = [];
+              # prefer wrapper over the lower-level wrapper
+              priority = (neovim.meta.priority or 0) - 1;
+            };
+          };
+      in with pkgs; [
+        (callPackage nvimWithLuaModules {
+          inherit (cfg) luaModules;
+        })
+        neovim-remote
+        silver-searcher # `ag`
+        universal-ctags
+      ] ++ languageSupportPackages;
 
       # cachix caches
       nix = {
