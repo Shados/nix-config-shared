@@ -215,7 +215,7 @@ in
       networking.nft-firewall = {
         ip.nat = {
           nixos-nat-pre.rules = ''
-            # Mark packets coming from the external interface(s)
+            # Mark packets coming from the internal interface(s)
             ${concatMapStrings (iface: ''
               meta iifname "${iface}" mark set 0x01
             '') natcfg.internalInterfaces}
