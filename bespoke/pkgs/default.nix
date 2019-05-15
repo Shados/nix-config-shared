@@ -145,19 +145,28 @@
       });
 
       waterfox = let
-        waterfox-unwrapped = callPackage ./waterfox {
+        # Build against an older nixpkgs that used rust 1.3.2, in order to
+        # leave stylo and rust-simd enabled (see
+        # https://github.com/MrAlex94/Waterfox/issues/910)
+        rust-132-nixpkgs = builtins.fetchTarball {
+          url = "https://github.com/NixOS/nixpkgs/archive/63e68e5bb92baba6454d0cf7e966cdfaa22889c9.tar.gz";
+          sha256 = "162q79kpmkl353akl0i1qnddifdli3h6vy8k71dngpl756h5ih62";
+        };
+        rust-132-pkgs = import rust-132-nixpkgs { };
+        llvmp = rust-132-pkgs.llvmPackages_7;
+        waterfox-unwrapped = with rust-132-pkgs; callPackage ./waterfox {
           # # https://forum.palemoon.org/viewtopic.php?f=57&t=15296#p111146
           # stdenv = overrideCC stdenv gcc5;
           # stdenv = overrideCC clangStdenv gcc5;
-          stdenv = llvmPackages_6.libcxxStdenv;
-          llvmPackages = llvmPackages_6;
+          stdenv = llvmp.libcxxStdenv;
+          llvmPackages = llvmp;
           inherit (gnome2) libIDL;
           libpng = libpng_apng;
           python = python2;
           gnused = gnused_422;
           icu = icu59;
           hunspell = pkgs.hunspell.override {
-            stdenv = llvmPackages_6.libcxxStdenv;
+            stdenv = llvmp.libcxxStdenv;
           };
         };
       in wrapFirefox waterfox-unwrapped {
