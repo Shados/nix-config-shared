@@ -19,7 +19,7 @@ in
       };
       package = mkOption {
         type = with types; package;
-        default = pkgs.python36Packages.flake8;
+        default = pkgs.python3Packages.flake8;
         description = ''
           The base flake8 package to use.
         '';
