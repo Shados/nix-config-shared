@@ -1,4 +1,4 @@
-{ stdenv, lua, buildLuaPackage
+{ stdenv, lua, buildLuarocksPackage
 , fetchgit, writeText
 , luarocks, shim-getpw
 , moonscript, etlua, loadkit, luafilesystem, lua-discount
@@ -133,7 +133,7 @@ let
     }
   '';
 in
-buildLuaPackage rec {
+buildLuarocksPackage rec {
   name = "${pname}-${version}";
   pname = "lunadoc";
   version = "unstable-2018-04-10";

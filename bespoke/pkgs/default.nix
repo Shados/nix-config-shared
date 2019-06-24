@@ -83,7 +83,7 @@
       });
     })
     # Lua package overrides
-    (import ./luaPackages/overlay.nix)
+    (import ./lua-packages/overlay.nix)
     # (self: super: super.sn.defineLuaPackageOverrides super (luaself: luasuper: {
     #   # alt-getopt = super.callPackage ./alt-getopt.nix { inherit (super.luaPackages) buildLuaPackage; };
     #   argparse = super.callPackage ./luaPackages/argparse.nix {

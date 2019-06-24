@@ -1,12 +1,11 @@
-{ stdenv, buildLuaPackage, fetchgit
-, cmake
-, lua
+{ stdenv, buildLuarocksPackage, fetchgit
 }:
 
-buildLuaPackage rec {
-  name = "effil-${version}";
-  version = "unstable-2018-11-14";
+buildLuarocksPackage rec {
+  pname = "effil";
+  version = "1.0-0";
 
+  # version = "unstable-2018-11-14";
   src = fetchgit {
     # owner = "effil"; repo = "effil";
     url = "https://github.com/effil/effil";
@@ -16,21 +15,17 @@ buildLuaPackage rec {
     # into using system version?
     fetchSubmodules = true;
   };
+  knownRockspec = "rockspecs/${pname}-${version}.rockspec";
+  postConfigure = ''
+    # We already have the submodule, we don't need fetch-gitrec
+    substituteInPlace ''${rockspecFilename} \
+      --replace ', "luarocks-fetch-gitrec"' '''
 
-  cmakeFlags = [
-    "-DLUA_INCLUDE_DIR=${lua}/include"
-  ];
-
-  preConfigure = ''
-    cmakeFlags+=" -DCMAKE_INSTALL_PREFIX=$out/lib/lua/${lua.luaversion}"
+    # There's no more effil.lua, it's all in the shared object now
+    sed ''${rockspecFilename} -i \
+      -Ee '/lua = \{ install_dir /d' \
+      -Ee 's|libeffil\.so|effil.so|g'
   '';
-
-  nativeBuildInputs = [
-    cmake
-  ];
-  buildInputs = [
-    lua
-  ];
 
   meta = with stdenv.lib; {
     description = "Effil is a lua module for multithreading support, it allows you to spawn native threads and perform safe data exchange between them";
