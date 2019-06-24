@@ -205,6 +205,8 @@
         browserName = "waterfox";
       };
 
+      # Add the `dunstify` notifier binary to $out
+      dunst = super.dunst.override { dunstify = true; };
     })
   ];
 
