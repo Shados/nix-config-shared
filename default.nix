@@ -52,6 +52,10 @@ in
       };
       time.timeZone = "Australia/Melbourne";
 
+      documentation.nixos = {
+        enable = true;
+        includeAllModules = true;
+      };
     }
   ];
 }

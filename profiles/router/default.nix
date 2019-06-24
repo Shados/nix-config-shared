@@ -109,7 +109,7 @@ in
       };
       wifiInt = mkOption {
         description = ''
-          Wireless network interface to configure & use.
+          Wireless network interface to configure and use.
         '';
         example = "wlp3s0";
         type = types.nullOr types.str;

@@ -33,10 +33,16 @@ let
     options = {
       address = mkOption {
         type = with types; str;
+        description = ''
+          An IP address.
+        '';
       };
       port = mkOption {
         type = with types; ints.u16;
         default = 53;
+        description = ''
+          A TCP/UDP port number.
+        '';
       };
     };
   };
@@ -99,6 +105,9 @@ let
   };
   timeOpt = mkOption {
     type = with types; timeType;
+    description = ''
+      A time specification, in 24-hour HH:MM format.
+    '';
   };
   timeType = types.strMatching "[0-2]?[[:digit:]]:[[:digit:]]{2}";
 
@@ -414,10 +423,12 @@ in
           In addition to acting as a HOSTS file, it can also return the IP
           address of a different name. It will also do CNAME flattening.
         '';
-        example = [
-          { domain = "example.com"; return = "10.1.1.1"; }
-          { domain = "www.google.com"; return = "forcesafesearch.google.com"; }
-        ];
+        example = literalExample ''
+          [
+            { domain = "example.com"; return = "10.1.1.1"; }
+            { domain = "www.google.com"; return = "forcesafesearch.google.com"; }
+          ]
+        '';
       };
 
       cache = {
