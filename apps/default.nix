@@ -1,4 +1,5 @@
-{ config, pkgs, ... }:
+{ config, lib, pkgs, ... }:
+with lib;
 
 {
   imports = [
@@ -7,6 +8,7 @@
     ./flake8.nix
     ./slim
     ./vim.nix
+    ./tmux.nix
   ];
 
   nixpkgs.config.packageOverrides = pkgs: {
