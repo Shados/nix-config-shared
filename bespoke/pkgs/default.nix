@@ -82,6 +82,19 @@
         # '';
       });
     })
+    (self: super: let
+      stdenv = super.overrideCC super.stdenv (gccWithPlugins);
+      gccWithPlugins = with super; lowPrio (wrapCC (gcc.cc.override { enablePlugin = true; }));
+    in rec {
+      gcc-lua = super.callPackage ./gcc-lua.nix {
+        lua = super.luajit;
+        inherit stdenv;
+      };
+      gcc-lua-cdecl = super.callPackage ./gcc-lua-cdecl.nix {
+        inherit stdenv;
+        inherit (super.luajit.pkgs) buildLuaPackage;
+      };
+    })
     # Lua package overrides
     (import ./lua-packages/overlay.nix)
     # (self: super: super.sn.defineLuaPackageOverrides super (luaself: luasuper: {
