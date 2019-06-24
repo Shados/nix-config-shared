@@ -100,30 +100,28 @@
     #     inherit (luaself) moonscript;
     #   };
     # }))
-  ];
 
-  nixpkgs.config = {
-    packageOverrides = pkgs: with pkgs; rec {
+    (self: super: with super.lib; let inherit (super) callPackage; in {
       rxvt_unicode = callPackage ./urxvt {
         perlSupport = true;
         gdkPixbufSupport = true;
         unicode3Support = true;
       };
       urxvt-config-reload = callPackage ./urxvt/extensions/urxvt-config-reload {
-        inherit (perlPackages) AnyEvent LinuxFD CommonSense
-        SubExporter DataOptList ParamsUtil SubInstall;
+        inherit (super.perlPackages) AnyEvent LinuxFD CommonSense SubExporter
+        DataOptList ParamsUtil SubInstall;
       };
       rxvt_unicode-with-plugins = callPackage ./urxvt/wrapper.nix {
-        inherit (perlPackages) makePerlPath;
+        inherit (super.perlPackages) makePerlPath;
         plugins = [
-          urxvt-config-reload
-          urxvt_autocomplete_all_the_things
-          urxvt_perl
-          urxvt_perls
-          urxvt_tabbedex
-          urxvt_font_size
-          urxvt_theme_switch
-          urxvt_vtwheel
+          self.urxvt-config-reload
+          super.urxvt_autocomplete_all_the_things
+          super.urxvt_perl
+          super.urxvt_perls
+          super.urxvt_tabbedex
+          super.urxvt_font_size
+          super.urxvt_theme_switch
+          super.urxvt_vtwheel
         ];
       };
 
@@ -133,7 +131,7 @@
       pywal = callPackage ./pywal.nix {};
       gvcci = callPackage ./gvcci.nix (
       let
-        haselPython = pkgs.python3.override {
+        haselPython = super.python3.override {
           packageOverrides = self: super: {
             hasel = super.callPackage ./hasel.nix {};
           };
@@ -154,7 +152,7 @@
         };
         rust-132-pkgs = import rust-132-nixpkgs { };
         llvmp = rust-132-pkgs.llvmPackages_7;
-        waterfox-unwrapped = with rust-132-pkgs; callPackage ./waterfox {
+        waterfox-unwrapped = with rust-132-pkgs; rust-132-pkgs.callPackage ./waterfox {
           # # https://forum.palemoon.org/viewtopic.php?f=57&t=15296#p111146
           # stdenv = overrideCC stdenv gcc5;
           # stdenv = overrideCC clangStdenv gcc5;
@@ -165,16 +163,18 @@
           python = python2;
           gnused = gnused_422;
           icu = icu59;
-          hunspell = pkgs.hunspell.override {
+          hunspell = super.hunspell.override {
             stdenv = llvmp.libcxxStdenv;
           };
         };
-      in wrapFirefox waterfox-unwrapped {
+      in super.wrapFirefox waterfox-unwrapped {
         browserName = "waterfox";
       };
 
-      # pythonPackages = python.pkgs;
-    };
+    })
+  ];
+
+  nixpkgs.config = {
     perlPackageOverrides = pkgs: with pkgs; {
       LinuxFD = callPackage ./urxvt/extensions/LinuxFD.nix {
         inherit (perlPackages) buildPerlModule ModuleBuild TestException SubExporter;
