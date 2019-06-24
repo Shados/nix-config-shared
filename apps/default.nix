@@ -64,5 +64,7 @@ with lib;
     rename # perl-rename
 
     pastebin
-  ];
+  ] ++ optionals (!config.fragments.remote) (with pkgs; [
+    nix-prefetch-flash
+  ]);
 }
