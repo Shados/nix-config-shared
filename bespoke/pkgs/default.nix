@@ -176,6 +176,13 @@
         python3Packages = haselPython.pkgs;
       });
 
+      dmenu = super.dmenu.overrideAttrs(oldAttrs: {
+        patchFlags = "-p2";
+        patches = [
+          ./dmenu/fuzzymatch.patch
+        ];
+      });
+
       waterfox = let
         # Build against an older nixpkgs that used rust 1.3.2, in order to
         # leave stylo and rust-simd enabled (see
