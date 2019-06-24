@@ -3,7 +3,6 @@ with lib;
 
 {
   imports = [
-    ./cdda.nix
     ./dmenu
     ./flake8.nix
     ./slim
