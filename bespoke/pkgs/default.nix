@@ -208,6 +208,52 @@
       # Add the `dunstify` notifier binary to $out
       dunst = super.dunst.override { dunstify = true; };
     })
+    # Equivalents to nixos-help for nix and nixpkgs manuals
+    (self: super: let
+      writeHtmlHelper = name: htmlPath: super.writeScriptBin name /*ft=sh*/''
+        #!${super.bash}/bin/bash
+        browser="$(
+          IFS=: ; for b in $BROWSER; do
+            [ -n "$(type -P "$b" || true)" ] && echo "$b" && break
+          done
+        )"
+        if [ -z "$browser" ]; then
+          browser="$(type -P xdg-open || true)"
+          if [ -z "$browser" ]; then
+            browser="$(type -P w3m || true)"
+            if [ -z "$browser" ]; then
+              echo "$0: unable to start a web browser; please set \$BROWSER"
+              exit 1
+            fi
+          fi
+        fi
+        exec "$browser" ${htmlPath}
+      '';
+    in {
+      nix-help = let
+        # TODO: Look into building the manual from source instead of using the
+        # prebuilt version distributed in the source-distribution-tarball that
+        # the Nix derivation is built from?
+        nixSrc = super.nix.src;
+        manual = super.runCommand "nix-manual-source" {
+        } ''
+          mkdir -p $out/share/doc/nix
+          tar xvf ${nixSrc}
+          mv nix-*/doc/manual/* $out/share/doc/nix/
+        '';
+      in writeHtmlHelper "nix-help" "${manual}/share/doc/nix/manual.html";
+      nixpkgs-help = let
+        # NOTE: There are some interesting variables to extend or overwrite to
+        # affect the produced style:
+        # - HIGHLIGHTJS (env, string)
+        # - xlstFlags (list)
+        # - XMLFORMT_CONFIg (maybe?)
+        manual = super.callPackage "${super.path}/doc" { };
+      in writeHtmlHelper "nixpkgs-help" "${manual}/share/doc/nixpkgs/manual.html";
+      nixos-options-help = let
+        manual = config.system.build.manual.manualHTML;
+      in writeHtmlHelper "nixos-options-help" "${manual}/share/doc/nixos/options.html";
+    })
   ];
 
   nixpkgs.config = {
