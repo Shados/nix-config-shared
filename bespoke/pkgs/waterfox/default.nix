@@ -281,7 +281,7 @@ stdenv.mkDerivation rec {
     homepage    = https://www.waterfoxproject.org;
     license     = licenses.mpl20;
     maintainers = with maintainers; [ arobyn ];
-    platforms   = platforms.linux;
+    platforms   =  [ "x86_64-linux" ];
   };
 }
 
