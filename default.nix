@@ -8,7 +8,7 @@ in
 
 {
   imports = [
-    # Custom/bespoke packages & services
+    # Self-packaged and custom/bespoke packages & services
     ./bespoke
     # Standard userspace tooling & applications
     ./apps
@@ -47,22 +47,11 @@ in
 
       # Internationalisation & localization properties.
       i18n = {
-        consoleFont   = pkgs.lib.mkDefault "lat9w-16";
+        consoleFont   = mkDefault "lat9w-16";
         defaultLocale = "en_US.UTF-8";
       };
       time.timeZone = "Australia/Melbourne";
 
-      # Config for various standard services & programs
-
-      programs = {
-        atop.settings = {
-          interval = 1;
-        };
-        bash = {
-          enableCompletion = true;
-          #shellAliases = {};
-        };
-      };
     }
   ];
 }

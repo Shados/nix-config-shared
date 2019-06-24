@@ -62,4 +62,15 @@ with lib;
   ] ++ optionals (!config.fragments.remote) (with pkgs; [
     nix-prefetch-flash
   ]);
+
+  # Config for various standard services & programs
+  programs = {
+    atop.settings = {
+      interval = 1;
+    };
+    bash = {
+      enableCompletion = true;
+      #shellAliases = {};
+    };
+  };
 }
