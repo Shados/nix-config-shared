@@ -12,10 +12,8 @@ in
     ./bespoke
     # Standard userspace tooling & applications
     ./apps
-    # Temporary fixes that have yet to hit nixos-unstable channel
-    ./fixes
-    # Re-usable library functions that don't necessarily fit anywhere else
-    ./lib
+    # nixpkgs overlays as generic (non-NixOS) modules
+    ./overlays
     # Conveniently packaged system 'functional profiles', including
     # container/VM profiles
     ./profiles
