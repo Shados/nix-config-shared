@@ -17,22 +17,6 @@
 # - Use structured configuration for .config fragments instead of strings
 {
   config = lib.mkMerge [
-    # Some generic configuration
-    {
-      boot.kernelParams = [
-        # Enable use of multi-queue (MQ) block IO scheduling mode
-        # "scsi_mod.use_blk_mq=1"
-        # Default IO scheduler to bfq-sq
-        # "elevator=bfq-mq"
-      ];
-      boot.kernel.sysctl = {
-        # As we have a patch to implement this sysctl; it isn't expected by
-        # NixOS yet
-        # TODO tie this to the patch that implements it -- allow associating
-        # NixOS module `config` sets with patches?!
-        "kernel.unprivileged_userns_clone" = 1;
-      };
-    }
     # Expose the kernel-customization/creation functions as part of `pkgs`.
     # mkBefore ensures this is done prior to any attempt to use this, in an
     # evaluation-order-independent manner.
