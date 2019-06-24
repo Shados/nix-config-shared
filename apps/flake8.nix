@@ -20,6 +20,7 @@ in
       package = mkOption {
         type = with types; package;
         default = pkgs.python3Packages.flake8;
+        defaultText = "pkgs.python3Packages.flake8";
         description = ''
           The base flake8 package to use.
         '';
@@ -30,8 +31,8 @@ in
   config = mkIf cfg.enable (let
     unwrappedPythonPrograms = proglist: map(unwrapPythonProgram) proglist;
     unwrapPythonProgram = pp: pp.overridePythonAttrs { dontWrapPythonPrograms = true; };
-    flake8-with-plugins = pkgs.symlinkJoin rec {
-      name = "flake8-with-plugins-${cfg.package.version}";
+    flake8-configured = pkgs.symlinkJoin rec {
+      name = "flake8-configured-${cfg.package.version}";
 
       # Unwrap the python binaries so we can re-wrap them to $out later
       paths = unwrappedPythonPrograms([ cfg.package ] ++ cfg.plugins);
@@ -65,8 +66,11 @@ in
       '';
     };
   in {
+    nixpkgs.overlays = [(self: super: {
+      inherit flake8-configured;
+    })];
     environment.systemPackages = [
-      flake8-with-plugins
+      flake8-configured
     ];
   });
 }

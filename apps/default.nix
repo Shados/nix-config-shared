@@ -3,7 +3,6 @@ with lib;
 
 {
   imports = [
-    ./flake8.nix
     ./slim
     ./vim.nix
     ./tmux.nix
