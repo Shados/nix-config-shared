@@ -3,8 +3,8 @@ with lib;
 
 {
   imports = [
+    ./neovim.nix
     ./slim
-    ./vim.nix
     ./tmux.nix
   ];
 

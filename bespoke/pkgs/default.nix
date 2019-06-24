@@ -227,6 +227,8 @@
 
       # Add the `dunstify` notifier binary to $out
       dunst = super.dunst.override { dunstify = true; };
+
+      all-hies = import (fetchTarball "https://github.com/infinisil/all-hies/tarball/master") {};
     })
     # Equivalents to nixos-help for nix and nixpkgs manuals
     (self: super: let
