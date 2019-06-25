@@ -84,6 +84,10 @@
                   rev = "944fd6c796338235c4f3d8daf4959ff658f12760";
                   sha256 = "0fwrdqizwnn0kmf8bvlz334va526mlbm1kas9fif0jmvl1q11ayv";
                 };
+                patches = [
+                  (super.path + "/pkgs/tools/networking/mosh/ssh_path.patch")
+                  (super.path + "/pkgs/tools/networking/mosh/utempter_path.patch")
+                ];
               });
           monero = if versionOlder (getVersion super.monero) "0.14.0.2"
             then super.monero.overrideAttrs (oldAttrs: rec {
