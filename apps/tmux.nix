@@ -133,27 +133,27 @@ with lib;
 
       # Color scheme {{{
         # default statusbar colors
-        set -g status-style bg=yellow,fg=black,none
+        set -g status-style bg=brightyellow,fg=black,none
 
         # default window title colors
         setw -g window-status-style bg=default,fg=default
 
-        # active window title colors 
+        # active window title colors
         setw -g window-status-current-style bg=default,fg=brightblack,dim
 
-        # pane border 
+        # pane border
         set -g pane-border-style bg=default,fg=magenta
-        set -g pane-active-border-style bg=default,fg=yellow
+        set -g pane-active-border-style bg=default,fg=brightyellow
 
         # command line/message text
-        set -g message-style bg=black,fg=yellow
+        set -g message-style bg=black,fg=brightyellow
 
         # pane number display
-        set -g display-panes-active-colour yellow
+        set -g display-panes-active-colour brightyellow
         set -g display-panes-colour brightblue
 
         # clock
-        setw -g clock-mode-colour yellow
+        setw -g clock-mode-colour brightyellow
       # }}}
 
       # Fixes

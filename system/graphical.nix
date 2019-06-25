@@ -12,9 +12,12 @@ let
     pkgs.gst_all_1.gst-plugins-bad
     pkgs.gst_all_1.gst-libav ];
 
-  default_xresources_colors = builtins.readFile ./xresources/default;
+  colors = {
+    solarizedDark = builtins.readFile ./xresources/solarized-dark;
+    oceanicNext = builtins.readFile ./xresources/oceanic-next;
+  };
 
-  baseline_xresources = ''
+  baselineXresources = ''
     ! Shados-made custom settings:
     ! XTerm settings
     !xterm*faceName: Anka/Coder:size=8:antialias=false
@@ -28,7 +31,7 @@ let
     URxvt.perl-ext-common: ${concatStringsSep "," ucfg.plugins}
     ! URxvt.url-launcher: /home/shados/technotheca/artifacts/packages/bin/ff-link
     URxvt.matcher.button: 1
-    URxvt.colorUL: S_blue
+    ! URxvt.colorUL: S_blue ! S_blue is a solarized thing TODO generic
     URxvt.fading: 10
     URxvt.iso14755: False
 
@@ -42,9 +45,9 @@ let
   '';
 
   default_xresources = pkgs.writeText "XResources" ''
-    ${baseline_xresources}
+    ${baselineXresources}
 
-    ${default_xresources_colors}
+    ${colors.oceanicNext}
   '';
 
   nixos-gsettings-desktop-schemas = pkgs.runCommand "nixos-gsettings-desktop-schemas" {} # {{{
