@@ -168,11 +168,14 @@ with lib;
         set -ga terminal-overrides ",xterm*:kLFT5=\eOD:kRIT5=\eOC:kUP5=\eOA:kDN5=\eOB:smkx@:rmkx@"
 
       # Direnv support
-      set-option -g update-environment "DIRENV_DIFF DIRENV_DIR DIRENV_WATCHES"
+      set-option -ga update-environment " DIRENV_DIFF DIRENV_DIR DIRENV_WATCHES"
       set-environment -gu DIRENV_DIFF
       set-environment -gu DIRENV_DIR
       set-environment -gu DIRENV_WATCHES
       set-environment -gu DIRENV_LAYOUT
+
+      # Pass through some more SSH variables, in addition to the defautl (SSH_ASKPASS SSH_AUTH_SOCK SSH_AGENT_PID SSH_CONNECTION)
+      set-option -ga update-environment " SSH_CLIENT SSH_TTY"
     '';
   };
 }
