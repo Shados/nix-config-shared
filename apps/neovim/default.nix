@@ -10,6 +10,10 @@ in
 {
   imports = [
     /home/shados/technotheca/artifacts/media/software/nix/nv/nixos.nix
+
+    # Theme-related defaults
+    ./gruvbox.nix
+    ./oceanicnext.nix
   ];
 
   nix = {
@@ -45,17 +49,18 @@ in
           autocmd!
         augroup END
       '';
+      prePluginConfig = ''
+        " Theming stuff
+        " The xterm and screen ones are actually both for Mosh
+        if !empty($TMUX) || $TERM ==# 'rxvt-unicode' || $TERM ==# 'rxvt-unicode-256color' || $TERM==# 'xterm' || $TERM ==# 'xterm-256color' || $TERM ==# 'screen' || $TERM ==# 'screen-256color'
+          set termguicolors
+        endif
+        syntax enable
+      '';
       extraConfig = ''
         " Basic configuration {{{
           " Resize splits when the window is resized
           autocmd vimrc VimResized * exe "normal! \<c-w>="
-
-          " Theming
-            " The xterm and screen ones are actually both for Mosh
-            if !empty($TMUX) || $TERM ==# 'rxvt-unicode' || $TERM ==# 'rxvt-unicode-256color' || $TERM==# 'xterm' || $TERM ==# 'xterm-256color' || $TERM ==# 'screen' || $TERM ==# 'screen-256color'
-              set termguicolors
-            endif
-            syntax enable
 
           " Search
             " Incremental searching
@@ -227,26 +232,8 @@ in
       '';
       pluginRegistry = {
         # Appearance & UI {{{
-        gruvbox = {
-          enable = true;
-          nvimrc.postPlugin = ''
-            colorscheme gruvbox
-            let g:gruvbox_contrast_dark='hard'
-            let g:gruvbox_number_column='bg1'
-            set background=dark
-            " gruvbox cursor highlight in search fixes
-            nnoremap <silent> [oh :call gruvbox#hls_show()<CR>
-            nnoremap <silent> ]oh :call gruvbox#hls_hide()<CR>
-            nnoremap <silent> coh :call gruvbox#hls_toggle()<CR>
-
-            nnoremap * :let @/ = ""<CR>:call gruvbox#hls_show()<CR>*
-            nnoremap / :let @/ = ""<CR>:call gruvbox#hls_show()<CR>/
-            nnoremap ? :let @/ = ""<CR>:call gruvbox#hls_show()<CR>?
-
-            " Tweak the colour of the visible tab/space characters
-            highlight Whitespace guifg=#857767
-          '';
-        };
+        oceanic-next.enable = true;
+        gruvbox.enable = false;
         # Visually colorise CSS-compatible # colour code strings
         vim-css-color.enable = true;
         lightline-vim = {
@@ -254,7 +241,6 @@ in
           nvimrc.postPlugin = ''
             " lightline {{{
             let g:lightline = {
-              \ 'colorscheme': 'gruvbox',
               \ 'active': {
               \   'left': [ [ 'mode', 'paste' ],
               \             [ 'fugitive'],[ 'filename' ] ]
@@ -308,7 +294,7 @@ in
             endfunction
             " }}}
           '';
-          after = [ "gruvbox" ];
+          after = [ "gruvbox" "oceanic-next" ];
         };
         vim-devicons = {
           # TODO add font dep and config?
@@ -337,9 +323,6 @@ in
           enable = true;
           nvimrc.postPlugin = ''
             let g:indentLine_char = '▏'
-          '' + optionalString (plugCfg.gruvbox.enable) ''
-            " Set the indent line's colour to a subtle, faded grey-brown
-            let g:indentLine_color_gui = '#474038'
           '';
         };
         # Displays function signatures from completions in the command line
@@ -374,12 +357,6 @@ in
                 " off)
                 autocmd vimrc TextChanged,TextChangedI * ALEResetBuffer
 
-              '' + optionalString (plugCfg.gruvbox.enable) ''
-                " Gutter colours that work well with gruvbox
-                highlight ALEErrorSign guibg=#9d0006
-                highlight ALEWarningSign guibg=#9d0006
-                highlight ALESignColumnWithErrors guibg=#9d0006
-              '' + ''
                 " To still make it easy to know if there is *something* in the gutter *somewhere*
                 let g:ale_change_sign_column_color = 1
 
@@ -542,31 +519,22 @@ in
 
         # Project management {{{
         # Statusline with buffers and tabs listed very cleanly
-        "bagrat/vim-buffet" = {
+        vim-buffet = {
+          source = "bagrat/vim-buffet";
           enable = true;
           dependencies = [
             "lightline-vim"
           ];
           commit = "044f2954a5e49aea8625973de68dda8750f1c42d";
           nvimrc = {
-            prePlugin = optionalString (plugCfg.gruvbox.enable) ''
-              " Customize vim-workspace colours based on gruvbox colours
-              function g:WorkspaceSetCustomColors()
-                highlight WorkspaceBufferCurrentDefault guibg=#a89984 guifg=#282828
-                highlight WorkspaceBufferActiveDefault guibg=#504945 guifg=#a89984
-                highlight WorkspaceBufferHiddenDefault guibg=#3c3836 guifg=#a89984
-                highlight WorkspaceBufferTruncDefault guibg=#3c3836 guifg=#b16286
-                highlight WorkspaceTabCurrentDefault guibg=#689d6a guifg=#282828
-                highlight WorkspaceTabHiddenDefault guibg=#458588 guifg=#282828
-                highlight WorkspaceFillDefault guibg=#3c3836 guifg=#3c3836
-                highlight WorkspaceIconDefault guibg=#3c3836 guifg=#3c3836
-              endfunction
-            '';
             postPlugin = ''
               " Disable lightline's tabline functionality, as it conflicts with this
-              let g:lightline.enable = { 'tabline': 0 }
+              if has_key(g:lightline, 'enable') == 0
+                let g:lightline.enable = {}
+              endif
+              let g:lightline.enable.tabline = 0
 
-              " Prettify
+              " Prettify TODO proper module deps for these
               let g:workspace_powerline_separators = 1
               let g:workspace_tab_icon = "\uf00a"
               let g:workspace_left_trunc_icon = "\uf0a8"

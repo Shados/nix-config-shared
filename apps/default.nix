@@ -3,7 +3,7 @@ with lib;
 
 {
   imports = [
-    ./neovim.nix
+    ./neovim
     ./slim
     ./tmux.nix
   ];
