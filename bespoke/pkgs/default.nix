@@ -171,6 +171,10 @@
           super.urxvt_vtwheel
         ];
       };
+      urxvtconfig = callPackage ./urxvtconfig.nix {
+        inherit (super.qt5) qtbase qmake;
+        inherit (super.xorg) libXft;
+      };
 
       snap = callPackage ./snap.nix {};
       pastebin = callPackage ./pastebin.nix {};
