@@ -32,7 +32,7 @@ let
     ! URxvt.url-launcher: /home/shados/technotheca/artifacts/packages/bin/ff-link
     URxvt.matcher.button: 1
     ! URxvt.colorUL: S_blue ! S_blue is a solarized thing TODO generic
-    URxvt.fading: 10
+    URxvt.fading: 5
     URxvt.iso14755: False
 
     ! General font settings

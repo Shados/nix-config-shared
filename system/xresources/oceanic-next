@@ -26,3 +26,10 @@
 ! white
 *color7:      #4f5b66
 *color15:     #c0c5ce
+
+! Urxvt-required
+*borderColor:   #1b2b34
+URxvt.colorUL: gold
+URxvt.fadeColor: #c0c5ce
+
+! vim: set ft=xdefaults :
