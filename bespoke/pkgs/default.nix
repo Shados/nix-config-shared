@@ -211,9 +211,6 @@
         rust-132-pkgs = import rust-132-nixpkgs { };
         llvmp = rust-132-pkgs.llvmPackages_7;
         waterfox-unwrapped = with rust-132-pkgs; rust-132-pkgs.callPackage ./waterfox {
-          # # https://forum.palemoon.org/viewtopic.php?f=57&t=15296#p111146
-          # stdenv = overrideCC stdenv gcc5;
-          # stdenv = overrideCC clangStdenv gcc5;
           stdenv = llvmp.libcxxStdenv;
           llvmPackages = llvmp;
           inherit (gnome2) libIDL;
@@ -227,6 +224,132 @@
         };
       in super.wrapFirefox waterfox-unwrapped {
         browserName = "waterfox";
+      };
+      waterfox-alpha = let
+        # waterfox-unwrapped = with super; super.callPackage ./waterfox/alpha.nix {
+        #   # stdenv = super.clangStdenv;
+        #   inherit (gnome2) libIDL;
+        #   libpng = libpng_apng;
+        #   gnused = gnused_422;
+        #   icu = icu63;
+        # };
+        waterfox-unwrapped = waterfox-unwrapped-base.overrideAttrs(oa: let
+          binaryName = "waterfox";
+          browserName = binaryName;
+          execdir = "/bin";
+        in {
+          preConfigure = oa.preConfigure + ''
+            echo "MOZ_REQUIRE_SIGNING=0" >> $MOZCONFIG
+            echo "MOZ_ADDON_SIGNING=0" >> $MOZCONFIG
+            echo "ac_add_options \"MOZ_ALLOW_LEGACY_EXTENSIONS=1\"" >> $MOZCONFIG
+          '';
+          postInstall = let
+            nixosJS = super.writeText "nixos.js" ''
+              pref("general.useragent.vendor",            "NixOS");
+
+              // Use LANG environment variable to choose locale
+              pref("intl.locale.matchOS",                 true);
+
+              // Disable default browser checking.
+              pref("browser.shell.checkDefaultBrowser",   false);
+
+              // Don't disable our bundled extensions in the application directory
+              pref("extensions.autoDisableScopes",        11);
+              pref("extensions.shownSelectionUI",         true);
+
+              // Nick some ideas from Gentoo
+              pref("browser.display.use_system_colors",   true);
+              pref("browser.link.open_external",          3);
+              pref("general.smoothScroll",                true);
+              pref("general.autoScroll",                  false);
+              pref("browser.tabs.tabMinWidth",            15);
+              pref("browser.backspace_action",            0);
+              pref("browser.urlbar.hideGoButton",         true);
+              pref("accessibility.typeaheadfind",         true);
+              pref("browser.EULA.override",               true);
+              pref("layout.css.dpi",                      0);
+              pref("layers.acceleration.force-enabled",   true);
+              pref("webgl.force-enabled",                 true);
+            '';
+          in ''
+            # Remove SDK cruft. FIXME: move to a separate output?
+            rm -rf $out/share/idl $out/include $out/lib/${binaryName}-devel-*
+            libDir=$out/lib/${binaryName}
+
+            # Needed to find Mozilla runtime
+            gappsWrapperArgs+=(--argv0 "$out/bin/.${binaryName}-wrapped")
+
+            # Default some preferences
+            echo $libDir
+            echo mkdir -p $libDir/browser/defaults/preferences
+            mkdir -p $libDir/browser/defaults/preferences
+            echo cp ${nixosJS} $libDir/browser/defaults/preferences/nixos.js
+            cp ${nixosJS} $libDir/browser/defaults/preferences/nixos.js
+          '';
+          postFixup = ''
+            # Fix notifications. LibXUL uses dlopen for this, unfortunately; see #18712.
+            patchelf --set-rpath "${lib.getLib super.libnotify
+              }/lib:$(patchelf --print-rpath "$out"/lib/${binaryName}*/libxul.so)" \
+                "$out"/lib/${binaryName}*/libxul.so
+          '';
+          installCheckPhase = ''
+            # Some basic testing
+            "$out${execdir}/${browserName}" --version
+          '';
+        });
+        waterfox-unwrapped-base = firefox-common {
+          pname = "waterfox";
+          ffversion = "68.0";
+          src = super.fetchFromGitHub {
+            owner  = "MrAlex94";
+            repo   = "Waterfox";
+            rev    = "f8a37ef0e898f9199f050559ac6bdf931b35a93d";
+            sha256 = "0ifp9xnlb81xihkwr5fhfnis9nil48rbza9waric9nq48b8gr1m8";
+          };
+          patches = [
+            <nixpkgs/pkgs/applications/networking/browsers/firefox/no-buildconfig-ffx65.patch>
+          ];
+          extraConfigureFlags = [
+            "--enable-content-sandbox"
+            "--with-app-name=waterfox"
+            "--with-app-basename=Waterfox"
+            "--with-branding=browser/branding/unofficial"
+            "--with-distribution-id=org.waterfox"
+            "--enable-chrome-format=omni"
+          ];
+          meta = {
+            description = "A web browser designed for privacy and user choice";
+            longDescription = ''
+              The Waterfox browser is a specialised modification of the Mozilla
+              platform, designed for privacy and user choice in mind.
+
+              Other modifications and patches that are more upstream have been
+              implemented as well to fix any compatibility/security issues that Mozilla
+              may lag behind in implementing (usually due to not being high priority).
+              High request features removed by Mozilla but wanted by users are retained
+              (if they aren't removed due to security).
+            '';
+            homepage    = https://www.waterfoxproject.org;
+            maintainers = with maintainers; [ arobyn ];
+            platforms   =  [ "x86_64-linux" ];
+            license     = licenses.mpl20;
+          };
+        };
+        firefox-common = with super; opts: super.callPackage
+          (import <nixpkgs/pkgs/applications/networking/browsers/firefox/common.nix> opts)
+          { inherit (gnome2) libIDL;
+            libpng = libpng_apng;
+            gnused = gnused_422;
+            icu = icu63;
+            inherit (darwin.apple_sdk.frameworks) CoreMedia ExceptionHandling
+                                                  Kerberos AVFoundation MediaToolbox
+                                                  CoreLocation Foundation AddressBook;
+            inherit (darwin) libobjc;
+            enableOfficialBranding = false;
+          };
+      in super.wrapFirefox waterfox-unwrapped {
+        browserName = "waterfox";
+        nameSuffix = "-alpha";
       };
 
       # Add the `dunstify` notifier binary to $out
