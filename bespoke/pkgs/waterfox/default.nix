@@ -42,8 +42,8 @@ stdenv.mkDerivation rec {
   src = fetchFromGitHub {
     owner  = "MrAlex94";
     repo   = "Waterfox";
-    rev    = version;
-    sha256 = "0l8nwgrl7kkf4mvmwmcxhpwiks6njfdj6qlrsf51gcnpkmlm5bm8";
+    rev    = "56.2.12";
+    sha256 = "0fjg7c8vp3vlhwv0kpnhlslbibsxsapl7d6v6s0dxcyjkkz5i01v";
   };
   src_vendorjs = ./vendor.js;
 

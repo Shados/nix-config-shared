@@ -1,0 +1,27 @@
+diff --git a/docshell/base/nsAboutRedirector.cpp b/docshell/base/nsAboutRedirector.cpp
+index 1ffea0a2e657..142ccb3df4a2 100644
+--- a/docshell/base/nsAboutRedirector.cpp
++++ b/docshell/base/nsAboutRedirector.cpp
+@@ -39,10 +39,6 @@ static const RedirEntry kRedirMap[] = {
+     "addons", "chrome://mozapps/content/extensions/extensions.xul",
+     nsIAboutModule::ALLOW_SCRIPT
+   },
+-  {
+-    "buildconfig", "chrome://global/content/buildconfig.html",
+-    nsIAboutModule::URI_SAFE_FOR_UNTRUSTED_CONTENT
+-  },
+   {
+     "checkerboard", "chrome://global/content/aboutCheckerboard.xhtml",
+     nsIAboutModule::URI_SAFE_FOR_UNTRUSTED_CONTENT |
+diff --git a/toolkit/content/jar.mn b/toolkit/content/jar.mn
+index d724bd084d9a..45c43a2b88e6 100644
+--- a/toolkit/content/jar.mn
++++ b/toolkit/content/jar.mn
+@@ -40,7 +40,6 @@ toolkit.jar:
+    content/global/plugins.css
+    content/global/browser-child.js
+    content/global/browser-content.js
+-*   content/global/buildconfig.html
+    content/global/contentAreaUtils.js
+ #ifndef MOZ_FENNEC
+    content/global/customizeToolbar.css
