@@ -297,13 +297,6 @@
         browserName = "waterfox";
       };
       waterfox-alpha = let
-        # waterfox-unwrapped = with super; super.callPackage ./waterfox/alpha.nix {
-        #   # stdenv = super.clangStdenv;
-        #   inherit (gnome2) libIDL;
-        #   libpng = libpng_apng;
-        #   gnused = gnused_422;
-        #   icu = icu63;
-        # };
         waterfox-unwrapped = waterfox-unwrapped-base.overrideAttrs(oa: let
           binaryName = "waterfox";
           browserName = binaryName;
