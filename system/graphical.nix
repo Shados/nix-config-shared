@@ -194,6 +194,19 @@ in
           updateDbusEnvironment = true;
         };
       };
+      xdg = {
+        autostart.enable = true;
+        icons.enable = true;
+        menus.enable = true;
+        mime.enable = true;
+        sounds.enable = true;
+        portal = {
+          enable = true;
+          extraPortals = with pkgs; [
+            xdg-desktop-portal-gtk
+          ];
+        };
+      };
       environment.variables.GIO_EXTRA_MODULES = [
         "${lib.getLib pkgs.gnome3.dconf}/lib/gio/modules"
         "${pkgs.gnome3.glib_networking.out}/lib/gio/modules"
