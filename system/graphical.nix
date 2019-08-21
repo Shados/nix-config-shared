@@ -237,6 +237,9 @@ in
 
         dunst libnotify
         snap
+
+        # Spellchecking dictionary
+        hunspellDicts.en-gb-ise
       ];
       nixpkgs.config.packageOverrides = pkgs: with pkgs; {
         # qt48 = pkgs.qt48.override { gtkStyle = true; };
