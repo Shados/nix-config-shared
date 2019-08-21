@@ -181,7 +181,7 @@ in
                 # Custom Xresources setup
                 ${pkgs.xorg.xrdb}/bin/xrdb -merge ${default_xresources}
 
-                ${pkgs.openbox}/bin/openbox-session
+                exec ${pkgs.dbus}/bin/dbus-launch --sh-syntax --exit-with-session ${pkgs.openbox}/bin/openbox-session
               '';
             }
           ]; # }}}
