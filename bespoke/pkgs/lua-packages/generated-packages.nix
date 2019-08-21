@@ -262,6 +262,26 @@ lua-testmore = buildLuarocksPackage {
     };
   };
 };
+luagraph = buildLuarocksPackage {
+  pname = "luagraph";
+  version = "2.0.1-1";
+
+  src = fetchurl {
+    url    = https://luarocks.org/luagraph-2.0.1-1.src.rock;
+    sha256 = "16az0bw2w7w019nwbj5nf6zkw7vc5idvrh63dvynx1446n6wl813";
+  };
+  disabled = (luaOlder "5.1");
+  propagatedBuildInputs = [ lua ];
+
+  meta = with stdenv.lib; {
+    homepage = "http://github.com/hleuwer/luagraph";
+    description = "A binding to the graphviz graph library";
+    maintainers = with maintainers; [ arobyn ];
+    license = {
+      fullName = "MIT/X11";
+    };
+  };
+};
 luarepl = buildLuarocksPackage {
   pname = "luarepl";
   version = "0.9-1";

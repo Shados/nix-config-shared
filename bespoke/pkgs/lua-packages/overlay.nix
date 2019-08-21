@@ -63,6 +63,12 @@ let
       ];
     });
 
+    luagraph = super.luagraph.override({
+      buildInputs = with pkgs; [
+        graphviz libtool
+      ];
+    });
+
     lunix = super.lunix.override({
       buildInputs = with pkgs; [
         glibc
