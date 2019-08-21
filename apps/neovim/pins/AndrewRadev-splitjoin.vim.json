@@ -1,0 +1,10 @@
+{
+  "date": "2019-06-14T22:15:34+03:00",
+  "fetchSubmodules": false,
+  "fetchType": "github",
+  "plugName": "AndrewRadev/splitjoin.vim",
+  "rev": "4510fb4840840aadb29ec78194afa0de4876bb06",
+  "sha256": "1vgd1gm3r6z7pdmh7zvqyfdivgc26rqd34wm1vn1s6v6bzxbd74w",
+  "url": "https://github.com/AndrewRadev/splitjoin.vim.git",
+  "version": "unstable-2019-06-14"
+}

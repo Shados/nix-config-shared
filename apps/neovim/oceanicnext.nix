@@ -1,12 +1,12 @@
 { config, lib, pkgs, ... }:
 with lib;
 let
-  nvimCfg = config.sn.programs.neovim.nvimConfig;
+  nvimCfg = config.sn.programs.neovim;
   plugCfg = nvimCfg.pluginRegistry;
   mkIfOceanic = mkIf plugCfg.oceanic-next.enable;
 in
 {
-  sn.programs.neovim.nvimConfig.pluginRegistry = {
+  sn.programs.neovim.pluginRegistry = {
     oceanic-next = {
       source = "mhartington/oceanic-next";
       nvimrc.postPlugin = ''

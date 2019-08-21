@@ -1,0 +1,10 @@
+{
+  "date": "2011-11-16T15:44:29-08:00",
+  "fetchSubmodules": false,
+  "fetchType": "github",
+  "plugName": "vim-scripts/camelcasemotion",
+  "rev": "8db17bdee3f42bd71839ead2a84b2ee1916e45c2",
+  "sha256": "0qqykxqj393ig7ard7pvvc0h0k3x61gdyypcvnsm66g5fvr2cqxr",
+  "url": "https://github.com/vim-scripts/camelcasemotion.git",
+  "version": "unstable-2011-11-16"
+}

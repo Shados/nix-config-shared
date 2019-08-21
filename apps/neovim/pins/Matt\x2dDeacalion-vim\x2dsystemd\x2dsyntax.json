@@ -1,0 +1,10 @@
+{
+  "date": "2017-02-16T10:45:30+00:00",
+  "fetchSubmodules": false,
+  "fetchType": "github",
+  "plugName": "Matt-Deacalion/vim-systemd-syntax",
+  "rev": "05bd51f87628e4b714b9d1d16259e1ead845924a",
+  "sha256": "04jlbm4cf47kvys22czz1i3fcqzz4zih2h6pkcfns9s8rs6clm3c",
+  "url": "https://github.com/Matt-Deacalion/vim-systemd-syntax.git",
+  "version": "unstable-2017-02-16"
+}

@@ -1,0 +1,10 @@
+{
+  "date": "2019-05-11T00:00:02-07:00",
+  "fetchSubmodules": false,
+  "fetchType": "github",
+  "plugName": "ericpruitt/tmux.vim",
+  "rev": "cb8c29955f0654c8f1e4d2cd453a470a7a828ed4",
+  "sha256": "1m4s4ahdcpi1hhqy4dincz4a4cwybyzxw33q5ca6rchyncknawxs",
+  "url": "https://github.com/ericpruitt/tmux.vim.git",
+  "version": "unstable-2019-05-11"
+}

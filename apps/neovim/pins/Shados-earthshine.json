@@ -1,0 +1,10 @@
+{
+  "date": "2019-04-11T19:19:02+10:00",
+  "fetchSubmodules": false,
+  "fetchType": "github",
+  "plugName": "Shados/earthshine",
+  "rev": "6d541b9225efe880ea231e24261af1ff722c3cac",
+  "sha256": "0xswz4ix857h1ffwzk1kph83dlyyivdbsapa2b90684975yc7yki",
+  "url": "https://github.com/Shados/earthshine.git",
+  "version": "unstable-2019-04-11"
+}

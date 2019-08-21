@@ -1,0 +1,10 @@
+{
+  "date": "2016-03-07T12:53:27+01:00",
+  "fetchSubmodules": false,
+  "fetchType": "github",
+  "plugName": "lucapette/vim-textobj-underscore",
+  "rev": "41fcdacaa5c763063a4b4f715cc22962075f22d6",
+  "sha256": "0a9fkwfl9ij3j3rs6an8g8qwq5rzag7dhp2a774mf1zsn0r8k9db",
+  "url": "https://github.com/lucapette/vim-textobj-underscore.git",
+  "version": "unstable-2016-03-07"
+}
