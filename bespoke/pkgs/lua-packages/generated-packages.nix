@@ -74,7 +74,7 @@ etlua = buildLuarocksPackage {
   version = "1.3.0-1";
 
   src = fetchurl {
-    url    = https://raw.githubusercontent.com/rocks-moonscript-org/moonrocks-mirror/master/etlua-1.3.0-1.src.rock;
+    url    = https://luarocks.org/etlua-1.3.0-1.src.rock;
     sha256 = "029710wg0viwf57f97sqwjqrllcbj8a4igj31rljkiisyf36y6ka";
   };
   disabled = (luaOlder "5.1");
@@ -94,7 +94,7 @@ inotify = buildLuarocksPackage {
   version = "0.5-1";
 
   knownRockspec = (fetchurl {
-    url    = https://raw.githubusercontent.com/rocks-moonscript-org/moonrocks-mirror/master/inotify-0.5-1.rockspec;
+    url    = https://luarocks.org/inotify-0.5-1.rockspec;
     sha256 = "0mwzzhhlwpk7gsbvv23ln486ay27z3l849nga2mh3vli6dc1l0m2";
   }).outPath;
 
@@ -147,9 +147,9 @@ ldbus = buildLuarocksPackage {
 
   src = fetchgit ( removeAttrs (builtins.fromJSON ''{
   "url": "git://github.com/daurnimator/ldbus.git",
-  "rev": "345d820b0f34bd35ea01dae633d35ea3cf7faf2a",
-  "date": "2019-03-26T11:28:02+10:00",
-  "sha256": "09nnky6s5385lkvbycfrf5wr1zrxpmrgaxrlkmh7s33vvx2rss8v",
+  "rev": "9e176fe851006037a643610e6d8f3a8e597d4073",
+  "date": "2019-08-16T14:26:05+10:00",
+  "sha256": "06wcz4i5b7kphqbry274q3ivnsh331rxiyf7n4qk3zx2kvarq08s",
   "fetchSubmodules": true
 }
  '') ["date"]) ;
@@ -328,11 +328,11 @@ lub = buildLuarocksPackage {
 };
 lyaml = buildLuarocksPackage {
   pname = "lyaml";
-  version = "6.2.3-1";
+  version = "6.2.4-1";
 
   src = fetchurl {
-    url    = https://luarocks.org/lyaml-6.2.3-1.src.rock;
-    sha256 = "0f6cx7nf9r22q6yadpv4v2s350k7bsj10k5a1rz9hcnsrcrkanmg";
+    url    = https://luarocks.org/lyaml-6.2.4-1.src.rock;
+    sha256 = "1zalfaidas6xbjpda8av0lvmg4iwh0nqq1js5866wfrxx9lm4vni";
   };
   disabled = (luaOlder "5.1") || (luaAtLeast "5.5");
   propagatedBuildInputs = [ lua ];
