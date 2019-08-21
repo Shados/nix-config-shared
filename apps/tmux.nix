@@ -176,6 +176,8 @@ with lib;
 
       # Pass through some more SSH variables, in addition to the defautl (SSH_ASKPASS SSH_AUTH_SOCK SSH_AGENT_PID SSH_CONNECTION)
       set-option -ga update-environment " SSH_CLIENT SSH_TTY"
+      # Make sure we attach to the same DBUS session as the desktop environment
+      set-option -ga update-environment " DBUS_SESSION_BUS_ADDRESS"
     '';
   };
 }
