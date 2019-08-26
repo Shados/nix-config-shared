@@ -36,8 +36,8 @@ in
   sn.programs.neovim = {
     mergePlugins = mkDefault true;
     files = {
-      "ftplugin/python.vim".source = /home/shados/.config/nixpkgs/nvim-files/ftplugin/python.vim;
-      neosnippets.source = /home/shados/.config/nixpkgs/nvim-files/neosnippets;
+      "ftplugin/python.vim".source = ./nvim-files/ftplugin/python.vim;
+      neosnippets.source = ./nvim-files/neosnippets;
     };
     extraBinPackages = with pkgs; [
       silver-searcher
@@ -478,7 +478,7 @@ in
       };
       "nginx.vim" = {
         enable = true;
-        source = /home/shados/.config/nixpkgs/nvim-files/local/nginx;
+        source = ./nvim-files/local/nginx;
       };
       # }}}
 

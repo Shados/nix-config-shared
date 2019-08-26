@@ -1,0 +1,36 @@
+snippet nxo
+abbr    NixOS Module Option
+	mkOption {
+		type = with types; ${1:str};
+		default = "${2}";
+		description = ''
+		  ${3}
+		'';
+		example = "${4}${0}";
+	};
+snippet nxl
+abbr    NixOS Module list-typed option
+	mkOption {
+		type = with types; listOf ${1:str};
+		default = [ ${2} ];
+		description = ''
+		  ${3}
+		'';
+		example = [ "${4}${0}" ];
+	};
+snippet nxe
+abbr    NixOS Module mkEnableOption
+	mkEnableOption "${1:some feature/service}${0}";
+snippet nxng
+abbr NixOS Nginx config string
+	''
+		#langon = nginx
+		${0}
+		#langoff = nginx
+	'';
+snippet ast
+abbr    NixOS Module assertion
+	{ assertion = (${1});
+		message = "${2}";
+	}
+	${0}
