@@ -3,7 +3,6 @@
 with lib;
 let
   cfg = config.fragments.graphical;
-  ucfg = config.fragments.graphical.urxvt;
   gnome_cfg = config.services.xserver.desktopManager.gnome3;
 
   GST_PLUGIN_PATH = lib.makeSearchPath "lib/gstreamer-1.0" [
@@ -18,24 +17,6 @@ let
   };
 
   baselineXresources = ''
-    ! Shados-made custom settings:
-    ! XTerm settings
-    !xterm*faceName: Anka/Coder:size=8:antialias=false
-    xterm*faceName: xft:FantasqueSansMono Nerd Font:style=Regular:size=10:antialias=true
-
-    ! URxvt settings
-    URxvt.intensityStyles: false
-    ! URxvt.font: xft:Anka/Coder:size=8:antialias=true
-    URxvt.font: xft:${ucfg.font}:size=${toString ucfg.fontSize}:antialias=true
-    URxvt.scrollBar: false
-    URxvt.perl-ext-common: ${concatStringsSep "," (attrNames ucfg.plugins)}
-    ! URxvt.url-launcher: /home/shados/technotheca/artifacts/packages/bin/ff-link
-    URxvt.matcher.button: 1
-    ! URxvt.colorUL: S_blue ! S_blue is a solarized thing TODO generic
-    URxvt.fading: 5
-    URxvt.iso14755: False
-    URxvt.keysym.Control-Shift-V: perl:pasta:paste
-
     ! General font settings
     Xft.autohint: 0
     Xft.lcdfilter: lcddefault
@@ -77,65 +58,6 @@ in
   options = {
     fragments.graphical = {
       enable = mkEnableOption "graphical environment / UI support";
-
-
-      urxvt = {
-        font = mkOption {
-          type = with types; str;
-          default = "FantasqueSansMono Nerd Font:style=Regular";
-          description = ''
-            XFT font name for urxvt to use.
-          '';
-        };
-        fontSize = mkOption {
-          type = with types; int;
-          default = 10;
-          description = ''
-            XFT font size to use for urxvt.
-          '';
-        };
-        plugins = mkOption {
-          type = with types; attrsOf (nullOr package);
-          default = {
-            default = null;
-            selection-to-clipboard = null;
-            config-reload = pkgs.urxvt-config-reload;
-            pasta = pkgs.writeTextFile rec {
-              name = "pasta";
-              destination = "/lib/urxvt/perl/${name}";
-              text = ''
-                #! /usr/bin/env perl -w
-                # Author:   Aaron Caffrey
-                # Website:  https://github.com/wifiextender/urxvt-pasta
-                # License:  GPLv3
-
-                # Usage: put the following lines in your .Xdefaults/.Xresources:
-                # URxvt.perl-ext-common           : selection-to-clipboard,pasta
-                # URxvt.keysym.Control-Shift-V    : perl:pasta:paste
-
-                use strict;
-
-                sub on_user_command {
-                  my ($self, $cmd) = @_;
-                  if ($cmd eq "pasta:paste") {
-                    $self->selection_request (urxvt::CurrentTime, 3);
-                  }
-                  ()
-                }
-              '';
-            };
-          };
-          description = ''
-            Attribute set mapping perl-ext-common extension names to
-            corresponding Nix derivations for said extensions (or null, if
-            builtin), thus specifying the extensions to install and enable.
-          '';
-          example = {
-            default = null;
-            color-themes = null;
-          };
-        };
-      };
     };
   };
 
@@ -268,15 +190,6 @@ in
       services.nixosManual.browser = "/run/current-system/sw/bin/firefox";
     }
     # }}}
-    # }}}
-    # urxvt setup {{{
-    {
-      environment.systemPackages = with pkgs; [
-        (rxvt_unicode-with-plugins.override (old: {
-          plugins = old.plugins ++ (attrValues (filterAttrs (n: v: v != null)  ucfg.plugins));
-        }))
-      ];
-    }
     # }}}
   ]);
 }
