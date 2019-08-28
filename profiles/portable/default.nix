@@ -72,10 +72,8 @@ in
       };
     };
 
-    # Setup for quad-core systems as some sort of default, given what I usually end up booting this on
     nix = {
-      maxJobs = mkDefault 4;
-      buildCores = mkDefault 4;
+      maxJobs = mkDefault 8;
     };
   };
 }
