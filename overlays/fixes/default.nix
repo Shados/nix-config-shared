@@ -142,6 +142,16 @@
               };
             });
         })
+        # Workaround for nixpkgs#67601
+        (self: super: {
+          powerdns = let
+            nixpkgs = import (builtins.fetchGit {
+              url = https://github.com/NixOS/nixpkgs;
+              ref = "master";
+              rev = "084fcf09e3c1ea6633c72824bfe0c95c1056f7bd";
+            }) { };
+          in nixpkgs.powerdns;
+        })
       ];
     }
   ];
