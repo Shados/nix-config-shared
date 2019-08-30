@@ -10,9 +10,7 @@ with lib;
       dates = "*-*-1 05:15"; # 5:15 AM on the first of each month
       options = "--delete-older-than 90d"; # Delete all generations older than 90 days
     };
-    extraOptions = ''
-      auto-optimise-store = true
-    '';
+    autoOptimiseStore = true;
 
     # Have the builders run at low CPU and IO priority
     daemonIONiceLevel = mkDefault 7;
