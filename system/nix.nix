@@ -2,9 +2,9 @@
 with lib;
 let
   nix-fetchers = builtins.fetchGit {
-    url = https://github.com/target/nix-fetchers;
-    ref = "master";
-    rev = "bb17a56d57113dd8d785621bcc2aa2840564f94e";
+    url = https://github.com/Shados/nix-fetchers;
+    ref = "fetch-pypi-hash-xdg-cache-fix";
+    rev = "55f1edea80ecb81c9f139d1b0e02ae647a23953c";
   };
   makeExtraBuiltins = pkgs.callPackage "${nix-fetchers}/make-extra-builtins.nix" { };
   extraBuiltins = makeExtraBuiltins {
