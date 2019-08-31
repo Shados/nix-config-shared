@@ -22,6 +22,7 @@ with lib;
     ./ssh-globalhosts.nix
     ./systemd.nix
     ./users.nix
+    ./zfs.nix
   ];
 
   options = {
