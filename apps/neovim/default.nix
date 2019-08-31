@@ -594,7 +594,7 @@ in
           nnoremap <leader>b :<C-u>Denite buffer -quick-move="immediately" <cr>
         '';
       };
-      neomru-vim.enable = true;
+      # neomru-vim.enable = true;
       # Display FIXME/TODO/etc. in handy browseable list pane, bound to <Leader>t,
       # then q to cancel, e to quit browsing but leave tasklist up, <CR> to quit
       # and place cursor on selected task
