@@ -16,7 +16,7 @@ with lib;
     rxvt_unicode.terminfo # Only need terminfo by default, as hardly need an X terminal on a server
 
     # VCS
-    git
+    git gitAndTools.git-octopus
     mercurial
     subversion
 
