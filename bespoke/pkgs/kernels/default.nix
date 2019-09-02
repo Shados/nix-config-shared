@@ -176,9 +176,17 @@
                 { name = "revert-i915-alternate-fix-mode"; patch = ./patches/4.17/0002-Revert-drm-i915-edp-Allow-alternate-fixed-mode-for-e.patch; }
               ];
             };
-            kvm-preemption-warning = _kVer: {
-              patches = soloPatch "kvm-preemption-warning" ./patches/kvm-fix-preemption-warnings-in-kvm_vcpu_block.patch;
+            kvm-preemption-warning = kVer: {
+              patches = soloPatch "kvm-preemption-warning" (if versionAtLeast kVer "5.2"
+                then ./patches/kvm-fix-preemption-warnings-in-kvm_vcpu_block/5.2+.patch
+                else ./patches/kvm-fix-preemption-warnings-in-kvm_vcpu_block/pre-5.2.patch
+              );
             };
+            # dreamlogic = _kVer: {
+            #   patches = [
+            #     { name = "amdgpu-pcie-speed-detection"; patch = ./patches/dreamlogic/amdgpu-pcie-speed-detection.patch; }
+            #   ];
+            # };
             pds = patchDefWithConfig (''
                 SCHED_PDS y
               '' + ckpdsSharedConfig) {
