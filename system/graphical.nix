@@ -69,7 +69,12 @@ in
         # Needed for themes and backgrounds
         "/share/"
       ];
+      security.polkit.enable = true;
       services = {
+        accounts-daemon.enable = true;
+        udisks2.enable = true;
+        upower.enable = true;
+        gnome3.core-shell.enable = true;
         xserver = {
           enable = true;
 
