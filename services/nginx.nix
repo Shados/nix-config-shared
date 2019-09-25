@@ -17,8 +17,10 @@ mkIf cfg.enable {
   #   };
   # };
   services.nginx = {
-    virtualHosts = {};
-    recommendedGzipSettings = true;
+    enableReload = mkDefault true;
+    recommendedGzipSettings = mkDefault true;
+    recommendedTlsSettings = mkDefault true;
+    recommendedProxySettings = mkDefault true;
     eventsConfig = ''
       #langon = nginx
       # determines how much clients will be served per worker
@@ -43,6 +45,7 @@ mkIf cfg.enable {
       access_log  /srv/http/logs/access.log  main;
 
       server_names_hash_bucket_size 64; # Increases maximum domain name size allowed
+      proxy_headers_hash_bucket_size 64;
 
       # directio for larger files
       # sendfile for smaller (<16MB) files
@@ -59,11 +62,9 @@ mkIf cfg.enable {
       # don't buffer data sent, good for small data bursts in real time
       tcp_nodelay on;
 
+      keepalive_timeout 65;
+      types_hash_max_size 2048;
 
-      # Load modular configuration files from the /etc/nginx/conf.d directory.
-      # See http://nginx.org/en/docs/ngx_core_module.html#include
-      # for more information.
-      include /srv/http/conf.d/*.nginx;
       #langoff = nginx
     '';
     appendConfig = lib.mkBefore ''
