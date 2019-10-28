@@ -296,79 +296,20 @@
       in super.wrapFirefox waterfox-unwrapped {
         browserName = "waterfox";
       };
-      waterfox-alpha = let
-        waterfox-unwrapped = waterfox-unwrapped-base.overrideAttrs(oa: let
-          binaryName = "waterfox";
-          browserName = binaryName;
-          execdir = "/bin";
-        in {
-          preConfigure = oa.preConfigure + ''
-            echo "MOZ_REQUIRE_SIGNING=0" >> $MOZCONFIG
-            echo "MOZ_ADDON_SIGNING=0" >> $MOZCONFIG
-            echo "ac_add_options \"MOZ_ALLOW_LEGACY_EXTENSIONS=1\"" >> $MOZCONFIG
-          '';
-          postInstall = let
-            nixosJS = super.writeText "nixos.js" ''
-              pref("general.useragent.vendor",            "NixOS");
-
-              // Use LANG environment variable to choose locale
-              pref("intl.locale.matchOS",                 true);
-
-              // Disable default browser checking.
-              pref("browser.shell.checkDefaultBrowser",   false);
-
-              // Don't disable our bundled extensions in the application directory
-              pref("extensions.autoDisableScopes",        11);
-              pref("extensions.shownSelectionUI",         true);
-
-              // Nick some ideas from Gentoo
-              pref("browser.display.use_system_colors",   true);
-              pref("browser.link.open_external",          3);
-              pref("general.smoothScroll",                true);
-              pref("general.autoScroll",                  false);
-              pref("browser.tabs.tabMinWidth",            15);
-              pref("browser.backspace_action",            0);
-              pref("browser.urlbar.hideGoButton",         true);
-              pref("accessibility.typeaheadfind",         true);
-              pref("browser.EULA.override",               true);
-              pref("layout.css.dpi",                      0);
-              pref("layers.acceleration.force-enabled",   true);
-              pref("webgl.force-enabled",                 true);
-            '';
-          in ''
-            # Remove SDK cruft. FIXME: move to a separate output?
-            rm -rf $out/share/idl $out/include $out/lib/${binaryName}-devel-*
-            libDir=$out/lib/${binaryName}
-
-            # Needed to find Mozilla runtime
-            gappsWrapperArgs+=(--argv0 "$out/bin/.${binaryName}-wrapped")
-
-            # Default some preferences
-            # echo $libDir
-            # echo mkdir -p $libDir/browser/defaults/preferences
-            # mkdir -p $libDir/browser/defaults/preferences
-            # echo cp ${nixosJS} $libDir/browser/defaults/preferences/nixos.js
-            # cp ${nixosJS} $libDir/browser/defaults/preferences/nixos.js
-          '';
-          postFixup = ''
-            # Fix notifications. LibXUL uses dlopen for this, unfortunately; see #18712.
-            patchelf --set-rpath "${lib.getLib super.libnotify
-              }/lib:$(patchelf --print-rpath "$out"/lib/${binaryName}*/libxul.so)" \
-                "$out"/lib/${binaryName}*/libxul.so
-          '';
-          installCheckPhase = ''
-            # Some basic testing
-            "$out${execdir}/${browserName}" --version
-          '';
-        });
+      waterfox-alpha = super.wrapFirefox self.waterfox-alpha-unwrapped {
+        browserName = "waterfox";
+        nameSuffix = "-alpha";
+      };
+      waterfox-alpha-unwrapped = let
+        gitVersion = "2019.10-current-1";
         waterfox-unwrapped-base = firefox-common {
           pname = "waterfox";
-          ffversion = "68.0";
+          ffversion = "68.0-${gitVersion}";
           src = super.fetchFromGitHub {
             owner  = "MrAlex94";
             repo   = "Waterfox";
-            rev    = "f8a37ef0e898f9199f050559ac6bdf931b35a93d";
-            sha256 = "0ifp9xnlb81xihkwr5fhfnis9nil48rbza9waric9nq48b8gr1m8";
+            rev    = gitVersion;
+            sha256 = "0n59fmqnzybn54qxy57yg9jfwiki2bncr0v68nag8qr7y5wlkiwc";
           };
           patches = [
             <nixpkgs/pkgs/applications/networking/browsers/firefox/no-buildconfig-ffx65.patch>
@@ -377,7 +318,7 @@
             "--enable-content-sandbox"
             "--with-app-name=waterfox"
             "--with-app-basename=Waterfox"
-            "--with-branding=browser/branding/alpha"
+            "--with-branding=browser/branding/waterfox"
             "--with-distribution-id=net.waterfox"
           ];
           meta = {
@@ -412,10 +353,35 @@
             enableOfficialBranding = false;
             privacySupport = true;
           };
-      in super.wrapFirefox waterfox-unwrapped {
-        browserName = "waterfox";
-        nameSuffix = "-alpha";
-      };
+      in waterfox-unwrapped-base.overrideAttrs(oa: let
+        binaryName = "waterfox";
+        browserName = binaryName;
+        execdir = "/bin";
+      in {
+        preConfigure = oa.preConfigure + ''
+          echo "MOZ_REQUIRE_SIGNING=0" >> $MOZCONFIG
+          echo "MOZ_ADDON_SIGNING=0" >> $MOZCONFIG
+          echo "ac_add_options \"MOZ_ALLOW_LEGACY_EXTENSIONS=1\"" >> $MOZCONFIG
+        '';
+        postInstall = ''
+          # Remove SDK cruft. FIXME: move to a separate output?
+          rm -rf $out/share/idl $out/include $out/lib/${binaryName}-devel-*
+          libDir=$out/lib/${binaryName}
+
+          # Needed to find Mozilla runtime
+          gappsWrapperArgs+=(--argv0 "$out/bin/.${binaryName}-wrapped")
+        '';
+        postFixup = ''
+          # Fix notifications. LibXUL uses dlopen for this, unfortunately; see #18712.
+          patchelf --set-rpath "${lib.getLib super.libnotify
+            }/lib:$(patchelf --print-rpath "$out"/lib/${binaryName}*/libxul.so)" \
+              "$out"/lib/${binaryName}*/libxul.so
+        '';
+        installCheckPhase = ''
+          # Some basic testing
+          "$out${execdir}/${browserName}" --version
+        '';
+      });
     })
     # Equivalents to nixos-help for nix and nixpkgs manuals
     (self: super: let
