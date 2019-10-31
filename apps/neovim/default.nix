@@ -721,7 +721,6 @@ in
             \ ['  Bookmarks'], 'bookmarks',
             \ ['  Sessions'], 'sessions',
             \ ['  Commands'], 'commands',
-            \ ['  MRU'], 'files',
             \ ['  MRU Current Tree Files by Modification Time'], 'dir',
           \ ]
           let g:startify_bookmarks = [
