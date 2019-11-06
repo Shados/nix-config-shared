@@ -8,7 +8,8 @@ let
   GST_PLUGIN_PATH = lib.makeSearchPath "lib/gstreamer-1.0" [
     pkgs.gst_all_1.gst-plugins-base
     pkgs.gst_all_1.gst-plugins-good
-    pkgs.gst_all_1.gst-libav ];
+    pkgs.gst_all_1.gst-libav
+  ];
 
   colors = {
     solarizedDark = builtins.readFile ./xresources/solarized-dark;
@@ -74,7 +75,6 @@ in
         accounts-daemon.enable = true;
         udisks2.enable = true;
         upower.enable = true;
-        gnome3.core-shell.enable = true;
         xserver = {
           enable = true;
 
@@ -186,6 +186,45 @@ in
           };
         };
       };
+    }
+    # Gnome compat crap
+    {
+      services = {
+        # This is like 70% of what `services.gnome3.core-shell.enable = true;` does
+        gvfs.enable = true;
+        gnome3.gnome-settings-daemon.enable = true;
+        gnome3.glib-networking.enable = false;
+      };
+      systemd.packages = with pkgs.gnome3; [ vino gnome-session ];
+      xdg.portal.extraPortals = [ pkgs.gnome3.gnome-shell ];
+      fonts.fonts = with pkgs; [
+        cantarell-fonts
+        dejavu_fonts
+        source-code-pro # Default monospace font in 3.32
+        source-sans-pro
+      ];
+
+      # Adapt from https://gitlab.gnome.org/GNOME/gnome-build-meta/blob/gnome-3-32/elements/core/meta-gnome-core-shell.bst
+      environment.systemPackages = with pkgs.gnome3; [
+        adwaita-icon-theme
+        gnome-backgrounds
+        gnome-bluetooth
+        gnome-color-manager
+        gnome-control-center
+        gnome-getting-started-docs
+        gnome-shell
+        gnome-shell-extensions
+        gnome-themes-extra
+        gnome-user-docs
+        pkgs.orca
+        pkgs.glib # for gsettings
+        pkgs.gnome-menus
+        pkgs.gtk3.out # for gtk-launch
+        pkgs.hicolor-icon-theme
+        pkgs.shared-mime-info # for update-mime-database
+        pkgs.xdg-user-dirs # Update user dirs as described in http://freedesktop.org/wiki/Software/xdg-user-dirs/
+        vino
+      ];
     }
     # Browser stuff {{{
     {
