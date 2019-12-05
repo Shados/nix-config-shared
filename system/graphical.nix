@@ -115,7 +115,10 @@ in
           #windowManager.openbox.enable = true;
           #windowManager.default = "openbox";
 
-          displayManager.slim.enable = true;
+          # displayManager.slim.enable = true; # RIP SLIM
+          displayManager.sddm = {
+            enable = true;
+          };
 
           updateDbusEnvironment = true;
         };

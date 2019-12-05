@@ -4,7 +4,8 @@ with lib;
 {
   imports = [
     ./neovim
-    ./slim
+    ./sddm
+    # ./slim # RIP SLIM
     ./tmux.nix
   ];
 
