@@ -30,7 +30,7 @@ stdenv.mkDerivation rec {
   meta = with stdenv.lib; {
     description = "A graphical user interface tool for configuration of the rxvt-unicode terminal emulator.";
     homepage = "https://github.com/daedreth/URXVTConfig";
-    license = with licenses; lpgl3;
+    license = with licenses; lgpl3;
     maintainers = with maintainers; [
       arobyn
     ];

@@ -56,6 +56,7 @@ with lib;
     p7zip
     rename # perl-rename
     ripgrep
+    moreutils # sponge
 
     pastebin
   ] ++ optionals (!config.fragments.remote) (with pkgs; [
