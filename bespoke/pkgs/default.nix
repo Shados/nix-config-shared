@@ -11,6 +11,7 @@
       # Helpers {{{
       extractNPAPIFlash = ver: super.runCommand "flash_player_npapi_linux_${ver}.x86_64.tar.gz" {
           src = flashSrcs."${ver}";
+          preferLocalBuild = true;
         } ''
           ${pkgs.unzip}/bin/unzip $src
           for f in */*_linux.x86_64.tar.gz; do
@@ -19,6 +20,7 @@
         '';
       extractStandaloneFlash = ver: super.runCommand "flash_player_sa_linux_${ver}.x86_64.tar.gz" {
           src = flashSrcs."${ver}";
+          preferLocalBuild = true;
         } ''
           ${pkgs.unzip}/bin/unzip $src
           for f in */*_linux_sa.x86_64.tar.gz; do
@@ -44,6 +46,7 @@
         [ "31.0.0.108" "06kvwlzw2bjkcxzd1qvrdvlp0idvm54d1rhzn5vq1vqdhs0lnv76" ]
         [ "31.0.0.122" "1rnxqw8kn96cqf821fl209bcmqva66j2p3wq9x4d43d8lqmsazhv" ]
         [ "32.0.0.171" "1zln5m82va44nzypkx5hdkq6kk3gh7g4sx3q603hw8rys0bq22bb" ]
+        [ "32.0.0.293" "08igfnmqlsajgi7njfj52q34d8sdn8k88cij7wvgdq53mxyxlian" ]
       ];
     in {
       flashplayer = let
