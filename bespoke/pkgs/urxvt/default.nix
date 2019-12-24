@@ -38,7 +38,7 @@ stdenv.mkDerivation (rec {
 
     # 24-bit color patch, based on https://github.com/spudowiar/rxvt-unicode
     (fetchurl {
-      url = "https://gist.githubusercontent.com/dan-santana/63271adf12171e0fc0bc/raw/70c6343d1c0b3bca0aba4f587ed501e6cbd98d00/24-bit-color.patch";
+      url = "https://gist.githubusercontent.com/Shados/ea28a7c5e6176053d047d09c2180a2d5/raw/70c6343d1c0b3bca0aba4f587ed501e6cbd98d00/24-bit-color.patch";
       sha256 = "06bn0b12hi2mzk7k0vm9zp43h6wq5d2y38mpwb0ksk8jf3jszq7f";
     })
   ];
