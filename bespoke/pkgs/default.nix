@@ -305,14 +305,14 @@
       };
       waterfox-alpha-unwrapped = let
         gitVersion = "2019.10-current-1";
-        waterfox-unwrapped-base = firefox-common {
+        waterfox-unwrapped-base = (firefox-common {
           pname = "waterfox";
           ffversion = "68.0-${gitVersion}";
           src = super.fetchFromGitHub {
             owner  = "MrAlex94";
             repo   = "Waterfox";
-            rev    = gitVersion;
-            sha256 = "0n59fmqnzybn54qxy57yg9jfwiki2bncr0v68nag8qr7y5wlkiwc";
+            rev    = "e1938336c61a014b5bd5a72adecf949138aa1b87";
+            sha256 = "1b849c9d1wfxr22l3hf4xjn8lsjz7jrb1ysqsg46zr0d0hxxpsmk";
           };
           patches = [
             <nixpkgs/pkgs/applications/networking/browsers/firefox/no-buildconfig-ffx65.patch>
@@ -341,9 +341,13 @@
             platforms   =  [ "x86_64-linux" ];
             license     = licenses.mpl20;
           };
-        };
+        }).overrideAttrs(oa: {
+          patches = [
+            <nixpkgs/pkgs/applications/networking/browsers/firefox/no-buildconfig-ffx65.patch>
+          ];
+        });
         firefox-common = with super; opts: super.callPackage
-          (import <nixpkgs/pkgs/applications/networking/browsers/firefox/common.nix> opts)
+          (import "${pkgs.path}/pkgs/applications/networking/browsers/firefox/common.nix" opts)
           { inherit (gnome2) libIDL;
             libpng = libpng_apng;
             gnused = gnused_422;
@@ -352,6 +356,7 @@
                                                   Kerberos AVFoundation MediaToolbox
                                                   CoreLocation Foundation AddressBook;
             inherit (darwin) libobjc;
+            inherit (rustPackages_1_38_0) cargo rustc;
 
             enableOfficialBranding = false;
             privacySupport = true;
