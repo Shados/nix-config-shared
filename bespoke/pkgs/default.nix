@@ -251,7 +251,7 @@
             sha256 = "0fjg7c8vp3vlhwv0kpnhlslbibsxsapl7d6v6s0dxcyjkkz5i01v";
           };
           patches = [
-            <nixpkgs/pkgs/applications/networking/browsers/firefox/fix-pa-context-connect-retval.patch>
+            "${pkgs.path}/pkgs/applications/networking/browsers/firefox/fix-pa-context-connect-retval.patch"
             ./waterfox/wf-buildconfig.patch
           ];
           extraConfigureFlags = [
@@ -281,7 +281,7 @@
           };
         };
         firefox-common = with super; opts: super.callPackage
-          (import <nixpkgs/pkgs/applications/networking/browsers/firefox/common.nix> opts)
+          (import "${pkgs.path}/pkgs/applications/networking/browsers/firefox/common.nix" opts)
           { inherit (gnome2) libIDL;
             libpng = libpng_apng;
             gnused = gnused_422;
@@ -311,11 +311,11 @@
           src = super.fetchFromGitHub {
             owner  = "MrAlex94";
             repo   = "Waterfox";
-            rev    = "e1938336c61a014b5bd5a72adecf949138aa1b87";
-            sha256 = "1b849c9d1wfxr22l3hf4xjn8lsjz7jrb1ysqsg46zr0d0hxxpsmk";
+            rev    = "d8326e125b8fde7e73d44891df935504b12362b3";
+            sha256 = "0n59fmqnzybn54qxy57yg9jfwiki2bncr0v68nag8qr7y5wlkiwc";
           };
           patches = [
-            <nixpkgs/pkgs/applications/networking/browsers/firefox/no-buildconfig-ffx65.patch>
+            "${pkgs.path}/pkgs/applications/networking/browsers/firefox/no-buildconfig-ffx65.patch"
           ];
           extraConfigureFlags = [
             "--enable-content-sandbox"
@@ -343,8 +343,9 @@
           };
         }).overrideAttrs(oa: {
           patches = [
-            <nixpkgs/pkgs/applications/networking/browsers/firefox/no-buildconfig-ffx65.patch>
+            "${pkgs.path}/pkgs/applications/networking/browsers/firefox/no-buildconfig-ffx65.patch"
           ];
+          hardeningDisable = [ "format" ]; # -Werror=format-security
         });
         firefox-common = with super; opts: super.callPackage
           (import "${pkgs.path}/pkgs/applications/networking/browsers/firefox/common.nix" opts)
