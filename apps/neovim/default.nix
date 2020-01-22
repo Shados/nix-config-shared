@@ -9,7 +9,7 @@ let
   envy = builtins.fetchGit {
     url = https://github.com/Shados/envy;
     ref = "master";
-    rev = "5fa02896c1498064d4a3d606b28940ee5876ebd2";
+    rev = "b8488779df7b7c68d086299878c5e023bfd11882";
   };
 in
 
@@ -141,6 +141,7 @@ in
           silent call mkdir(&undodir, 'p')
         endif
         set backupdir=~/.local/share/nvim/backup/
+        " TODO this doesn't work for backupdir, figure out why
         if !empty(glob(&backupdir))
           silent call mkdir(&backupdir, 'p')
         endif
