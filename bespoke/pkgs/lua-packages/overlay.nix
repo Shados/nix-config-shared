@@ -20,11 +20,13 @@ let
     facade-nvim = callPackage ./facade.nvim.nix {
       inherit (self) earthshine;
     };
+    moonpick-vim = callPackage ./moonpick-vim.nix {
+    };
 
     /* Overrides for generated packages */
     inotify = super.inotify.override({
-      externalDeps = with pkgs; [
-        { name = "INOTIFY"; dep = glibc; }
+      externalDeps = with selfPkgs; [
+        { name = "INOTIFY"; dep = glibc.dev; }
       ];
     });
 
@@ -58,26 +60,26 @@ let
     });
 
     lua-ev = super.lua-ev.override({
-      buildInputs = with pkgs; [
+      buildInputs = with selfPkgs; [
         libev
       ];
     });
 
     luagraph = super.luagraph.override({
-      buildInputs = with pkgs; [
+      buildInputs = with selfPkgs; [
         graphviz libtool
       ];
     });
 
     lunix = super.lunix.override({
-      buildInputs = with pkgs; [
+      buildInputs = with selfPkgs; [
         glibc
       ];
         # { name = "INOTIFY"; dep = glibc; }
     });
 
     lyaml = super.lyaml.override({
-      buildInputs = with pkgs; [
+      buildInputs = with selfPkgs; [
         libyaml
       ];
     });

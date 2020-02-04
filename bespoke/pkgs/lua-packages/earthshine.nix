@@ -24,7 +24,7 @@ buildLuarocksPackage rec {
     homepage = https://github.com/Shados/earthshine;
     hydraPlatforms = platforms.linux;
     maintainers = with maintainers; [ arobyn ];
-    license = licenses.mit;
+    license = licenses.bsd2;
   };
 }
 
