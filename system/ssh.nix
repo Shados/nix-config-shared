@@ -1,4 +1,3 @@
-# TODO: optionsets are deprecated, update this
 { config, pkgs, lib, ... }:
 
 with lib;

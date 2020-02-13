@@ -312,7 +312,7 @@
             owner  = "MrAlex94";
             repo   = "Waterfox";
             rev    = "d8326e125b8fde7e73d44891df935504b12362b3";
-            sha256 = "0n59fmqnzybn54qxy57yg9jfwiki2bncr0v68nag8qr7y5wlkiwc";
+            sha256 = "02x2kmywfa6qv9c226qhrxbmsq0ns66s8z9b4lngls2nr06f8da1";
           };
           patches = [
             "${pkgs.path}/pkgs/applications/networking/browsers/firefox/no-buildconfig-ffx65.patch"
@@ -411,7 +411,7 @@
             fi
           fi
         fi
-        exec "$browser" ${htmlPath}
+        $browser ${htmlPath}
       '';
     in {
       nix-help = let

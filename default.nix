@@ -1,5 +1,6 @@
 # Baseline SN NixOS configuration
 { config, lib, pkgs, ... }:
+# TODO Prettify console? Fonts, colour scheme?
 
 with lib;
 let
@@ -46,8 +47,8 @@ in
       boot.cleanTmpDir = true;
 
       # Internationalisation & localization properties.
+      console.font   = mkDefault "lat9w-16";
       i18n = {
-        consoleFont   = mkDefault "lat9w-16";
         defaultLocale = "en_US.UTF-8";
       };
       time.timeZone = "Australia/Melbourne";

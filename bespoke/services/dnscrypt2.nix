@@ -251,7 +251,7 @@ in
         '';
       };
       socksProxy = mkOption {
-        type = with types; nullOr string;
+        type = with types; nullOr str;
         default = null;
         description = ''
           If set, route all TCP connections through the specified SOCKS proxy.
@@ -261,7 +261,7 @@ in
         example = "socks5://127.0.0.1:9050";
       };
       httpProxy = mkOption {
-        type = with types; nullOr string;
+        type = with types; nullOr str;
         default = null;
         description = ''
           If set, route all connections through the specified HTTP proxy.
