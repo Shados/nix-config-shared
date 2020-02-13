@@ -5,12 +5,6 @@ let
   cfg = config.fragments.graphical;
   gnome_cfg = config.services.xserver.desktopManager.gnome3;
 
-  GST_PLUGIN_PATH = lib.makeSearchPath "lib/gstreamer-1.0" [
-    pkgs.gst_all_1.gst-plugins-base
-    pkgs.gst_all_1.gst-plugins-good
-    pkgs.gst_all_1.gst-libav
-  ];
-
   colors = {
     solarizedDark = builtins.readFile ./xresources/solarized-dark;
     oceanicNext = builtins.readFile ./xresources/oceanic-next;
@@ -78,42 +72,22 @@ in
         xserver = {
           enable = true;
 
+          displayManager.defaultSession = "xsession+none";
           desktopManager.xterm.enable = false;
-          desktopManager.default = "shadosnet";
+          desktopManager.session = singleton {
+            name = "xsession";
+            start = ''
+              ${pkgs.gnome3.zenity}/bin/zenity --error --text "The user must provide a ~/.xsession file containing session startup commands." --no-wrap
+            '';
+          };
 
-          desktopManager.session = [ # {{{
-            { name = "shadosnet";
-              start = ''
-                # Set GTK_DATA_PREFIX so that GTK+ can find the themes
-                export GTK_DATA_PREFIX=/run/current-system/sw/:~/.local/share/themes
+          displayManager.sessionCommands = ''
+            # Override gsettings-desktop-schema
+            export NIX_GSETTINGS_OVERRIDES_DIR=${nixos-gsettings-desktop-schemas}/share/gsettings-schemas/nixos-gsettings-overrides/glib-2.0/schemas
 
-                # Find theme engines
-                export GTK_PATH=/run/current-system/sw/lib/gtk-3.0:/run/current-system/sw/lib/gtk-2.0
-
-                # Find mouse icons
-                export XCURSOR_PATH=~/.icons:/run/current-system/sw/share/icons
-
-                export GST_PLUGIN_PATH="${GST_PLUGIN_PATH}"
-
-                # Override default mimeapps
-                export XDG_DATA_DIRS=$XDG_DATA_DIRS''${XDG_DATA_DIRS:+:}:/run/current-system/sw/share
-
-                # Override gsettings-desktop-schema
-                export NIX_GSETTINGS_OVERRIDES_DIR=${nixos-gsettings-desktop-schemas}/share/gsettings-schemas/nixos-gsettings-overrides/glib-2.0/schemas
-
-                # Update user dirs as described in http://freedesktop.org/wiki/Software/xdg-user-dirs/
-                ${pkgs.xdg-user-dirs}/bin/xdg-user-dirs-update
-
-                # Custom Xresources setup
-                ${pkgs.xorg.xrdb}/bin/xrdb -merge ${default_xresources}
-
-                exec ${pkgs.dbus}/bin/dbus-launch --sh-syntax --exit-with-session ${pkgs.openbox}/bin/openbox-session
-              '';
-            }
-          ]; # }}}
-
-          #windowManager.openbox.enable = true;
-          #windowManager.default = "openbox";
+            # Custom Xresources setup
+            ${pkgs.xorg.xrdb}/bin/xrdb -merge ${default_xresources}
+          '';
 
           # displayManager.slim.enable = true; # RIP SLIM
           displayManager.sddm = {
