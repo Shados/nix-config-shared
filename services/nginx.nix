@@ -72,8 +72,6 @@ mkIf cfg.enable {
       worker_processes  auto;
       worker_rlimit_nofile 100000; # Max # of open FDs
 
-      pid        /run/nginx.pid;
-
       # cache informations about FDs, frequently accessed files
       # can boost performance, but you need to test those values
       #open_file_cache max=200000 inactive=20s; 
