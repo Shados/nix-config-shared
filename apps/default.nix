@@ -58,6 +58,7 @@ with lib;
     rename # perl-rename
     ripgrep
     moreutils # sponge
+    ncdu
 
     pastebin
   ] ++ optionals (!config.fragments.remote) (with pkgs; [
