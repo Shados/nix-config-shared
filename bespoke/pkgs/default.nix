@@ -352,15 +352,15 @@
         nameSuffix = "-alpha";
       };
       waterfox-alpha-unwrapped = let
-        gitVersion = "2020.02-current";
+        gitVersion = "2020.04-current";
         waterfox-unwrapped-base = (firefox-common {
           pname = "waterfox";
           ffversion = "68.0-${gitVersion}";
           src = super.fetchFromGitHub {
             owner  = "MrAlex94";
             repo   = "Waterfox";
-            rev    = "2020.02-current";
-            sha256 = "12k9j5d8wfp0ia78j38vh18fzslpd8knzdv42gmdmycvy0p0wkrm";
+            rev    = "04ca7d1b5d380688c96195f2672a59383246476b";
+            sha256 = "05hdz5cxxn342vp8njbj9k5n4rs22m4mfdgxa1ryk949w5mjf9i6";
           };
           patches = [
             "${pkgs.path}/pkgs/applications/networking/browsers/firefox/no-buildconfig-ffx65.patch"
@@ -405,7 +405,7 @@
                                                   Kerberos AVFoundation MediaToolbox
                                                   CoreLocation Foundation AddressBook;
             inherit (darwin) libobjc;
-            inherit (rustPackages_1_38_0) cargo rustc;
+            inherit (rustPackages) cargo rustc;
 
             enableOfficialBranding = false;
             privacySupport = true;
