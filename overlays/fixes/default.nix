@@ -143,8 +143,8 @@
               };
             });
         })
-        # Workaround for nixpkgs#67601
-        (self: super: {
+        (self: super: with super.lib; {
+          # Workaround for nixpkgs#67601
           powerdns = let
             nixpkgs = import (builtins.fetchGit {
               url = https://github.com/NixOS/nixpkgs;
@@ -152,6 +152,21 @@
               rev = "084fcf09e3c1ea6633c72824bfe0c95c1056f7bd";
             }) { };
           in nixpkgs.powerdns;
+          # Backport nixpkgs#86115
+          arc-theme = if (getVersion super.arc-theme) != "20190917" then super.arc-theme else super.arc-theme.overrideAttrs(oa: {
+            version = "20200416";
+            src = super.fetchFromGitHub {
+              owner = "jnsh"; repo = oa.pname;
+              rev = "0779e1ca84141d8b443cf3e60b85307a145169b6";
+              sha256 = "1ddyi8g4rkd4mxadjvl66wc0lxpa4qdr98nbbhm5abaqfs2yldd4";
+            };
+            configureFlags = oa.configureFlags ++ [
+              "--disable-cinnamon"
+            ];
+            meta = oa.meta // {
+              broken = false;
+            };
+          });
         })
       ];
     }
