@@ -299,7 +299,7 @@
             sha256 = "0fjg7c8vp3vlhwv0kpnhlslbibsxsapl7d6v6s0dxcyjkkz5i01v";
           };
           patches = [
-            "${pkgs.path}/pkgs/applications/networking/browsers/firefox/fix-pa-context-connect-retval.patch"
+            <nixpkgs/pkgs/applications/networking/browsers/firefox/fix-pa-context-connect-retval.patch>
             ./waterfox/wf-buildconfig.patch
           ];
           extraConfigureFlags = [
@@ -329,7 +329,7 @@
           };
         };
         firefox-common = with super; opts: super.callPackage
-          (import "${pkgs.path}/pkgs/applications/networking/browsers/firefox/common.nix" opts)
+          (import <nixpkgs/pkgs/applications/networking/browsers/firefox/common.nix> opts)
           { inherit (gnome2) libIDL;
             libpng = libpng_apng;
             gnused = gnused_422;
@@ -363,7 +363,7 @@
             sha256 = "05hdz5cxxn342vp8njbj9k5n4rs22m4mfdgxa1ryk949w5mjf9i6";
           };
           patches = [
-            "${pkgs.path}/pkgs/applications/networking/browsers/firefox/no-buildconfig-ffx65.patch"
+            <nixpkgs/pkgs/applications/networking/browsers/firefox/no-buildconfig-ffx65.patch>
           ];
           extraConfigureFlags = [
             "--enable-content-sandbox"
@@ -391,12 +391,12 @@
           };
         }).overrideAttrs(oa: {
           patches = [
-            "${pkgs.path}/pkgs/applications/networking/browsers/firefox/no-buildconfig-ffx65.patch"
+            <nixpkgs/pkgs/applications/networking/browsers/firefox/no-buildconfig-ffx65.patch>
           ];
           hardeningDisable = [ "format" ]; # -Werror=format-security
         });
         firefox-common = with super; opts: super.callPackage
-          (import "${pkgs.path}/pkgs/applications/networking/browsers/firefox/common.nix" opts)
+          (import <nixpkgs/pkgs/applications/networking/browsers/firefox/common.nix> opts)
           { inherit (gnome2) libIDL;
             libpng = libpng_apng;
             gnused = gnused_422;

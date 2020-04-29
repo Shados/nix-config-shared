@@ -85,9 +85,9 @@
                   sha256 = "0fwrdqizwnn0kmf8bvlz334va526mlbm1kas9fif0jmvl1q11ayv";
                 };
                 patches = [
-                  (super.path + "/pkgs/tools/networking/mosh/ssh_path.patch")
-                  (super.path + "/pkgs/tools/networking/mosh/utempter_path.patch")
-                  (super.path + "/pkgs/tools/networking/mosh/bash_completion_datadir.patch")
+                  (<nixpkgs/pkgs/tools/networking/mosh/ssh_path.patch>)
+                  (<nixpkgs/pkgs/tools/networking/mosh/utempter_path.patch>)
+                  (<nixpkgs/pkgs/tools/networking/mosh/bash_completion_datadir.patch>)
                 ];
               });
           monero = if versionOlder (getVersion super.monero) "0.14.0.2"
