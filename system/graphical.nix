@@ -51,7 +51,7 @@ in
 {
   options = {
     fragments.graphical = {
-      enable = mkEnableOption "graphical environment / UI support";
+      enable = mkEnableOption "graphical environment / UI / user-facing support";
     };
   };
 
@@ -141,6 +141,9 @@ in
         dunst libnotify
         snap
 
+        # Shit needed for gnome apps to work right
+        gnome3.dconf gnome3.dconf-editor
+
         # Spellchecking dictionary
         hunspellDicts.en-gb-ise
       ];
@@ -172,7 +175,7 @@ in
         gnome3.gnome-settings-daemon.enable = true;
         gnome3.glib-networking.enable = false;
       };
-      systemd.packages = with pkgs.gnome3; [ vino gnome-session ];
+      systemd.packages = with pkgs.gnome3; [ gnome-session ];
       xdg.portal.extraPortals = [ pkgs.gnome3.gnome-shell ];
       fonts.fonts = with pkgs; [
         cantarell-fonts
@@ -200,7 +203,6 @@ in
         pkgs.hicolor-icon-theme
         pkgs.shared-mime-info # for update-mime-database
         pkgs.xdg-user-dirs # Update user dirs as described in http://freedesktop.org/wiki/Software/xdg-user-dirs/
-        vino
       ];
     }
     # Browser stuff {{{
