@@ -51,10 +51,7 @@ with lib;
     tree
     file
     zip
-    unzip
-    unrar
-    lzop
-    p7zip
+    unar
     rename # perl-rename
     ripgrep
     moreutils # sponge
