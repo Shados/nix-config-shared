@@ -111,6 +111,16 @@
               })
             ];
           });
+          adb-sync = super.adb-sync.overrideAttrs (oa: rec {
+            name = "${pname}-${version}";
+            pname = "adb-sync";
+            version = "unstable-2019-01-02";
+            src = super.fetchFromGitHub {
+              owner = "google"; repo = "adb-sync";
+              rev = "fb7c549753de7a5579ed3400dd9f8ac71f7bf1b1";
+              sha256 = "1kfpdqs8lmnh144jcm1qmfnmigzrbrz5lvwvqqb7021b2jlf69cl";
+            };
+          });
         })
         # Fixes nixpkgs#53492; remove after nixpkgs#53505 merged
         (self: super: with super.lib; {
