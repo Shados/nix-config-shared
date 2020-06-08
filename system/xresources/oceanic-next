@@ -1,31 +1,40 @@
+#define S_base00 #1B2B34
+#define S_base01 #343D46
+#define S_base02 #4F5B66
+#define S_base03 #65737E
+#define S_base04 #A7ADBA
+#define S_base05 #C0C5CE
+#define S_base06 #CDD3DE
+#define S_base07 #D8DEE9
+#define S_base08 #EC5f67
+#define S_base09 #F99157
+#define S_base0A #FAC863
+#define S_base0B #99C794
+#define S_base0C #5FB3B3
+#define S_base0D #6699CC
+#define S_base0E #C594C5
+#define S_base0F #AB7967
+
 ! special colors
-*foreground:  #c0c5ce
-*background:  #1b2b34
-*cursorColor:  #c0c5ce
-! black
-*color0:      #4F5B66
-*color8:      #65737E
-! red
-*color1:      #ec5f67
-*color9:     #ec5f67
-! green
-*color2:      #62b3b2
-*color10:      #62b3b2
-! yellow
-*color3:      #f99157
-*color11:     #fac863
-! blue
-*color4:      #99c794
-*color12:     #99c794
-! magenta
-*color5:      #c594c5
-*color13:     #c594c5
-! cyan
-*color6:      #6699cc
-*color14:     #6699cc
-! white
-*color7:      #4f5b66
-*color15:     #c0c5ce
+*foreground:  S_base04
+*background:  S_base00
+*cursorColor:  S_base06
+*color0:      S_base01
+*color1:      S_base08
+*color2:      S_base0B
+*color3:      S_base0A
+*color4:      S_base0D
+*color5:      S_base0E
+*color6:      S_base0C
+*color7:      S_base07
+*color8:      S_base00
+*color9:     S_base09
+*color10:      S_base02
+*color11:     S_base05
+*color12:     S_base00
+*color13:     S_base0F
+*color14:     S_base06
+*color15:     S_base07
 
 ! Urxvt-required
 *borderColor:   #1b2b34

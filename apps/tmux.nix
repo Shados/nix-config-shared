@@ -133,7 +133,7 @@ with lib;
 
       # Color scheme {{{
         # default statusbar colors
-        set -g status-style bg=brightyellow,fg=black,none
+        set -g status-style bg=green,fg=black,none
 
         # default window title colors
         setw -g window-status-style bg=default,fg=default
@@ -142,18 +142,18 @@ with lib;
         setw -g window-status-current-style bg=default,fg=brightblack,dim
 
         # pane border
-        set -g pane-border-style bg=default,fg=magenta
-        set -g pane-active-border-style bg=default,fg=brightyellow
+        set -g pane-border-style bg=default,fg=green
+        set -g pane-active-border-style bg=default,fg=yellow
 
         # command line/message text
-        set -g message-style bg=black,fg=brightyellow
+        set -g message-style bg=black,fg=green
 
         # pane number display
-        set -g display-panes-active-colour brightyellow
+        set -g display-panes-active-colour green
         set -g display-panes-colour brightblue
 
         # clock
-        setw -g clock-mode-colour brightyellow
+        setw -g clock-mode-colour green
       # }}}
 
       # Fixes
