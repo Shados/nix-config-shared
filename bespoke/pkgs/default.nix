@@ -352,15 +352,15 @@
         nameSuffix = "-alpha";
       };
       waterfox-alpha-unwrapped = let
-        gitVersion = "2020.04-current";
+        gitVersion = "2020.06-current";
         waterfox-unwrapped-base = (firefox-common {
           pname = "waterfox";
           ffversion = "68.0-${gitVersion}";
           src = super.fetchFromGitHub {
             owner  = "MrAlex94";
             repo   = "Waterfox";
-            rev    = "04ca7d1b5d380688c96195f2672a59383246476b";
-            sha256 = "05hdz5cxxn342vp8njbj9k5n4rs22m4mfdgxa1ryk949w5mjf9i6";
+            rev    = "dce288a7f9b1e1ccd57f03f35d91b93519c87847";
+            sha256 = "1p6agl0dvvf3qrnwjc9j3nh662i9432bwr6q5rry48a9z9l7zk26";
           };
           patches = [
             <nixpkgs/pkgs/applications/networking/browsers/firefox/no-buildconfig-ffx65.patch>
