@@ -57,8 +57,6 @@ in
 {
   # TODO: LAN, Bridging, Firewall (NAT), DNS, DHCPD, transparent caching?, traffic shaping, bandwidth limiting, QoS
   imports = [
-    # Hostapd module extension
-    ./hostapd-module.nix
     # Sets up the hostapd access point
     ./wireless-ap.nix
     # Sets up network details (bridges, IP addresses, routes, NAT details)
