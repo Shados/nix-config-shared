@@ -9,6 +9,7 @@ with lib;
     ./builders.nix
     ./config-snapshot.nix
     ./do-init
+    ./fish
     ./fonts.nix
     ./graphical.nix
     ./haveged.nix
