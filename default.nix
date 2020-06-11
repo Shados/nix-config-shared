@@ -13,8 +13,6 @@ in
     ./bespoke
     # Standard userspace tooling & applications
     ./apps
-    # nixpkgs overlays as generic (non-NixOS) modules
-    ./overlays
     # Conveniently packaged system 'functional profiles', including
     # container/VM profiles
     ./profiles
@@ -38,7 +36,10 @@ in
     };
   };
 
-  config = mkMerge [
+  config = let
+    nur-no-packages = import (import ./pins).nur { };
+    nur = import (import ./pins).nur { inherit pkgs; };
+  in mkMerge [
     (mkIf cfg.remote {
       i18n.consoleKeyMap = ./system/sn.map.gz;
       systemd.enableEmergencyMode = mkDefault false;
@@ -58,6 +59,27 @@ in
         # Disabled until nixpkgs issue #90124 is resolved
         # includeAllModules = true;
       };
+    }
+    # Setup access to the Nix User Repository & my personal NUR Cachix cache
+    { nix = {
+        binaryCaches = singleton "https://shados-nur-packages.cachix.org";
+        binaryCachePublicKeys = singleton "shados-nur-packages.cachix.org-1:jGzLOsiYC+TlK8i7HZmNarRFf/LeZ0/J1BJ6NMpNAVU=";
+      };
+      nixpkgs.overlays = singleton (self: super: { inherit nur; });
+    }
+    # Pull in overlays from my NUR
+    { nixpkgs.overlays = with nur-no-packages.repos.shados.overlays; lib.mkBefore [
+        lua-overrides
+        python-overrides
+      ];
+    }
+    { nixpkgs.overlays = with nur-no-packages.repos.shados.overlays; [
+        lua-packages
+        python-packages
+        fixes
+        oldflash
+        dochelpers
+      ];
     }
   ];
 }
