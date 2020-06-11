@@ -58,5 +58,14 @@ in
         includeAllModules = true;
       };
     }
+    # Setup my personal Nix User Repository & Cachix cache for it
+    { nix = {
+        binaryCaches = singleton "https://shados-nur-packages.cachix.org";
+        binaryCachePublicKeys = singleton "shados-nur-packages.cachix.org-1:jGzLOsiYC+TlK8i7HZmNarRFf/LeZ0/J1BJ6NMpNAVU=";
+      };
+      nixpkgs.overlays = singleton (self: super: {
+        nur.repos.shados = import (import ./pins).shados-nur { inherit pkgs; };
+      });
+    }
   ];
 }

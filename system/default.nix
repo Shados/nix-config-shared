@@ -41,7 +41,6 @@ with lib;
       environment.systemPackages = with pkgs; [
         nix-help
         nixpkgs-help
-        nixos-options-help
       ];
     })
   ];

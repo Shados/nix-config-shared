@@ -1,4 +1,0 @@
-#!/usr/bin/env bash
-env NIX_PATH=nixpkgs=/home/shados/nixpkgs-local ~/nixpkgs-local/maintainers/scripts/update-luarocks-packages -c luarocks-packages.csv generated-packages.nix
-
-# vim: set ft=sh :

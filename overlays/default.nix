@@ -1,11 +1,23 @@
-# Overlays; this can safely be imported for usage in standalone (non-NixOS)
-# nixpkgs-in-module usages (e.g. in home-manager, or direct evalModules)
-{ config, lib, ... }:
+{ config, lib, pkgs, ... }:
 {
   imports = [
     # Temporary fixes that have yet to hit nixos-unstable channel
     ./fixes
-    # Re-usable library functions that don't necessarily fit anywhere else
-    ./lib
+  ];
+
+  config = let
+    nur-no-packages.repos.shados = import (import ../pins).shados-nur { };
+  in lib.mkMerge [
+    { nixpkgs.overlays = with nur-no-packages.repos.shados.overlays; lib.mkBefore [
+        lua-overrides
+      ];
+    }
+    { nixpkgs.overlays = with nur-no-packages.repos.shados.overlays; [
+        lua-packages
+        fixes
+        oldflash
+        dochelpers
+      ];
+    }
   ];
 }

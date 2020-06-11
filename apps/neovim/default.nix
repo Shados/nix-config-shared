@@ -410,7 +410,7 @@ in
             autocmd vimrc FileType json let b:ale_fix_on_save = 1
           '';
           binDeps = [
-            fixjson
+            pkgs.nur.repos.shados.fixjson
           ];
         }
         { nvimrc.postPlugin = mkAfter ''
