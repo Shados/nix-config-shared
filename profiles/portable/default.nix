@@ -8,11 +8,11 @@ in
 {
   # Import a bunch of stuff from the livecd/installer expressions, piggyback off of others' work :>
   imports = [
-    <nixpkgs/nixos/modules/profiles/all-hardware.nix>
+    (pkgs.path + /nixos/modules/profiles/all-hardware.nix)
 
     # 'minimal' install cd software, basically all useful given usb installs often end up used for recovery/setup work anyway
     # NOTE: does set networking.hostId, so this needs to be mkForce'd elsewhere for it to be machine-specific
-    <nixpkgs/nixos/modules/profiles/base.nix> 
+    (pkgs.path + /nixos/modules/profiles/base.nix)
   ];
 
   options = {
