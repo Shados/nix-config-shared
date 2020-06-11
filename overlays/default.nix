@@ -6,7 +6,7 @@
   ];
 
   config = let
-    nur-no-packages.repos.shados = import (import ../pins).shados-nur { };
+    nur-no-packages = import (import ../pins).nur { };
   in lib.mkMerge [
     { nixpkgs.overlays = with nur-no-packages.repos.shados.overlays; lib.mkBefore [
         lua-overrides

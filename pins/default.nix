@@ -1,9 +1,9 @@
 {
-  shados-nur = let
-    rev = "1f8e6e08d202d9ae57aa75e440185157944505f8";
-    sha256 = "165905mjgf2kp24gjd6yqg8kh9x08gjjkkymh1jk0w6sq3mhvld8";
+  nur = let
+    rev = "74a76c41be4606f1f79acf556625927374863d4c";
+    sha256 = "17z3njzk1vyfwm1512yy799i97vcfrxj4d8jf3865wja87ins2zk";
   in builtins.fetchTarball {
-    url = "https://github.com/Shados/nur-packages/archive/${rev}.tar.gz";
+    url = "https://github.com/nix-community/NUR/archive/${rev}.tar.gz";
     inherit sha256;
   };
 }
