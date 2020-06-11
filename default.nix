@@ -55,7 +55,8 @@ in
 
       documentation.nixos = {
         enable = true;
-        includeAllModules = true;
+        # Disabled until nixpkgs issue #90124 is resolved
+        # includeAllModules = true;
       };
     }
     # Setup my personal Nix User Repository & Cachix cache for it
