@@ -16,6 +16,38 @@ in
     }
     (mkIf cfg.enable {
       programs.fish = {
+        shellInit = ''
+          function safe_source -d "Source file if path exists"
+            if test -f $argv[1].fish
+              source $argv[1].fish
+            end
+          end
+          function path_append -d "Append each of the (existing) listed directories to path, in-order"
+            for dir in $argv
+              if test -d $dir
+                set -gxa PATH $dir
+              end
+            end
+          end
+          function path_prepend -d "Prepend each of the (existing) listed directories to path, in-order"
+            for dir in $argv[-1..1]
+              if test -d $dir
+                set -gxp PATH $dir
+              end
+            end
+          end
+
+          set HOSTNAME (hostname -s)
+          set -g NIX_SYSTEM_FISH_DIR "${toString ./.}/"
+          # Load Nix-managed system-wide, per-user, and local-system-specific Fish
+          # config files
+          for prefix in "" "$USER." "$HOSTNAME."
+            for file_stem in env functions
+              safe_source "$NIX_SYSTEM_FISH_DIR/$prefix$file_stem"
+            end
+          end
+        '';
+
         interactiveShellInit = ''
           # If we're not already in tmux (or screen, or at a console prompt), make
           # a new session
