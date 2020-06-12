@@ -31,7 +31,7 @@ with lib;
     keyMode = "vi";
     shortcut = "a";
     terminal = "screen-256color";
-    extraTmuxConf = ''
+    extraConfig = ''
       # Prevent the server from quitting when there are no live sessions
       set-option -s exit-empty off
 

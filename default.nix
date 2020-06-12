@@ -41,7 +41,7 @@ in
     nur = import (import ./pins).nur { inherit pkgs; };
   in mkMerge [
     (mkIf cfg.remote {
-      i18n.consoleKeyMap = ./system/sn.map.gz;
+      console.keyMap = ./system/sn.map.gz;
       systemd.enableEmergencyMode = mkDefault false;
     })
     {
