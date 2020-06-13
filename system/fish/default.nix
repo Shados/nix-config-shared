@@ -68,6 +68,7 @@ in
           ".." = "cd ..";
           "..." = "cd ../..";
           g = "git";
+          v = "nvim";
           whois = "whois -h whois-servers.net";
           # SSH while ignoring host key checking (potentially risky)
           scpbad = "scp -o UserKnownHostsFile=/dev/null -o StrictHostKeychecking=no";
