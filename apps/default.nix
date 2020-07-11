@@ -18,8 +18,6 @@ with lib;
 
     # VCS
     git gitAndTools.git-octopus
-    mercurial
-    subversion
 
     # Debugging/sysadmin/System information
     manpages # Linux kernel dev ones, e.g. man 5 proc
@@ -45,7 +43,6 @@ with lib;
     bind.dnsutils # We only care about the client-side DNS utilities, not the server
 
     # Generally-useful file utilities
-    wgetpaste
     wget
     axel
     tree
@@ -56,11 +53,8 @@ with lib;
     ripgrep
     moreutils # sponge
     ncdu
-
-    pastebin
-  ] ++ optionals (!config.fragments.remote) (with pkgs; [
-    nix-prefetch-flash
-  ]);
+    unixtools.xxd
+  ];
 
   # Config for various standard services & programs
   programs = {
