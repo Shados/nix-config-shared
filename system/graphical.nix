@@ -138,7 +138,6 @@ in
         lxappearance
         obconf
 
-        dunst libnotify
         snap
 
         # Shit needed for gnome apps to work right
