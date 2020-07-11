@@ -22,9 +22,11 @@
     passwordFile = "/etc/nixos/modules/passwords/shados";
     linger = true;
   };
-  users.users.root.linger = true;
+  users.users.root = {
+    linger = true;
+    initialHashedPassword = "$6$t6l9e3mAk$rohvE4HsBPPbsy1pQmtZSVvYUX0Gjl.seA/h6xYiKHc5ZSug0HAe/4F1EDq8XO.7aRrnfv2f9eDMf4kGKIDQ6/";
+  };
 
-  security.initialRootPassword = "$6$t6l9e3mAk$rohvE4HsBPPbsy1pQmtZSVvYUX0Gjl.seA/h6xYiKHc5ZSug0HAe/4F1EDq8XO.7aRrnfv2f9eDMf4kGKIDQ6/";
   services.openssh.allowed_users = [ "shados" ];
   environment.systemPackages = with pkgs; [
     bashInteractive # issue #4260
