@@ -8,7 +8,6 @@ in
 {
   sn.programs.neovim.pluginRegistry = {
     oceanic-next = {
-      source = "mhartington/oceanic-next";
       nvimrc.postPlugin = ''
         set background=dark
         colorscheme OceanicNext
