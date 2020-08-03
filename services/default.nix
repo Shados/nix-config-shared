@@ -7,6 +7,7 @@
     ./postgresql.nix
     ./quassel.nix
     ./samba.nix
+    ./syncthing.nix
     ./teamspeak3.nix
     ./wireguard.nix
   ];
