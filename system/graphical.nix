@@ -204,13 +204,6 @@ in
         pkgs.xdg-user-dirs # Update user dirs as described in http://freedesktop.org/wiki/Software/xdg-user-dirs/
       ];
     }
-    # Browser stuff {{{
-    {
-      # Avoiding using an actual derivation ref, as I may not be using the
-      # standard firefox on every box
-      services.nixosManual.browser = "/run/current-system/sw/bin/firefox";
-    }
-    # }}}
     # }}}
 
     # Latency-oriented tweaking
