@@ -4,7 +4,7 @@ with lib;
 
 let
   cfg = config.services.nginx;
-  nginx_package = cfg.package;
+  nginxRootDir = "/srv/http";
 in
 
 mkIf cfg.enable {
@@ -16,6 +16,7 @@ mkIf cfg.enable {
   #     };
   #   };
   # };
+  systemd.services.nginx.serviceConfig.ReadWritePaths = singleton nginxRootDir;
   services.nginx = {
     enableReload = mkDefault true;
     recommendedGzipSettings = mkDefault true;
@@ -42,7 +43,7 @@ mkIf cfg.enable {
       log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
                         '$status $body_bytes_sent "$http_referer" '
                         '"$http_user_agent" "$http_x_forwarded_for"';
-      access_log  /srv/http/logs/access.log  main;
+      access_log  ${nginxRootDir}/logs/access.log  main;
 
       server_names_hash_bucket_size 64; # Increases maximum domain name size allowed
       proxy_headers_hash_bucket_size 64;
