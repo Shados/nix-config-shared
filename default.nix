@@ -13,6 +13,8 @@ in
     ./bespoke
     # Standard userspace tooling & applications
     ./apps
+    # Meta modules related to Nix/OS configuration itself
+    ./meta
     # Conveniently packaged system 'functional profiles', including
     # container/VM profiles
     ./profiles
