@@ -6,6 +6,10 @@ let
   mkIfOceanic = mkIf plugCfg.oceanic-next.enable;
 in
 {
+  sn.programs.neovim.extraConfig = mkAfter ''
+    " Interim fix for https://github.com/mhartington/oceanic-next/issues/95
+    hi Normal guifg=#c0c5ce
+  '';
   sn.programs.neovim.pluginRegistry = {
     oceanic-next = {
       nvimrc.postPlugin = ''
