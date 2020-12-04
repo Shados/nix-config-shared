@@ -1,5 +1,5 @@
 # Portable / USB installation setup
-{ config, lib, pkgs, ... }:
+{ config, lib, modulesPath, pkgs, ... }:
 
 with lib;
 let
@@ -8,11 +8,10 @@ in
 {
   # Import a bunch of stuff from the livecd/installer expressions, piggyback off of others' work :>
   imports = [
-    (pkgs.path + /nixos/modules/profiles/all-hardware.nix)
-
+    "${modulesPath}/profiles/all-hardware.nix"
     # 'minimal' install cd software, basically all useful given usb installs often end up used for recovery/setup work anyway
     # NOTE: does set networking.hostId, so this needs to be mkForce'd elsewhere for it to be machine-specific
-    (pkgs.path + /nixos/modules/profiles/base.nix)
+    "${modulesPath}/profiles/base.nix"
   ];
 
   options = {
