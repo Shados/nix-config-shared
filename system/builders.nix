@@ -18,6 +18,12 @@ let
           Path to the ssh key used to access the builder node.
         '';
       };
+      sshHostPubKey = mkOption {
+        type = with types; str;
+        description = ''
+          A string represneting the public ssh host key for the builder node.
+        '';
+      };
       machineSpec = mkOption {
         type = with types; attrs;
         default = {};
@@ -84,6 +90,12 @@ in
           user = sshUser;
           port = sshPort;
           keyFile = node.sshKeyFile;
+        }
+      ) cfg.nodes;
+      programs.ssh.knownHosts = mapAttrs' (name: node: nameValuePair
+        (mkSshHostName name)
+        { hostNames = singleton node.address;
+          publicKey = node.sshHostPubKey;
         }
       ) cfg.nodes;
     }
