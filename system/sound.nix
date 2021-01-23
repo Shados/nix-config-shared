@@ -9,7 +9,7 @@ in
     fragments.sound = {
       enable = mkOption {
         type = types.bool;
-        default = false;
+        default = ! config.fragments.remote;
         description = ''
           Whether or not to enable sound.
         '';
