@@ -2,7 +2,9 @@
 with lib;
 let
   sddmAvatarFor = username: icon: pkgs.runCommand "sddm-avatar-${username}"
-    { inherit icon username; }
+    { preferLocalBuild = true;
+      inherit icon username;
+    }
     ''
       mkdir -p "$out/share/sddm/faces/"
       cp "$icon" "$out/share/sddm/faces/$username.face.icon"
