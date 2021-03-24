@@ -47,7 +47,7 @@ in
       priority = 1000;
       directoryPath = ./pins;
     };
-    earlyConfig = ''
+    earlyConfig = /* vim */ ''
       " Early-load settings
       let mapleader = "\<Space>"
       " Define my autocmd group for later use
@@ -406,11 +406,11 @@ in
         }
         { nvimrc.postPlugin = mkAfter ''
             " JSON
-            call s:register_ale_tool(g:ale_fixers, 'json', 'fixjson')
+            call s:register_ale_tool(g:ale_fixers, 'json', 'prettier')
             autocmd vimrc FileType json let b:ale_fix_on_save = 1
           '';
           binDeps = [
-            pkgs.nur.repos.shados.fixjson
+            pkgs.nodePackages.prettier
           ];
         }
         { nvimrc.postPlugin = mkAfter ''
