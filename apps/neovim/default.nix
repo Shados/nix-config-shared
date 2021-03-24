@@ -759,6 +759,7 @@ in
           nnoremap <Leader>/ :Ack!<Space>
         '';
       };
+      "tpope/vim-unimpaired".enable = true;
       # }}}
 
       # Next-up {{{
