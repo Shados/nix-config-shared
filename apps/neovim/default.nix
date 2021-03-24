@@ -472,6 +472,7 @@ in
           let g:vim_json_syntax_conceal = 0
         '';
       };
+      "gutenye/json5.vim".enable = true;
       vim-toml.enable = true;
       vim-fish = {
         enable = true;
