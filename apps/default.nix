@@ -5,7 +5,7 @@ let
   envy = builtins.fetchGit {
     url = https://github.com/Shados/envy;
     ref = "master";
-    rev = "e3401c93086e1cf6e1352f692aafb3d625a12986";
+    rev = "b8a10b6272cc8bc1a662a29a426a84b3f7bbb696";
   };
 in
 {
