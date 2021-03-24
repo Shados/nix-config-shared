@@ -1,38 +1,17 @@
 { config, lib, pkgs, ... }:
-
 with lib;
 let
   ag = "${pkgs.silver-searcher}/bin/ag";
   nvimCfg = config.sn.programs.neovim;
   plugCfg = nvimCfg.pluginRegistry;
-
-  envy = builtins.fetchGit {
-    url = https://github.com/Shados/envy;
-    ref = "master";
-    rev = "e3401c93086e1cf6e1352f692aafb3d625a12986";
-  };
 in
-
 {
   imports = [
-    (import "${envy}/nixos.nix" { })
-
     # Theme-related defaults
     ./gruvbox.nix
     ./oceanicnext.nix
   ];
 
-  nix = {
-    # Set up cachix caches
-    binaryCaches = [
-      # Haskell IDE Engine
-      "https://all-hies.cachix.org"
-    ];
-    binaryCachePublicKeys = [
-      # Haskell IDE Engine
-      "all-hies.cachix.org-1:JjrzAOEUsD9ZMt8fdFbzo3jNAyEWlPAwdVuHw4RD43k="
-    ];
-  };
   sn.programs.neovim = {
     mergePlugins = mkDefault true;
     files = {
@@ -42,7 +21,6 @@ in
     extraBinPackages = with pkgs; [
       silver-searcher
     ];
-    # TODO local dir in ./modules
     sourcePins = nvimCfg.lib.fillPinsFromDir {
       priority = 1000;
       directoryPath = ./pins;

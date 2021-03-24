@@ -1,8 +1,16 @@
 { config, lib, pkgs, ... }:
 with lib;
 
+let
+  envy = builtins.fetchGit {
+    url = https://github.com/Shados/envy;
+    ref = "master";
+    rev = "e3401c93086e1cf6e1352f692aafb3d625a12986";
+  };
+in
 {
   imports = [
+    (import "${envy}/nixos.nix" { })
     ./neovim
     ./sddm
     # ./slim # RIP SLIM
