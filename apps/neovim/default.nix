@@ -747,6 +747,18 @@ in
       #     let g:codestats_api_key = $CODESTATS_API_KEY
       #   '';
       # };
+      ack-vim = {
+        enable = true;
+        nvimrc.postPlugin = ''
+          " Use the current under-cursor word if the ack search is empty
+          let g:ack_use_cword_for_empty_search = 1
+
+          " Don't jump to first match
+          cnoreabbrev Ack Ack!
+
+          nnoremap <Leader>/ :Ack!<Space>
+        '';
+      };
       # }}}
 
       # Next-up {{{
