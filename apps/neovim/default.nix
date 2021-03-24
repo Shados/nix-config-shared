@@ -1,7 +1,6 @@
 { config, lib, pkgs, ... }:
 with lib;
 let
-  ag = "${pkgs.silver-searcher}/bin/ag";
   nvimCfg = config.sn.programs.neovim;
   plugCfg = nvimCfg.pluginRegistry;
 in
@@ -12,19 +11,22 @@ in
     ./oceanicnext.nix
   ];
 
-  sn.programs.neovim = {
+  sn.programs.neovim = let
+    rgPkg = pkgs.ripgrep;
+    rg = "${rgPkg}/bin/rg";
+  in {
     mergePlugins = mkDefault true;
     files = {
       "ftplugin/python.vim".source = ./nvim-files/ftplugin/python.vim;
       neosnippets.source = ./nvim-files/neosnippets;
     };
-    extraBinPackages = with pkgs; [
-      silver-searcher
-    ];
     sourcePins = nvimCfg.lib.fillPinsFromDir {
       priority = 1000;
       directoryPath = ./pins;
     };
+    extraBinPackages = [
+      rgPkg
+    ];
     earlyConfig = /* vim */ ''
       " Early-load settings
       let mapleader = "\<Space>"
@@ -106,9 +108,18 @@ in
       " }}}
 
       " Advanced configuration {{{
-        " Use The Silver Searcher (ag) for search backend
-        let g:ackprg = '${ag} --nogroup --column'
-        set grepprg:${ag}\ --nogroup\ --nocolor
+        " Use ripgrep for search backend
+        " vimgrep == needed for compatibility with ack.vim
+        " no-heading == grouping by file isn't needed for this use-case
+        " smart-case == case-insensitive search if all-lowercase pattern,
+        "               case-sensitive otherwise
+        let g:ackprg = '${rg} --vimgrep --smart-case --no-heading --max-filesize=4M'
+        set grepprg:${rg}\ --vimgrep\ --smart-case\ --no-heading\ --max-filesize=4M
+        set grepformat=%f:%l:%c:%m,%f:%l:%m
+
+        " When jumping from quickfix window to a location, use existing
+        " matching open buffer if present
+        set switchbuf=useopen
 
         " TODO: Delete old undofile automatically when vim starts
         " TODO: Delete old backup files automatically when vim starts
@@ -560,9 +571,17 @@ in
             \ [ '.git/', '.hg/', '.svn/', '.yardoc/', 'public/mages/',
             \   'public/system/', 'log/', 'tmp/', '__pycache__/', 'venv/', '*.min.*',
             \   '*.pyc', '*.exe', '*.so', '*.dat', '*.bin', '*.o'])
-          " Use The Silver Searcher (ag) for denite search backend
+          " Use ripgrep for denite file search backend
           call denite#custom#var('file/rec', 'command',
-            \ ['${ag}', '-l', '--nocolor', '-g', '''])
+            \ ['${rg}', '--files', '--color', 'never'])
+          call denite#custom#var('grep', {
+            \ 'command': ['${rg}'],
+            \ 'default_opts': ['--vimgrep', '--smart-case', '--no-heading', '--max-filesize=4M'],
+            \ 'recursive_opts': [],
+            \ 'pattern_opt': ['--regexp'],
+            \ 'separator': ['--'],
+            \ 'final_opts': [],
+            \ })
           " Change the default sorter for the sources I care about
           call denite#custom#source('file/rec', 'sorters', ['sorter_sublime'])
           call denite#custom#source('file_mru', 'sorters', ['sorter_sublime'])
