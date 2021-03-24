@@ -584,16 +584,37 @@ in
             \ })
           " Change the default sorter for the sources I care about
           call denite#custom#source('file/rec', 'sorters', ['sorter_sublime'])
-          call denite#custom#source('file_mru', 'sorters', ['sorter_sublime'])
+          " call denite#custom#source('file_mru', 'sorters', ['sorter_sublime'])
           call denite#custom#source('buffer', 'sorters', ['sorter_sublime'])
 
-          " Searches through most-recently-used files, recursive file/dir tree, and
-          " current buffers
-          nnoremap <leader>f :<C-u>Denite buffer file/rec file_mru <cr>
-          nnoremap <leader>b :<C-u>Denite buffer -quick-move="immediately" <cr>
+          " Searches through current buffers and recursive file/dir tree
+          nnoremap <leader>f :<C-u>Denite buffer file/rec -split=floating -winrow=1<cr>
+          nnoremap <leader>b :<C-u>Denite buffer -quick-move="immediately" -split=floating -winrow=1<cr>
+
+          " Default to filtering the resultant buffer
+          call denite#custom#option('_', {
+            \ 'start_filter': 1,
+            \ })
+
+          " Define default mappings for the denite buffers
+          function! s:DeniteBinds() abort
+            nnoremap <silent><buffer><expr> <CR> denite#do_map('do_action')
+            nnoremap <silent><buffer><expr> d denite#do_map('do_action', 'delete')
+            nnoremap <silent><buffer><expr> p denite#do_map('do_action', 'preview')
+            nnoremap <silent><buffer><expr> <Esc> denite#do_map('quit')
+            nnoremap <silent><buffer><expr> i denite#do_map('open_filter_buffer')
+            nnoremap <silent><buffer><expr> <Space> denite#do_map('toggle_select').'j'
+          endfunction
+          function! s:DeniteFilterBinds() abort
+            inoremap <silent><buffer><expr> <CR> denite#do_map('do_action')
+            inoremap <silent><buffer><expr> <Esc> denite#do_map('quit')
+            inoremap <silent><buffer> <C-j> <Esc><C-w>p:call cursor(line('.')+1,0)<CR><C-w>pA
+            inoremap <silent><buffer> <C-k> <Esc><C-w>p:call cursor(line('.')-1,0)<CR><C-w>pA
+          endfunction
+          autocmd FileType denite call s:DeniteBinds()
+          autocmd FileType denite-filter call s:DeniteFilterBinds()
         '';
       };
-      # neomru-vim.enable = true;
       # Display FIXME/TODO/etc. in handy browseable list pane, bound to <Leader>t,
       # then q to cancel, e to quit browsing but leave tasklist up, <CR> to quit
       # and place cursor on selected task
