@@ -1,8 +1,9 @@
 # System configuration changes
 { config, lib, pkgs, ... }:
-
 with lib;
-
+let
+  cfg = config.fragments;
+in
 {
   imports = [
     ./backup.nix
@@ -44,5 +45,25 @@ with lib;
         nixpkgs-help
       ];
     })
+    (mkIf cfg.remote {
+      console.keyMap = ./system/sn.map.gz;
+      systemd.enableEmergencyMode = mkDefault false;
+    })
+    {
+      boot.cleanTmpDir = true;
+
+      # Internationalisation & localization properties.
+      console.font   = mkDefault "lat9w-16";
+      i18n = {
+        defaultLocale = "en_US.UTF-8";
+      };
+      time.timeZone = "Australia/Melbourne";
+
+      documentation.nixos = {
+        enable = mkDefault true;
+        # Disabled until nixpkgs issue #90124 is resolved
+        # includeAllModules = true;
+      };
+    }
   ];
 }

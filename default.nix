@@ -1,12 +1,7 @@
 # Baseline SN NixOS configuration
 { config, lib, pkgs, ... }:
 # TODO Prettify console? Fonts, colour scheme?
-
 with lib;
-let
-  cfg = config.fragments;
-in
-
 {
   imports = [
     # Self-packaged and custom/bespoke packages & services
@@ -42,26 +37,6 @@ in
     nur-no-packages = import (import ./pins).nur { };
     nur = import (import ./pins).nur { inherit pkgs; };
   in mkMerge [
-    (mkIf cfg.remote {
-      console.keyMap = ./system/sn.map.gz;
-      systemd.enableEmergencyMode = mkDefault false;
-    })
-    {
-      boot.cleanTmpDir = true;
-
-      # Internationalisation & localization properties.
-      console.font   = mkDefault "lat9w-16";
-      i18n = {
-        defaultLocale = "en_US.UTF-8";
-      };
-      time.timeZone = "Australia/Melbourne";
-
-      documentation.nixos = {
-        enable = true;
-        # Disabled until nixpkgs issue #90124 is resolved
-        # includeAllModules = true;
-      };
-    }
     # Setup access to the Nix User Repository & my personal NUR Cachix cache
     { nix = {
         binaryCaches = singleton "https://shados-nur-packages.cachix.org";
