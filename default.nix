@@ -37,6 +37,12 @@ with lib;
     nur-no-packages = import (import ./pins).nur { };
     nur = import (import ./pins).nur { inherit pkgs; };
   in mkMerge [
+    # Add a custom $NIX_PATH entry; has to be mkOptionDefault so I *append* to
+    # the default instead of overriding it
+    { nix.nixPath = mkOptionDefault [
+        "sn-nixos-modules=/etc/nixos/modules"
+      ];
+    }
     # Setup access to the Nix User Repository & my personal NUR Cachix cache
     { nix = {
         binaryCaches = singleton "https://shados-nur-packages.cachix.org";
