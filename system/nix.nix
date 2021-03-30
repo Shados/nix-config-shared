@@ -23,5 +23,10 @@ with lib;
     binaryCaches = mkOrder 999 [
       "https://cache.nixos.org/"
     ];
+
+    package = pkgs.nixFlakes;
+    extraOptions = ''
+      experimental-features = nix-command flakes
+    '';
   };
 }
