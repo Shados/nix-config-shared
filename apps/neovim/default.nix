@@ -426,21 +426,26 @@ in
         # }}}
       ];
       "ericpruitt/tmux.vim".enable = true;
-      "gabrielelana/vim-markdown" = {
+      vim-markdown = {
         enable = true;
         nvimrc.postPlugin = ''
-          " Enable/disable syntax-based folding.
-          " This will have negative performance impact on sufficiently large files,
-          " however, and simply disabling folding in general does not stop that.
-          let g:markdown_enable_folding = 0
-          let g:markdown_enable_spell_checking = 0
-          let g:markdown_enable_input_abbreviations = 0
-          let g:markdown_enable_conceal = 0
-          " Automatically unfold all
+          " Open all folds by default
           autocmd vimrc FileType markdown normal zR
-          let g:markdown_composer_autostart = 0
           " Set indent/tab for markdown files to 4 spaces
           autocmd vimrc FileType markdown setlocal shiftwidth=4 softtabstop=4 tabstop=4
+
+          let g:vim_markdown_toc_autofit = 1
+
+          " Explicitly disable conceal usage
+          let g:vim_markdown_conceal = 0
+          let g:vim_markdown_conceal_code_blocks = 0
+          let g:tex_conceal = ""
+
+          " Extensions
+          let g:vim_markdown_strikethrough = 1
+          let g:vim_markdown_frontmatter = 1
+          ${optionalString plugCfg.vim-toml.enable "let g:vim_markdown_toml_frontmatter = 1"}
+          ${optionalString plugCfg.vim-json.enable "let g:vim_markdown_json_frontmatter = 1"}
         '';
       };
       # Nix syntax highlighting, error checking/linting is handled by ALE
