@@ -420,7 +420,9 @@ in
             call s:register_ale_tool(g:ale_linters, 'yaml', 'yamllint')
           '';
           binDeps = with python3Packages; [
-            yamllint
+            (yamllint.overridePythonAttrs(oa: {
+              doCheck = false;
+            }))
           ];
         }
         # }}}
