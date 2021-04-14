@@ -27,202 +27,236 @@ in
     extraBinPackages = [
       rgPkg
     ];
+    configLanguage = "moonscript";
     prePluginConfig = ''
-      " Early-load settings
-      let mapleader = "\<Space>"
-      " Define my autocmd group for later use
-      augroup vimrc
-        " Clear any existing autocmds (e.g. if re-sourcing init.vim)
-        autocmd!
-      augroup END
-      " Theming stuff
-      " The xterm and screen ones are actually both for Mosh
-      if !empty($TMUX) || $TERM ==# 'rxvt-unicode' || $TERM ==# 'rxvt-unicode-256color' || $TERM==# 'xterm' || $TERM ==# 'xterm-256color' || $TERM ==# 'screen' || $TERM ==# 'screen-256color'
-        set termguicolors
-      endif
+      -- Early-load settings
+
+      -- Helpers
+      -- FIXME Replace by dependence on a library of my own making, or 0.5
+      -- compatibility shim
+      dir_exists = (dir) ->
+        (vim.api.nvim_call_function 'isdirectory', {dir}) != 0
+      empty_dict = ->
+        { [vim.type_idx]: vim.types.dictionary }
+      stdpath = (path_type) ->
+        vim.api.nvim_call_function "stdpath", {path_type}
+      env_home = os.getenv("HOME")
+
+      -- FIXME Once there's a nice way to create expr-quote values from Lua
+      space = vim.api.nvim_eval '"\\<Space>"'
+      vim.api.nvim_set_var "mapleader", space
+
+      -- Define my autocmd group for later use
+      -- FIXME Once there's a way to use augroup directly from Lua or the API
+      vim.api.nvim_command "augroup vimrc | autocmd! | augroup END"
+
+      -- Theming stuff
+      -- The xterm and screen ones are actually both for Mosh
+      acceptable_terms = {
+        ["rxvt-unicode"]: true
+        ["rxvt-unicode-256color"]: true
+        xterm: true
+        ["xterm-256color"]: true
+        screen: true
+        ["screen-256color"]: true
+      }
+      env_tmux = os.getenv("TMUX")
+      env_term = os.getenv("TERM")
+      if (env_tmux and #env_tmux > 0) or (env_term and acceptable_terms[env_term])
+        vim.api.nvim_set_option "termguicolors", true
     '';
-    extraConfig = ''
-      " Basic configuration {{{
-        " Resize splits when the window is resized
-        autocmd vimrc VimResized * exe "normal! \<c-w>="
+    extraConfig = optionalString plugCfg.ale.enable ''
+      vim.api.nvim_set_var "ale_linters", ale_linters
+      vim.api.nvim_set_var "ale_fixers", ale_fixers
+    '' + ''
+      -- Basic configuration {{{
+      -- Resize splits when the window is resized
+      vim.api.nvim_command 'autocmd vimrc VimResized * exe "normal! \\<c-w>="'
 
-        " Search
-          " Incremental searching
-          set incsearch
-          " Highlight matches by default
-          set hlsearch
-          " Ignore case when searching
-          set ignorecase
-          " ^ unless a capital letter is typed
-          set smartcase
+      -- TODO move all these option-sets into a loop over an array? bit nicer
+      -- to configure
+      -- Search
+      -- Incremental searching
+      vim.api.nvim_set_option "incsearch", true
+      -- Highlight matches by default
+      vim.api.nvim_set_option "hlsearch", true
+      -- Ignore case when searching
+      vim.api.nvim_set_option "ignorecase", true
+      -- ^ unless a capital letter is typed
+      vim.api.nvim_set_option "smartcase", true
 
-        " Hybrid relative line numbers
-          set number
-          set relativenumber
+      -- Hybrid relative line numbers
+      vim.api.nvim_win_set_option 0, "number", true
+      vim.api.nvim_win_set_option 0, "relativenumber", true
 
-        " Indentation
-          " Copy indent to new line
-          set autoindent
-          " Use 2-space autoindentation
-          set shiftwidth=2
-          set softtabstop=2
-          " Together with ^, number of spaces a <Tab> counts for
-          set tabstop=2
-          " Change <Tab> into spaces automatically in insert mode and with autoindent
-          set expandtab
-          " Insert a real <Tab> with CTRL-V<Tab> while in insert mode
+      -- Indentation
+      -- Copy indent to new line
+      vim.api.nvim_buf_set_option 0, "autoindent", true
+      -- Use 2-space autoindentation
+      vim.api.nvim_buf_set_option 0, "shiftwidth", 2
+      vim.api.nvim_buf_set_option 0, "softtabstop", 2
+      -- Together with ^, number of spaces a <Tab> counts for
+      vim.api.nvim_buf_set_option 0, "tabstop", 2
+      -- Change <Tab> into spaces automatically in insert mode and with autoindent
+      vim.api.nvim_buf_set_option 0, "expandtab", true
+      -- NOTE: Can insert a real <Tab> with CTRL-V<Tab> while in insert mode
 
-        " Allow backspace in insert mode
-        set backspace=indent,eol,start
-        set history=1000
-        " Buffers are not unloaded when 'abandoned' by editing a new file, only when actively quit
-        set hidden
-        " Wrap lines...
-        set wrap
-        " ...visually, at convenient places
-        set linebreak
-        " Display <Tab>s and trailing spaces visually
-        set list listchars=trail:·,tab:»·
-        " Because file-based folds are awesome
-        set foldmethod=marker
-        " Keep 6 lines minimum above/below cursor when possible; gives context
-        set scrolloff=6
-        " Similar, but for vertical space & columns
-        set sidescrolloff=10
-        " Minimum number of columns to scroll horiznotall when moving cursor off screen
-        set sidescroll=1
-        " Previous two only apply when `wrap` is off, something I occasionally need to do
-        " Disable mouse cursor movement
-        set mouse="c"
-        " Support modelines in files
-        set modeline
-        " Always keep the gutter open, constant expanding/contracting gets annoying fast
-        set signcolumn=yes
+      -- Allow backspace in insert mode
+      vim.api.nvim_set_option "backspace", "indent,eol,start"
+      vim.api.nvim_set_option "history", 1000
+      -- Buffers are not unloaded when 'abandoned' by editing a new file, only when actively quit
+      vim.api.nvim_set_option "hidden", true
 
-        " Set netrwhist home location to prevent .netrwhist being made in
-        " .config/nvim/ -- it is data not config
-        let g:netrw_home=stdpath('data')
-      " }}}
+      -- Wrap lines...
+      vim.api.nvim_win_set_option 0, "wrap", true
+      -- ...visually, at convenient places
+      vim.api.nvim_win_set_option 0, "linebreak", true
 
-      " Advanced configuration {{{
-        " Use ripgrep for search backend
-        " vimgrep == needed for compatibility with ack.vim
-        " no-heading == grouping by file isn't needed for this use-case
-        " smart-case == case-insensitive search if all-lowercase pattern,
-        "               case-sensitive otherwise
-        let g:ackprg = '${rg} --vimgrep --smart-case --no-heading --max-filesize=4M'
-        set grepprg:${rg}\ --vimgrep\ --smart-case\ --no-heading\ --max-filesize=4M
-        set grepformat=%f:%l:%c:%m,%f:%l:%m
+      -- Display <Tab>s and trailing spaces visually
+      vim.api.nvim_win_set_option 0, "list", true
+      vim.api.nvim_set_option "listchars", "trail:·,tab:»·"
+      -- Because file-based folds are awesome
+      vim.api.nvim_win_set_option 0, "foldmethod", "marker"
+      -- Keep 6 lines minimum above/below cursor when possible; gives context
+      vim.api.nvim_set_option "scrolloff", 6
+      -- Similar, but for vertical space & columns
+      vim.api.nvim_set_option "sidescrolloff", 10
+      -- Minimum number of columns to scroll horiznotall when moving cursor off screen
+      vim.api.nvim_set_option "sidescroll", 1
+      -- Previous two only apply when `wrap` is off, something I occasionally need to do
+      -- Disable mouse cursor movement
+      vim.api.nvim_set_option "mouse", "c"
+      -- Support modelines in files
+      vim.api.nvim_buf_set_option 0, "modeline", true
+      -- Always keep the gutter open, constant expanding/contracting gets annoying fast
+      vim.api.nvim_win_set_option 0, "signcolumn", "yes"
 
-        " When jumping from quickfix window to a location, use existing
-        " matching open buffer if present
-        set switchbuf=useopen
+      -- Set netrwhist home location to prevent .netrwhist being made in
+      -- .config/nvim/ -- it is data not config
+      vim.api.nvim_set_var "netrw_home", (stdpath "data")
+      -- }}}
 
-        " TODO: Delete old undofile automatically when vim starts
-        " TODO: Delete old backup files automatically when vim starts
-        " Both are under ~/.local/share/nvim/{undo,backup} in neovim by default
-        " Keep undo history across sessions by storing it in a file
-        set undodir=~/.local/share/nvim/undo/
-        if !empty(glob(&undodir))
-          silent call mkdir(&undodir, 'p')
-        endif
-        set backupdir=~/.local/share/nvim/backup/
-        " TODO this doesn't work for backupdir, figure out why
-        if !empty(glob(&backupdir))
-          silent call mkdir(&backupdir, 'p')
-        endif
-        set undofile
-        set backup
-        " This one creates temporary backup files, as opposed to the permanent ones from 'backup'
-        set nowritebackup
-        " Otherwise, it may decide to do all writes by first moving the written
-        " file to a temporary name, then writing out the modified files to the
-        " original name, then moving the temporary file to the backupdir. This
-        " approach generates way more filesystem events than necessary, and is
-        " likely to trigger race conditions in e.g. compiler 'watch' modes that
-        " use inotify.
-        set backupcopy=yes
+      -- Advanced configuration {{{
+      -- Use ripgrep for search backend
+      -- vimgrep == needed for compatibility with ack.vim
+      -- no-heading == grouping by file isn't needed for this use-case
+      -- smart-case == case-insensitive search if all-lowercase pattern,
+      --               case-sensitive otherwise
+      vim.api.nvim_set_var "ackprg", '${rg} --vimgrep --smart-case --no-heading --max-filesize=4M'
+      vim.api.nvim_set_option "grepprg", "${rg} --vimgrep --smart-case --no-heading --max-filesize=4M"
+      vim.api.nvim_set_option "grepformat", "%f:%l:%c:%m,%f:%l:%m"
 
-        " TODO: Make incremental search open all folds with matches while
-        " searching, close the newly-opened ones when done (except the one the
-        " selected match is in)
+      -- When jumping from quickfix window to a location, use existing
+      -- matching open buffer if present
+      vim.api.nvim_set_option "switchbuf", "useopen"
 
-        " TODO: Configure makers for automake
+      -- TODO: Delete old undofile automatically when vim starts
+      -- TODO: Delete old backup files automatically when vim starts
+      -- Both are under ~/.local/share/nvim/{undo,backup} in neovim by default
+      -- Keep undo history across sessions by storing it in a file
+      undodir = "#{env_home}/.local/share/nvim/undo/"
+      vim.api.nvim_set_option "undodir", undodir
+      unless dir_exists undodir
+        vim.api.nvim_call_function "mkdir", {undodir, "p"}
 
-        " File-patterns to ignore for wildcard matching on tab completion
-          set wildignore=*.o,*.obj,*~
-          set wildignore+=*.png,*.jpg,*.gif,*.mp3,*.ogg,*.bin
+      backupdir = "#{env_home}/.local/share/nvim/backup/"
+      vim.api.nvim_set_option "backupdir", backupdir
+      unless dir_exists backupdir
+        -- TODO this doesn't work for backupdir, figure out why
+        vim.api.nvim_call_function "mkdir", {backupdir, "p"}
+      vim.api.nvim_buf_set_option 0, "undofile", true
+      vim.api.nvim_set_option "backup", true
+      -- This one creates temporary backup files, as opposed to the permanent
+      -- ones from 'backup', so disable it
+      vim.api.nvim_set_option "writebackup", false
+      -- Otherwise, it may decide to do all writes by first moving the written
+      -- file to a temporary name, then writing out the modified files to the
+      -- original name, then moving the temporary file to the backupdir. This
+      -- approach generates way more filesystem events than necessary, and is
+      -- likely to trigger race conditions in e.g. compiler 'watch' modes that
+      -- use inotify.
+      vim.api.nvim_set_option "backupcopy", "yes"
 
-        " Have nvim jump to the last position when reopening a file
-        autocmd vimrc BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
-        " Exclude gitcommit type to avoid doing this in commit message editor
-        " sessions
-        autocmd vimrc FileType gitcommit normal! gg0
+      -- TODO: Make incremental search open all folds with matches while
+      -- searching, close the newly-opened ones when done (except the one the
+      -- selected match is in)
 
-        " Default to opened folds in gitcommit filetype (having them closed by
-        " default doesn't make sense in this context; only really comes up when
-        " using e.g. `git commit -v` to get the commit changes displayed)
-        autocmd vimrc FileType gitcommit normal zR
+      -- TODO: Configure makers for automake
 
-        " Track window- and buffer-local options in sessions
-        set sessionoptions+=localoptions
+      -- File-patterns to ignore for wildcard matching on tab completion
+      vim.api.nvim_set_option "wildignore", "*.o,*.obj,*~,*.png,*.jpg,*.gif,*.mp3,*.ogg,*.bin"
 
-        " TODO when working on code inside a per-project virtualenv or nix.shell,
-        " automatically detect and use the python from the project env
-      " }}}
+      -- Have nvim jump to the last position when reopening a file
+      vim.api.nvim_command 'autocmd vimrc BufReadPost * if line("\'\\"") > 1 && line("\'\\"") <= line("$") | exe "normal! g\'\\"" | endif'
+      -- Exclude gitcommit type to avoid doing this in commit message editor
+      -- sessions
+      vim.api.nvim_command 'autocmd vimrc FileType gitcommit normal! gg0'
 
-      " Key binds/mappings {{{
-        " Fuck hitting shift
-        map ; :
-        " Just in case we actually need ;, double-tap it
-        noremap ;; ;
-        " We leave the : mapping in place to avoid mishaps with typing
-        " :Uppercasecommands
+      -- Default to opened folds in gitcommit filetype (having them closed by
+      -- default doesn't make sense in this context; only really comes up when
+      -- using e.g. `git commit -v` to get the commit changes displayed)
+      vim.api.nvim_command 'autocmd vimrc FileType gitcommit normal zR'
 
-        " Easier window splits, C-w,v to vv, C-w,s to ss
-        nnoremap <silent> vv <C-w>v
-        nnoremap <silent> ss <C-w>s
+      -- Track window- and buffer-local options in sessions
+      -- FIXME replace once we have Lua equivalent to set+=
+      sessionoptions = vim.api.nvim_get_option "sessionoptions"
+      vim.api.nvim_set_option "sessionoptions", "#{sessionoptions},localoptions"
 
-        " Quicker split navigation with <leader>-h/l/j/k
-        nnoremap <silent> <leader>h <C-w>h
-        nnoremap <silent> <leader>l <C-w>l
-        nnoremap <silent> <leader>k <C-w>k
-        nnoremap <silent> <leader>j <C-w>j
+      -- TODO when working on code inside a per-project virtualenv or nix.shell,
+      -- automatically detect and use the python from the project env
+      -- }}}
 
-        " Quicker split resizing with Ctrl-<Arrow Key>
-        nnoremap <C-Up> <C-w>+
-        nnoremap <C-Down> <C-w>-
-        nnoremap <C-Left> <C-w><
-        nnoremap <C-Right> <C-w>>
+      -- Key binds/mappings {{{
+      -- Fuck hitting shift
+      vim.api.nvim_set_keymap "", ";", ":", {}
+      -- Just in case we actually need ;, double-tap it
+      vim.api.nvim_set_keymap "", ";;", ";", {noremap: true}
+      -- We leave the : mapping in place to avoid mishaps with typing
+      -- :Uppercasecommands
 
-        " swap so that: 0 to go to first character, ^ to start of line, we want
-        " the former more often
-        nnoremap 0 ^
-        nnoremap ^ 0
+      -- Easier window splits, C-w,v to vv, C-w,s to ss
+      vim.api.nvim_set_keymap "n", "vv", "<C-w>v", {noremap: true, silent: true}
+      vim.api.nvim_set_keymap "n", "ss", "<C-w>s", {noremap: true, silent: true}
 
-        " close quickfix window more easily
-        nmap <silent> <Leader>qc :cclose<CR>
+      -- Quicker split navigation with <leader>-h/l/j/k
+      vim.api.nvim_set_keymap "n", "<leader>h", "<C-w>h", {noremap: true, silent: true}
+      vim.api.nvim_set_keymap "n", "<leader>l", "<C-w>l", {noremap: true, silent: true}
+      vim.api.nvim_set_keymap "n", "<leader>k", "<C-w>k", {noremap: true, silent: true}
+      vim.api.nvim_set_keymap "n", "<leader>j", "<C-w>j", {noremap: true, silent: true}
 
-        " Quickly turn off search highlights
-        nmap <Leader>hs :nohls<CR>
+      -- Quicker split resizing with Ctrl-<Arrow Key>
+      vim.api.nvim_set_keymap "n", "<C-Up>", "<C-w>+", {noremap: true}
+      vim.api.nvim_set_keymap "n", "<C-Down>", "<C-w>-", {noremap: true}
+      vim.api.nvim_set_keymap "n", "<C-Left>", "<C-w><", {noremap: true}
+      vim.api.nvim_set_keymap "n", "<C-Right>", "<C-w>>", {noremap: true}
 
-        " Backspace to swap to previous buffer
-        noremap <BS> <C-^>
-        " Shift-Backspace to delete line contents but leave the line itself
-        noremap <S-BS> cc<ESC>
+      -- swap so that: 0 to go to first character, ^ to start of line, we want
+      -- the former more often
+      vim.api.nvim_set_keymap "n", "0", "^", {noremap: true}
+      vim.api.nvim_set_keymap "n", "^", "0", {noremap: true}
 
-        " Open current file in external program
-        nnoremap <Leader>o :exe ':silent !xdg-open % &'<CR>
+      -- close quickfix window more easily
+      vim.api.nvim_set_keymap "n", "<leader>qc", ":cclose<CR>", {silent: true}
 
-        " Map C-j and C-k with the PUM visible to the arrows
-        inoremap <expr> <C-j> pumvisible() ? "\<Down>" : "\<C-j>"
-        inoremap <expr> <C-k> pumvisible() ? "\<Up>" : "\<C-k>"
+      -- Quickly turn off search highlights
+      vim.api.nvim_set_keymap "n", "<leader>qc", ":cclose<CR>", {silent: true}
 
-        " For debugging syntax highlighters
-        map <F10> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<'
-          \ . synIDattr(synID(line("."),col("."),0),"name") . "> lo<"
-          \ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
-      " }}}
+      -- Backspace to swap to previous buffer
+      vim.api.nvim_set_keymap "", "<BS>", "<C-^>", {noremap: true}
+      -- Shift-Backspace to delete line contents but leave the line itself
+      vim.api.nvim_set_keymap "", "<S-BS>", "cc<ESC>", {noremap: true}
+
+      -- Open current file in external program
+      vim.api.nvim_set_keymap "n", "<leader>o", ":exe ':silent !xdg-open % &'<CR>", {noremap: true}
+
+      -- Map C-j and C-k with the PUM visible to the arrows
+      vim.api.nvim_set_keymap "i", "<C-j>", 'pumvisible() ? "\\<Down>" : "\\<C-j>"', {noremap: true, expr: true}
+      vim.api.nvim_set_keymap "i", "<C-k>", 'pumvisible() ? "\\<Down>" : "\\<C-k>"', {noremap: true, expr: true}
+
+      -- For debugging syntax highlighters
+      syntax_debug_map = ':echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . \'> trans<\' . synIDattr(synID(line("."),col("."),0),"name") . "> lo<" . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>'
+      vim.api.nvim_set_keymap "", "<F10>", syntax_debug_map, {}
+      -- }}}
     '';
     pluginRegistry = {
       # Appearance & UI {{{
@@ -233,60 +267,65 @@ in
       lightline-vim = {
         enable = true;
         extraConfig = ''
-          " lightline {{{
-          let g:lightline = {
-            \ 'active': {
-            \   'left': [ [ 'mode', 'paste' ],
-            \             [ 'fugitive'],[ 'filename' ] ]
-            \ },
-            \ 'component_function': {
-            \   'fugitive': 'LLFugitive',
-            \   'readonly': 'LLReadonly',
-            \   'modified': 'LLModified',
-            \   'filename': 'LLFilename',
-            \   'mode': 'LLMode'
-            \ }
-          \ }
-          function! LLMode()
-            let fname = expand('%:t')
-            return fname ==# '__Tagbar__' ? 'Tagbar' :
-                  \ fname ==# 'ControlP' ? 'CtrlP' :
-                  \ lightline#mode() ==# 'NORMAL' ? 'N' :
-                  \ lightline#mode() ==# 'INSERT' ? 'I' :
-                  \ lightline#mode() ==# 'VISUAL' ? 'V' :
-                  \ lightline#mode() ==# 'V-LINE' ? 'V' :
-                  \ lightline#mode() ==# 'V-BLOCK' ? 'V' :
-                  \ lightline#mode() ==# 'REPLACE' ? 'R' : lightline#mode()
-          endfunction
-          function! LLModified()
-            if &filetype ==# 'help'
-              return '''
-            elseif &modified
-              return '+'
-            elseif &modifiable
-              return '''
-            else
-              return '''
-            endif
-          endfunction
-          function! LLReadonly()
-            if &filetype ==# 'help'
-              return '''
-            elseif &readonly
-              return '!'
-            else
-              return '''
-            endif
-          endfunction
-          function! LLFugitive()
-            return exists('*fugitive#head') ? fugitive#head() : '''
-          endfunction
-          function! LLFilename()
-            return (''' !=# LLReadonly() ? LLReadonly() . ' ' : ''') .
-                  \ (''' !=# expand('%:t') ? expand('%:t') : '[No Name]') .
-                  \ (''' !=# LLModified() ? ' ' . LLModified() : ''')
-          endfunction
-          " }}}
+          -- lightline {{{
+          vim.api.nvim_set_var "lightline", {
+            active: {
+              left: {
+                {"mode", "paste"},
+                {"fugitive", "filename"},
+              },
+              component_function: {
+                fugitive: "LLFugitive"
+                readonly: "LLReadonly"
+                modified: "LLModified"
+                filename: "LLFilename"
+                mode: "LLMode"
+              }
+            }
+          }
+          -- FIXME Replace once we have a nice way to define vim-callable functions from Lua (0.5 has v:lua)
+          vim.api.nvim_command [[
+            function! LLMode()
+              let fname = expand('%:t')
+              return fname ==# '__Tagbar__' ? 'Tagbar' :
+                    \ fname ==# 'ControlP' ? 'CtrlP' :
+                    \ lightline#mode() ==# 'NORMAL' ? 'N' :
+                    \ lightline#mode() ==# 'INSERT' ? 'I' :
+                    \ lightline#mode() ==# 'VISUAL' ? 'V' :
+                    \ lightline#mode() ==# 'V-LINE' ? 'V' :
+                    \ lightline#mode() ==# 'V-BLOCK' ? 'V' :
+                    \ lightline#mode() ==# 'REPLACE' ? 'R' : lightline#mode()
+            endfunction
+            function! LLModified()
+              if &filetype ==# 'help'
+                return '''
+              elseif &modified
+                return '+'
+              elseif &modifiable
+                return '''
+              else
+                return '''
+              endif
+            endfunction
+            function! LLReadonly()
+              if &filetype ==# 'help'
+                return '''
+              elseif &readonly
+                return '!'
+              else
+                return '''
+              endif
+            endfunction
+            function! LLFugitive()
+              return exists('*fugitive#head') ? fugitive#head() : '''
+            endfunction
+            function! LLFilename()
+              return (''' !=# LLReadonly() ? LLReadonly() . ' ' : ''') .
+                    \ (''' !=# expand('%:t') ? expand('%:t') : '[No Name]') .
+                    \ (''' !=# LLModified() ? ' ' . LLModified() : ''')
+            endfunction
+          ]]
+          -- }}}
         '';
         after = [ "gruvbox" "oceanic-next" ];
       };
@@ -306,26 +345,26 @@ in
       incsearch-vim = {
         enable = true;
         extraConfig = ''
-          " Replace normal search with incsearch.vim
-          map / <Plug>(incsearch-forward)
-          map ? <Plug>(incsearch-backward)
-          map g/ <Plug>(incsearch-stay)
+          -- Replace normal search with incsearch.vim
+          vim.api.nvim_set_keymap "", "/", "<Plug>(incsearch-forward)", {}
+          vim.api.nvim_set_keymap "", "?", "<Plug>(incsearch-backward)", {}
+          vim.api.nvim_set_keymap "", "g/", "<Plug>(incsearch-stay)", {}
         '';
       };
       # Visual display of indent levels
       "Yggdroot/indentLine" = {
         enable = true;
         extraConfig = ''
-          let g:indentLine_char = '▏'
+          vim.api.nvim_set_var "indentLine_char", '▏'
         '';
       };
       # Displays function signatures from completions in the command line
       "Shougo/echodoc.vim" = {
         enable = false;
         extraConfig = ''
-          " So the current mode indicator in the command line does not overwrite the
-          " function signature display
-          set noshowmode
+          -- So the current mode indicator in the command line does not overwrite the
+          -- function signature display
+          vim.api.nvim_set_option "showmode", false
         '';
       };
       # }}}
@@ -337,50 +376,50 @@ in
         { enable = true;
           # TODO cleanup, should only have baseline config in here
           extraConfig = ''
-            " Move forward/backward between flagged warnings & errors
-            nmap <silent> <leader>] <Plug>(ale_next_wrap)
-            nmap <silent> <leader>[ <Plug>(ale_previous_wrap)
+            -- Move forward/backward between flagged warnings & errors
+            vim.api.nvim_set_keymap "n", "<leader>]", "<Plug>(ale_next_wrap)", {silent: true}
+            vim.api.nvim_set_keymap "n", "<leader>[", "<Plug>(ale_previous_wrap)", {silent: true}
 
-            " TODO: use devicons for error/warning signs?
-            " TODO: auto-open any lines in folds with linter errors in them, or at
-            " least do so on changing to their location-list position to them...
+            -- TODO: use devicons for error/warning signs?
+            -- TODO: auto-open any lines in folds with linter errors in them, or at
+            -- least do so on changing to their location-list position to them...
 
-            " Clear the warning buffer immediately on any change (to prevent
-            " highlights on the edited line from falling out of sync and throwing me
-            " off)
-            autocmd vimrc TextChanged,TextChangedI * ALEResetBuffer
+            -- Clear the warning buffer immediately on any change (to prevent
+            -- highlights on the edited line from falling out of sync and throwing me
+            -- off)
+            vim.api.nvim_command 'autocmd vimrc TextChanged,TextChangedI * ALEResetBuffer'
 
-            " To still make it easy to know if there is *something* in the gutter *somewhere*
-            let g:ale_change_sign_column_color = 1
+            -- To still make it easy to know if there is *something* in the gutter *somewhere*
+            vim.api.nvim_set_var "ale_change_sign_column_color", 1
 
-            " Enable completion where LSP servers are available
-            let g:ale_completion_enabled = 1
+            -- Enable completion where LSP servers are available
+            vim.api.nvim_set_var "ale_completion_enabled", 1
 
-            " Per-language, non-LSP config after here
-            function! s:register_ale_tool(dict, lang, tool, ...) abort
-              " Previously used the 'tool' argument to do executable()
-              " checks, but we're statically providing the executables with
-              " Nix now, so this is unnecessary -- now it is just
-              " documentation :)
-              let l:linter_name = a:0 >= 1 ? a:1 : a:tool
-              if has_key(a:dict, a:lang) == 0
-                let a:dict[a:lang] = []
-              endif
-              call add(a:dict[a:lang], l:linter_name)
-            endfunction
-            " By default, all available tools for all supported languages will be run
-            " ...but explicit is better than implicit, especially given we
-            " generate the set of available tools using Nix :)
-            let g:ale_fixers = {}
-            let g:ale_linters = {}
+            -- Per-language, non-LSP config after here
+            register_ale_tool = (dict, lang, tool, linter_name) ->
+              linter_name = tool unless linter_name
+              -- Previously used the 'tool' argument to do executable()
+              -- checks, but we're statically providing the executables with
+              -- Nix now, so this is unnecessary -- now it is just
+              -- documentation :)
+              unless dict[lang]
+                dict[lang] = {}
+              table.insert dict[lang], linter_name
+              return
+
+            -- By default, all available tools for all supported languages will be run
+            -- ...but explicit is better than implicit, especially given we
+            -- generate the set of available tools using Nix :)
+            ale_fixers = {}
+            ale_linters = {}
           '';
         }
         { extraConfig = mkAfter ''
-            " Bash
-            call s:register_ale_tool(g:ale_linters, 'sh', 'shell')
-            call s:register_ale_tool(g:ale_linters, 'sh', 'shellcheck')
-            call s:register_ale_tool(g:ale_fixers, 'sh', 'shfmt')
-            autocmd vimrc FileType sh let b:ale_fix_on_save = 1
+            -- Bash
+            register_ale_tool(ale_linters, "sh", "shell")
+            register_ale_tool(ale_linters, "sh", "shellcheck")
+            register_ale_tool(ale_fixers, "sh", "shfmt")
+            vim.api.nvim_command 'autocmd vimrc FileType sh let b:ale_fix_on_save = 1'
           '';
           binDeps = [
             bash
@@ -389,30 +428,30 @@ in
           ];
         }
         { extraConfig = mkAfter ''
-            " JSON
-            call s:register_ale_tool(g:ale_fixers, 'json', 'prettier')
-            autocmd vimrc FileType json let b:ale_fix_on_save = 1
+            -- JSON
+            register_ale_tool(ale_fixers, "json", "prettier")
+            vim.api.nvim_command 'autocmd vimrc FileType json let b:ale_fix_on_save = 1'
           '';
           binDeps = [
             pkgs.nodePackages.prettier
           ];
         }
         { extraConfig = mkAfter ''
-            " Nix
-            call s:register_ale_tool(g:ale_linters, 'nix', 'nix-instantiate', 'nix')
+            -- Nix
+            register_ale_tool(ale_linters, "nix", "nix-instantiate", "nix")
           '';
         }
         { extraConfig = mkAfter ''
-            " VimL/vimscript
-            call s:register_ale_tool(g:ale_linters, 'vim', 'vint')
+            -- VimL/vimscript
+            register_ale_tool(ale_linters, "vim", "vint")
           '';
           binDeps = [
             vim-vint
           ];
         }
         { extraConfig = mkAfter ''
-            " YAML
-            call s:register_ale_tool(g:ale_linters, 'yaml', 'yamllint')
+            -- YAML
+            register_ale_tool(ale_linters, "yaml", "yamllint")
           '';
           binDeps = with python3Packages; [
             (yamllint.overridePythonAttrs(oa: {
@@ -426,23 +465,23 @@ in
       vim-markdown = {
         enable = true;
         extraConfig = ''
-          " Open all folds by default
-          autocmd vimrc FileType markdown normal zR
-          " Set indent/tab for markdown files to 4 spaces
-          autocmd vimrc FileType markdown setlocal shiftwidth=4 softtabstop=4 tabstop=4
+          -- Open all folds by default
+          vim.api.nvim_command 'autocmd vimrc FileType markdown normal zR'
+          -- Set indent/tab for markdown files to 4 spaces
+          vim.api.nvim_command 'autocmd vimrc FileType markdown setlocal shiftwidth=4 softtabstop=4 tabstop=4'
 
-          let g:vim_markdown_toc_autofit = 1
+          vim.api.nvim_set_var "vim_markdown_toc_autofit", 1
 
-          " Explicitly disable conceal usage
-          let g:vim_markdown_conceal = 0
-          let g:vim_markdown_conceal_code_blocks = 0
-          let g:tex_conceal = ""
+          -- Explicitly disable conceal usage
+          vim.api.nvim_set_var "vim_markdown_conceal", 0
+          vim.api.nvim_set_var "vim_markdown_conceal_code_blocks", 0
+          vim.api.nvim_set_var "tex_conceal", ""
 
-          " Extensions
-          let g:vim_markdown_strikethrough = 1
-          let g:vim_markdown_frontmatter = 1
-          ${optionalString plugCfg.vim-toml.enable "let g:vim_markdown_toml_frontmatter = 1"}
-          ${optionalString plugCfg.vim-json.enable "let g:vim_markdown_json_frontmatter = 1"}
+          -- Extensions
+          vim.api.nvim_set_var "vim_markdown_strikethrough", 1
+          vim.api.nvim_set_var "vim_markdown_frontmatter", 1
+          ${optionalString plugCfg.vim-toml.enable ''vim.api.nvim_set_var "vim_markdown_toml_frontmatter", 1''}
+          ${optionalString plugCfg.vim-json.enable ''vim.api.nvim_set_var "vim_markdown_json_frontmatter", 1''}
         '';
       };
       # Nix syntax highlighting, error checking/linting is handled by ALE
@@ -452,15 +491,15 @@ in
       vim-json = {
         enable = true;
         extraConfig = ''
-          " vim-json
-          " Set foldmethod to syntax so we can fold json dicts and lists
-          autocmd vimrc FileType json setlocal foldmethod=syntax
-          " Then automatically unfold all so we don't start at 100% folded :)
-          autocmd vimrc FileType json normal zR
-          " Don't conceal quote marks, that's fucking horrific. Who the hell would
-          " choose to default to that behaviour? Do they only ever read json, never
-          " write it?! Hell, even then it's still problematic!
-          let g:vim_json_syntax_conceal = 0
+          -- vim-json
+          -- Set foldmethod to syntax so we can fold json dicts and lists
+          vim.api.nvim_command 'autocmd vimrc FileType json setlocal foldmethod=syntax'
+          -- Then automatically unfold all so we don't start at 100% folded :)
+          vim.api.nvim_command 'autocmd vimrc FileType json normal zR'
+          -- Don't conceal quote marks, that's fucking horrific. Who the hell would
+          -- choose to default to that behaviour? Do they only ever read json, never
+          -- write it?! Hell, even then it's still problematic!
+          vim.api.nvim_set_var "vim_json_syntax_conceal", 0
         '';
       };
       "gutenye/json5.vim".enable = true;
@@ -480,14 +519,13 @@ in
       neosnippet-vim = {
         enable = true;
         extraConfig = ''
-          let g:neosnippet#snippets_directory = stdpath('config') . '/neosnippets/'
-          " Use actual tabstops in snippet files
-          autocmd vimrc FileType neosnippet setlocal noexpandtab
+          -- Use actual tabstops in snippet files
+          vim.api.nvim_command 'autocmd vimrc FileType neosnippet setlocal noexpandtab'
 
-          " Mappings
-          imap <C-k>     <Plug>(neosnippet_expand_or_jump)
-          smap <C-k>     <Plug>(neosnippet_expand_or_jump)
-          xmap <C-k>     <Plug>(neosnippet_expand_target)
+          -- Mappings
+          vim.api.nvim_set_keymap "i", "<C-k>", "<Plug>(neosnippet_expand_or_jump)", {}
+          vim.api.nvim_set_keymap "s", "<C-k>", "<Plug>(neosnippet_expand_or_jump)", {}
+          vim.api.nvim_set_keymap "x", "<C-k>", "<Plug>(neosnippet_expand_target)", {}
         '';
       };
       neosnippet-snippets = {
@@ -510,8 +548,11 @@ in
           luafilesystem
         ];
         extraConfig = ''
-          set shortmess+=c
-          set completeopt+=preview " Open preview/details window
+          shortmess = vim.api.nvim_get_option "shortmess"
+          vim.api.nvim_set_option "shortmess", "#{shortmess}c"
+          -- Open preview/details window
+          completeopt = vim.api.nvim_get_option "completeopt"
+          vim.api.nvim_set_option "completeopt", "#{completeopt},preview"
         '';
       };
       # Completion sources
@@ -528,35 +569,38 @@ in
         ];
         commit = "044f2954a5e49aea8625973de68dda8750f1c42d";
         extraConfig = ''
-          " Disable lightline's tabline functionality, as it conflicts with this
-          if has_key(g:lightline, 'enable') == 0
-            let g:lightline.enable = {}
-          endif
-          let g:lightline.enable.tabline = 0
+          -- TODO better way of doing this in Lua
+          lightline = vim.api.nvim_eval "get(g:, 'lightline', {})"
+          --  Disable lightline's tabline functionality, as it conflicts with this
+          unless lightline.enable
+            lightline.enable = {}
+          lightline.enable.tabline = 0
+          vim.api.nvim_set_var "lightline", lightline
 
-          " Prettify TODO proper module deps for these
-          let g:workspace_powerline_separators = 1
-          let g:workspace_tab_icon = "\uf00a"
-          let g:workspace_left_trunc_icon = "\uf0a8"
-          let g:workspace_right_trunc_icon = "\uf0a9"
+          -- Prettify
+          vim.api.nvim_set_var "workspace_powerline_separators", 1
+          vim.api.nvim_set_var "workspace_tab_icon", ""
+          vim.api.nvim_set_var "workspace_left_trunc_icon", ""
+          vim.api.nvim_set_var "workspace_right_trunc_icon", ""
         '';
       };
       nerdtree = {
         enable = true;
         on_cmd = [ "NERDTreeToggle" "NERDTreeFind" ];
         extraConfig = ''
-          " Prettify NERDTree
-          let NERDTreeMinimalUI = 1
-          let NERDTreeDirArrows = 1
+          -- Prettify NERDTree
+          vim.api.nvim_set_var "NERDTreeMinimalUI", 1
+          vim.api.nvim_set_var "NERDTreeDirArrows", 1
 
-          " Open project file explorer in pane
-          nmap <Leader>p :NERDTreeToggle<CR>
-          " Open the project tree and expose current file in the tree with Ctrl-\
-          nnoremap <silent> <C-\> :NERDTreeFind<CR>
+          -- Open project file explorer in pane
+          vim.api.nvim_set_keymap "n", "<leader>p", ":NERDTreeToggle<CR>", {}
+          -- Open the project tree and expose current file in the tree with Ctrl-\
+          vim.api.nvim_set_keymap "n", "<C-\\>", ":NERDTreeFind<CR>", {noremap: true, silent: true}
 
-          " Disable the scrollbars
-          set guioptions-=r
-          set guioptions-=L
+          -- Disable the scrollbars
+          -- FIXME once we have Lua equivalent to set-=
+          vim.api.nvim_command 'set guioptions-=r'
+          vim.api.nvim_command 'set guioptions-=L'
         '';
       };
       # Full path fuzzy file/buffer/mru/tag/.../arbitrary list search, bound to
@@ -565,54 +609,57 @@ in
         enable = true;
         remote.python3 = true;
         extraConfig = ''
-          " Sane ignore for file tree matching, this ignores vcs files, binaries,
-          " temporary files, etc.
-          call denite#custom#filter ('matcher_ignore_globs', 'ignore_globs',
-            \ [ '.git/', '.hg/', '.svn/', '.yardoc/', 'public/mages/',
-            \   'public/system/', 'log/', 'tmp/', '__pycache__/', 'venv/', '*.min.*',
-            \   '*.pyc', '*.exe', '*.so', '*.dat', '*.bin', '*.o'])
-          " Use ripgrep for denite file search backend
-          call denite#custom#var('file/rec', 'command',
-            \ ['${rg}', '--files', '--color', 'never'])
-          call denite#custom#var('grep', {
-            \ 'command': ['${rg}'],
-            \ 'default_opts': ['--vimgrep', '--smart-case', '--no-heading', '--max-filesize=4M'],
-            \ 'recursive_opts': [],
-            \ 'pattern_opt': ['--regexp'],
-            \ 'separator': ['--'],
-            \ 'final_opts': [],
-            \ })
-          " Change the default sorter for the sources I care about
-          call denite#custom#source('file/rec', 'sorters', ['sorter_sublime'])
-          " call denite#custom#source('file_mru', 'sorters', ['sorter_sublime'])
-          call denite#custom#source('buffer', 'sorters', ['sorter_sublime'])
+          -- Sane ignore for file tree matching, this ignores vcs files, binaries,
+          -- temporary files, etc.
+          vim.api.nvim_call_function "denite#custom#filter", { "matcher_ignore_globs", "ignore_globs",
+            {'.git/', '.hg/', '.svn/', '.yardoc/', 'public/mages/',
+            'public/system/', 'log/', 'tmp/', '__pycache__/', 'venv/',
+            '*.min.*', '*.pyc', '*.exe', '*.so', '*.dat', '*.bin', '*.o'}
+          }
+          -- Use ripgrep for denite file search backend
+          vim.api.nvim_call_function "denite#custom#var", { "file/rec", "command",
+            {"${rg}", "--files", "--color", "never"}
+          }
+          vim.api.nvim_call_function "denite#custom#var", { "grep", {
+            command: {"${rg}"}
+            default_opts: {"--vimgrep", "--smart-case", "--no-heading", "--max-filesize=4M"}
+            recursive_opts: {}
+            pattern_opt: {"--regexp"}
+            separator: {"--"}
+            final_opts: {}
+          }}
+          -- Change the default sorter for the sources I care about
+          vim.api.nvim_call_function "denite#custom#source", { "file/rec", "sorters", {"sorter_sublime"} }
+          -- vim.api.nvim_call_function "denite#custom#source", { "file/mru", "sorters", {"sorter_sublime"} }
+          vim.api.nvim_call_function "denite#custom#source", { "buffer", "sorters", {"sorter_sublime"} }
 
-          " Searches through current buffers and recursive file/dir tree
-          nnoremap <leader>f :<C-u>Denite buffer file/rec -split=floating -winrow=1<cr>
-          nnoremap <leader>b :<C-u>Denite buffer -quick-move="immediately" -split=floating -winrow=1<cr>
+          -- Searches through current buffers and recursive file/dir tree
+          vim.api.nvim_set_keymap "n", "<leader>f", ":<C-u>Denite buffer file/rec -split=floating -winrow=1<cr>", {noremap: true}
+          vim.api.nvim_set_keymap "n", "<leader>b", ':<C-u>Denite buffer -quick-move="immediately" -split=floating -winrow=1<cr>', {noremap: true}
 
-          " Default to filtering the resultant buffer
-          call denite#custom#option('_', {
-            \ 'start_filter': 1,
-            \ })
+          -- Default to filtering the resultant buffer
+          vim.api.nvim_call_function "denite#custom#option", { "_", {start_filter: 1} }
 
-          " Define default mappings for the denite buffers
-          function! s:DeniteBinds() abort
-            nnoremap <silent><buffer><expr> <CR> denite#do_map('do_action')
-            nnoremap <silent><buffer><expr> d denite#do_map('do_action', 'delete')
-            nnoremap <silent><buffer><expr> p denite#do_map('do_action', 'preview')
-            nnoremap <silent><buffer><expr> <Esc> denite#do_map('quit')
-            nnoremap <silent><buffer><expr> i denite#do_map('open_filter_buffer')
-            nnoremap <silent><buffer><expr> <Space> denite#do_map('toggle_select').'j'
-          endfunction
-          function! s:DeniteFilterBinds() abort
-            inoremap <silent><buffer><expr> <CR> denite#do_map('do_action')
-            inoremap <silent><buffer><expr> <Esc> denite#do_map('quit')
-            inoremap <silent><buffer> <C-j> <Esc><C-w>p:call cursor(line('.')+1,0)<CR><C-w>pA
-            inoremap <silent><buffer> <C-k> <Esc><C-w>p:call cursor(line('.')-1,0)<CR><C-w>pA
-          endfunction
-          autocmd FileType denite call s:DeniteBinds()
-          autocmd FileType denite-filter call s:DeniteFilterBinds()
+          -- Define default mappings for the denite buffers
+          -- FIXME once we have a more native Lua way to do this
+          vim.api.nvim_command [[
+            function! g:DeniteBinds() abort
+              nnoremap <silent><buffer><expr> <CR> denite#do_map('do_action')
+              nnoremap <silent><buffer><expr> d denite#do_map('do_action', 'delete')
+              nnoremap <silent><buffer><expr> p denite#do_map('do_action', 'preview')
+              nnoremap <silent><buffer><expr> <Esc> denite#do_map('quit')
+              nnoremap <silent><buffer><expr> i denite#do_map('open_filter_buffer')
+              nnoremap <silent><buffer><expr> <Space> denite#do_map('toggle_select').'j'
+            endfunction
+            function! g:DeniteFilterBinds() abort
+              inoremap <silent><buffer><expr> <CR> denite#do_map('do_action')
+              inoremap <silent><buffer><expr> <Esc> denite#do_map('quit')
+              inoremap <silent><buffer> <C-j> <Esc><C-w>p:call cursor(line('.')+1,0)<CR><C-w>pA
+              inoremap <silent><buffer> <C-k> <Esc><C-w>p:call cursor(line('.')-1,0)<CR><C-w>pA
+            endfunction
+            autocmd FileType denite call g:DeniteBinds()
+            autocmd FileType denite-filter call g:DeniteFilterBinds()
+          ]]
         '';
       };
       # Display FIXME/TODO/etc. in handy browseable list pane, bound to <Leader>t,
@@ -626,16 +673,18 @@ in
         branch = "shados-local";
         extraConfig = let
         in ''
-          let g:session_autoload = 'no'
-          let g:session_autosave = 'prompt'
-          let g:session_autosave_only_with_explicit_session = 1
-          " Session-prefixed command aliases, e.g. OpenSession -> SessionOpen
-          let g:session_command_aliases = 1
-          let g:session_directory = stdpath('data') . '/sessions'
-          let g:session_lock_directory = stdpath('data') . '/session-locks'
-          " Ensure session dirs exist
-          silent call mkdir(g:session_directory, 'p')
-          silent call mkdir(g:session_lock_directory, 'p')
+          vim.api.nvim_set_var "session_autoload", "no"
+          vim.api.nvim_set_var "session_autosave", "prompt"
+          vim.api.nvim_set_var "session_autosave_only_with_explicit_session", 1
+          -- Session-prefixed command aliases, e.g. OpenSession -> SessionOpen
+          vim.api.nvim_set_var "session_command_aliases", 1
+          session_dir = "#{stdpath "data"}/sessions"
+          session_lock_dir = "#{stdpath "data"}/session-locks"
+          vim.api.nvim_set_var "session_directory", session_dir
+          vim.api.nvim_set_var "session_lock_directory", session_lock_dir
+          -- Ensure session dirs exist
+          vim.api.nvim_call_function "mkdir", {session_dir, "p"}
+          vim.api.nvim_call_function "mkdir", {session_lock_dir, "p"}
         '';
       };
       # Builds and displays a list of tags (functions, variables, etc.) for the
@@ -644,15 +693,15 @@ in
         enable = true;
         on_cmd = "TagbarToggle";
         extraConfig = ''
-          " Default tag sorting by order of appearance within file (still grouped by
-          " scope)
-          let g:tagbar_sort = 0
-          " Keep all tagbar folds closed initially; better for a top-level overview
-          let g:tagbar_foldlevel = 0
-          " Move cursor to the tagbar window when it is opened
-          let g:tagbar_autofocus = 1
+          --- Default tag sorting by order of appearance within file (still grouped by
+          -- scope)
+          vim.api.nvim_set_var "tagbar_sort", 0
+          -- Keep all tagbar folds closed initially; better for a top-level overview
+          vim.api.nvim_set_var "tagbar_foldlevel", 0
+          -- Move cursor to the tagbar window when it is opened
+          vim.api.nvim_set_var "tagbar_autofocus", 1
 
-          nmap <leader>m :TagbarToggle<CR>
+          vim.api.nvim_set_keymap "n", "<leader>m", ":TagbarToggle<CR>", {}
         '';
       };
       # }}}
@@ -681,8 +730,8 @@ in
       vim-easymotion = {
         enable = true;
         extraConfig = ''
-          " s{char}{char} to easymotion-highlight all matching two-character sequences in sight
-          nmap s <Plug>(easymotion-overwin-f2)
+          -- s{char}{char} to easymotion-highlight all matching two-character sequences in sight
+          vim.api.nvim_set_keymap "n", "s", "<Plug>(easymotion-overwin-f2)", {}
         '';
       };
       # Allows for splitting/joining code into/from multi-line formats, gS and gJ
@@ -703,10 +752,10 @@ in
         # https://github.com/sjl/gundo.vim/pull/36 &&
         # https://github.com/sjl/gundo.vim/pull/35
         extraConfig = ''
-          let g:gundo_prefer_python3 = 1
-          " Visualize undo tree in pane
-          nnoremap <Leader>u :GundoToggle<CR>
-          let g:gundo_right = 1 " Opposite nerdtree's pane
+          vim.api.nvim_set_var "gundo_prefer_python3", 1
+          -- Visualize undo tree in pane
+          vim.api.nvim_set_keymap "n", "<leader>u", ":GundoToggle<CR>", {noremap: true}
+          vim.api.nvim_set_var "gundo_right", 1 -- Opposite nerdtree's pane
         '';
       };
       # Allows doing `vim filename:lineno`
@@ -731,25 +780,31 @@ in
         enable = true;
         after = [ "Shados/vim-session" ];
         extraConfig = optionalString (plugCfg."Shados/vim-session".enable) ''
-          let g:startify_session_dir = g:session_directory
+          vim.api.nvim_set_var "startify_session_dir", (vim.api.nvim_get_var "session_directory")
         '' + ''
-          let g:startify_list_order = [
-            \ ['  Bookmarks'], 'bookmarks',
-            \ ['  Sessions'], 'sessions',
-            \ ['  Commands'], 'commands',
-            \ ['  MRU Current Tree Files by Modification Time'], 'dir',
-          \ ]
-          let g:startify_bookmarks = [
-            \ {'c': '~/.config/nvim/init.vim'},
-            \ {'d': '~/todo.md'},
-            \ {'x': '~/.tmuxp/'},
-          \ ]
-          let g:startify_fortune_use_unicode = 1
-          " Prepend devicon language logos to file paths
-          " TODO: improve vim-startify to use this for bookmark entries as well
-          function! StartifyEntryFormat()
-            return 'WebDevIconsGetFileTypeSymbol(absolute_path) ." ". entry_path'
-          endfunction
+          vim.api.nvim_set_var "startify_list_order", {
+            {'  Bookmarks'}, 'bookmarks',
+            {'  Sessions'}, 'sessions',
+            {'  Commands'}, 'commands',
+            {'  MRU Current Tree Files by Modification Time'}, 'dir',
+          }
+          vim.api.nvim_set_var "startify_bookmarks", {
+            -- FIXME stdpath?
+            {c: '#{env_home}/.config/nvim/init.vim'},
+            -- FIXME notes/todo.md?
+            {d: '#{env_home}/todo.md'},
+            -- FIXME xdg dir instead?
+            {x: '#{env_home}/.tmuxp/'},
+          }
+          vim.api.nvim_set_var "startify_fortune_use_unicode", 1
+          -- Prepend devicon language logos to file paths
+          -- TODO: improve vim-startify to use this for bookmark entries as well
+          -- FIXME once we have native Lua way of defining viml functions
+          vim.api.nvim_command [[
+            function! StartifyEntryFormat()
+              return 'WebDevIconsGetFileTypeSymbol(absolute_path) ." ". entry_path'
+            endfunction
+          ]]
         '';
       };
       # Adds a set of functions to retrieve the name of the 'current' function in a
@@ -767,13 +822,14 @@ in
       ack-vim = {
         enable = true;
         extraConfig = ''
-          " Use the current under-cursor word if the ack search is empty
-          let g:ack_use_cword_for_empty_search = 1
+          -- Use the current under-cursor word if the ack search is empty
+          vim.api.nvim_set_var "ack_use_cword_for_empty_search", 1
 
-          " Don't jump to first match
-          cnoreabbrev Ack Ack!
+          -- Don't jump to first match
+          -- FIXME once we have native Lua / API method
+          vim.api.nvim_command 'cnoreabbrev Ack Ack!'
 
-          nnoremap <Leader>/ :Ack!<Space>
+          vim.api.nvim_set_keymap "n", "<leader>/", ":Ack!<Space>", {noremap: true}
         '';
       };
       "tpope/vim-unimpaired".enable = true;
