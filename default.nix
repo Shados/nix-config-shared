@@ -34,8 +34,9 @@ with lib;
   };
 
   config = let
-    nur-no-packages = import (import ./pins).nur { };
-    nur = import (import ./pins).nur { inherit pkgs; };
+    pins = import ./pins;
+    nur-no-packages = import pins.nur { };
+    nur = import pins.nur { inherit pkgs; };
   in mkMerge [
     # Add a custom $NIX_PATH entry; has to be mkOptionDefault so I *append* to
     # the default instead of overriding it

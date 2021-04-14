@@ -8,7 +8,7 @@ in
 {
   sn.programs.neovim.pluginRegistry = {
     gruvbox = {
-      nvimrc.postPlugin = ''
+      extraConfig = ''
         set background=dark
         colorscheme gruvbox
         let g:gruvbox_contrast_dark='hard'
@@ -26,10 +26,10 @@ in
         highlight Whitespace guifg=#857767
       '';
     };
-    lightline-vim.nvimrc.postPlugin = mkIfGruvbox (mkAfter ''
+    lightline-vim.extraConfig = mkIfGruvbox (mkAfter ''
       let g:lightline.colorscheme = 'gruvbox'
     '');
-    vim-buffet.nvimrc.prePlugin = mkIfGruvbox ''
+    vim-buffet.extraConfig = mkIfGruvbox ''
       " Customize vim-workspace colours based on gruvbox colours
       function g:WorkspaceSetCustomColors()
         highlight WorkspaceBufferCurrentDefault guibg=#a89984 guifg=#282828
@@ -42,11 +42,11 @@ in
         highlight WorkspaceIconDefault guibg=#3c3836 guifg=#3c3836
       endfunction
     '';
-    "Yggdroot/indentLine".nvimrc.postPlugin = mkIfGruvbox ''
+    "Yggdroot/indentLine".extraConfig = mkIfGruvbox ''
       " Set the indent line's colour to a subtle, faded grey-brown
       let g:indentLine_color_gui = '#474038'
     '';
-    ale.nvimrc.postPlugin = mkIfGruvbox ''
+    ale.extraConfig = mkIfGruvbox ''
       " Gutter colours that work well with gruvbox
       highlight ALEErrorSign guibg=#9d0006
       highlight ALEWarningSign guibg=#9d0006

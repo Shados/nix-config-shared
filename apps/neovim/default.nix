@@ -27,7 +27,7 @@ in
     extraBinPackages = [
       rgPkg
     ];
-    earlyConfig = /* vim */ ''
+    prePluginConfig = ''
       " Early-load settings
       let mapleader = "\<Space>"
       " Define my autocmd group for later use
@@ -35,14 +35,11 @@ in
         " Clear any existing autocmds (e.g. if re-sourcing init.vim)
         autocmd!
       augroup END
-    '';
-    prePluginConfig = ''
       " Theming stuff
       " The xterm and screen ones are actually both for Mosh
       if !empty($TMUX) || $TERM ==# 'rxvt-unicode' || $TERM ==# 'rxvt-unicode-256color' || $TERM==# 'xterm' || $TERM ==# 'xterm-256color' || $TERM ==# 'screen' || $TERM ==# 'screen-256color'
         set termguicolors
       endif
-      syntax enable
     '';
     extraConfig = ''
       " Basic configuration {{{
@@ -235,7 +232,7 @@ in
       vim-css-color.enable = true;
       lightline-vim = {
         enable = true;
-        nvimrc.postPlugin = ''
+        extraConfig = ''
           " lightline {{{
           let g:lightline = {
             \ 'active': {
@@ -308,7 +305,7 @@ in
       # Incremental highlight on incsearch, including of partial regex matches
       incsearch-vim = {
         enable = true;
-        nvimrc.postPlugin = ''
+        extraConfig = ''
           " Replace normal search with incsearch.vim
           map / <Plug>(incsearch-forward)
           map ? <Plug>(incsearch-backward)
@@ -318,14 +315,14 @@ in
       # Visual display of indent levels
       "Yggdroot/indentLine" = {
         enable = true;
-        nvimrc.postPlugin = ''
+        extraConfig = ''
           let g:indentLine_char = '▏'
         '';
       };
       # Displays function signatures from completions in the command line
       "Shougo/echodoc.vim" = {
         enable = false;
-        nvimrc.postPlugin = ''
+        extraConfig = ''
           " So the current mode indicator in the command line does not overwrite the
           " function signature display
           set noshowmode
@@ -338,49 +335,47 @@ in
       ale = with pkgs; mkMerge [
         # ALE config {{{
         { enable = true;
-          nvimrc = {
-            # TODO cleanup, should only have baseline config in here
-            postPlugin = ''
-              " Move forward/backward between flagged warnings & errors
-              nmap <silent> <leader>] <Plug>(ale_next_wrap)
-              nmap <silent> <leader>[ <Plug>(ale_previous_wrap)
+          # TODO cleanup, should only have baseline config in here
+          extraConfig = ''
+            " Move forward/backward between flagged warnings & errors
+            nmap <silent> <leader>] <Plug>(ale_next_wrap)
+            nmap <silent> <leader>[ <Plug>(ale_previous_wrap)
 
-              " TODO: use devicons for error/warning signs?
-              " TODO: auto-open any lines in folds with linter errors in them, or at
-              " least do so on changing to their location-list position to them...
+            " TODO: use devicons for error/warning signs?
+            " TODO: auto-open any lines in folds with linter errors in them, or at
+            " least do so on changing to their location-list position to them...
 
-              " Clear the warning buffer immediately on any change (to prevent
-              " highlights on the edited line from falling out of sync and throwing me
-              " off)
-              autocmd vimrc TextChanged,TextChangedI * ALEResetBuffer
+            " Clear the warning buffer immediately on any change (to prevent
+            " highlights on the edited line from falling out of sync and throwing me
+            " off)
+            autocmd vimrc TextChanged,TextChangedI * ALEResetBuffer
 
-              " To still make it easy to know if there is *something* in the gutter *somewhere*
-              let g:ale_change_sign_column_color = 1
+            " To still make it easy to know if there is *something* in the gutter *somewhere*
+            let g:ale_change_sign_column_color = 1
 
-              " Enable completion where LSP servers are available
-              let g:ale_completion_enabled = 1
+            " Enable completion where LSP servers are available
+            let g:ale_completion_enabled = 1
 
-              " Per-language, non-LSP config after here
-              function! s:register_ale_tool(dict, lang, tool, ...) abort
-                " Previously used the 'tool' argument to do executable()
-                " checks, but we're statically providing the executables with
-                " Nix now, so this is unnecessary -- now it is just
-                " documentation :)
-                let l:linter_name = a:0 >= 1 ? a:1 : a:tool
-                if has_key(a:dict, a:lang) == 0
-                  let a:dict[a:lang] = []
-                endif
-                call add(a:dict[a:lang], l:linter_name)
-              endfunction
-              " By default, all available tools for all supported languages will be run
-              " ...but explicit is better than implicit, especially given we
-              " generate the set of available tools using Nix :)
-              let g:ale_fixers = {}
-              let g:ale_linters = {}
-            '';
-          };
+            " Per-language, non-LSP config after here
+            function! s:register_ale_tool(dict, lang, tool, ...) abort
+              " Previously used the 'tool' argument to do executable()
+              " checks, but we're statically providing the executables with
+              " Nix now, so this is unnecessary -- now it is just
+              " documentation :)
+              let l:linter_name = a:0 >= 1 ? a:1 : a:tool
+              if has_key(a:dict, a:lang) == 0
+                let a:dict[a:lang] = []
+              endif
+              call add(a:dict[a:lang], l:linter_name)
+            endfunction
+            " By default, all available tools for all supported languages will be run
+            " ...but explicit is better than implicit, especially given we
+            " generate the set of available tools using Nix :)
+            let g:ale_fixers = {}
+            let g:ale_linters = {}
+          '';
         }
-        { nvimrc.postPlugin = mkAfter ''
+        { extraConfig = mkAfter ''
             " Bash
             call s:register_ale_tool(g:ale_linters, 'sh', 'shell')
             call s:register_ale_tool(g:ale_linters, 'sh', 'shellcheck')
@@ -393,7 +388,7 @@ in
             shfmt
           ];
         }
-        { nvimrc.postPlugin = mkAfter ''
+        { extraConfig = mkAfter ''
             " JSON
             call s:register_ale_tool(g:ale_fixers, 'json', 'prettier')
             autocmd vimrc FileType json let b:ale_fix_on_save = 1
@@ -402,12 +397,12 @@ in
             pkgs.nodePackages.prettier
           ];
         }
-        { nvimrc.postPlugin = mkAfter ''
+        { extraConfig = mkAfter ''
             " Nix
             call s:register_ale_tool(g:ale_linters, 'nix', 'nix-instantiate', 'nix')
           '';
         }
-        { nvimrc.postPlugin = mkAfter ''
+        { extraConfig = mkAfter ''
             " VimL/vimscript
             call s:register_ale_tool(g:ale_linters, 'vim', 'vint')
           '';
@@ -415,7 +410,7 @@ in
             vim-vint
           ];
         }
-        { nvimrc.postPlugin = mkAfter ''
+        { extraConfig = mkAfter ''
             " YAML
             call s:register_ale_tool(g:ale_linters, 'yaml', 'yamllint')
           '';
@@ -430,7 +425,7 @@ in
       "ericpruitt/tmux.vim".enable = true;
       vim-markdown = {
         enable = true;
-        nvimrc.postPlugin = ''
+        extraConfig = ''
           " Open all folds by default
           autocmd vimrc FileType markdown normal zR
           " Set indent/tab for markdown files to 4 spaces
@@ -456,7 +451,7 @@ in
       # Notably, let's you fold on json dict/lists
       vim-json = {
         enable = true;
-        nvimrc.postPlugin = ''
+        extraConfig = ''
           " vim-json
           " Set foldmethod to syntax so we can fold json dicts and lists
           autocmd vimrc FileType json setlocal foldmethod=syntax
@@ -484,7 +479,7 @@ in
       # Code snippets, the mighty slayer of boilerplate
       neosnippet-vim = {
         enable = true;
-        nvimrc.postPlugin = ''
+        extraConfig = ''
           let g:neosnippet#snippets_directory = stdpath('config') . '/neosnippets/'
           " Use actual tabstops in snippet files
           autocmd vimrc FileType neosnippet setlocal noexpandtab
@@ -497,7 +492,7 @@ in
       };
       neosnippet-snippets = {
         enable = true;
-        dependencies = [ "Shougo/neosnippet.vim" ];
+        dependencies = [ "neosnippet-vim" ];
       };
       # Automatic closing of control flow blocks for most languages, eg. `end`
       # inserted after `if` in Ruby
@@ -514,7 +509,7 @@ in
         luaDeps = ps: with ps; [
           luafilesystem
         ];
-        nvimrc.postPlugin = ''
+        extraConfig = ''
           set shortmess+=c
           set completeopt+=preview " Open preview/details window
         '';
@@ -532,26 +527,24 @@ in
           "lightline-vim"
         ];
         commit = "044f2954a5e49aea8625973de68dda8750f1c42d";
-        nvimrc = {
-          postPlugin = ''
-            " Disable lightline's tabline functionality, as it conflicts with this
-            if has_key(g:lightline, 'enable') == 0
-              let g:lightline.enable = {}
-            endif
-            let g:lightline.enable.tabline = 0
+        extraConfig = ''
+          " Disable lightline's tabline functionality, as it conflicts with this
+          if has_key(g:lightline, 'enable') == 0
+            let g:lightline.enable = {}
+          endif
+          let g:lightline.enable.tabline = 0
 
-            " Prettify TODO proper module deps for these
-            let g:workspace_powerline_separators = 1
-            let g:workspace_tab_icon = "\uf00a"
-            let g:workspace_left_trunc_icon = "\uf0a8"
-            let g:workspace_right_trunc_icon = "\uf0a9"
-          '';
-        };
+          " Prettify TODO proper module deps for these
+          let g:workspace_powerline_separators = 1
+          let g:workspace_tab_icon = "\uf00a"
+          let g:workspace_left_trunc_icon = "\uf0a8"
+          let g:workspace_right_trunc_icon = "\uf0a9"
+        '';
       };
       nerdtree = {
         enable = true;
-        on = [ "NERDTreeToggle" "NERDTreeFind" ];
-        nvimrc.postPlugin = ''
+        on_cmd = [ "NERDTreeToggle" "NERDTreeFind" ];
+        extraConfig = ''
           " Prettify NERDTree
           let NERDTreeMinimalUI = 1
           let NERDTreeDirArrows = 1
@@ -561,7 +554,7 @@ in
           " Open the project tree and expose current file in the tree with Ctrl-\
           nnoremap <silent> <C-\> :NERDTreeFind<CR>
 
-          " Disable the scrollbars (NERDTree)
+          " Disable the scrollbars
           set guioptions-=r
           set guioptions-=L
         '';
@@ -571,7 +564,7 @@ in
       denite-nvim = {
         enable = true;
         remote.python3 = true;
-        nvimrc.postPlugin = ''
+        extraConfig = ''
           " Sane ignore for file tree matching, this ignores vcs files, binaries,
           " temporary files, etc.
           call denite#custom#filter ('matcher_ignore_globs', 'ignore_globs',
@@ -631,7 +624,7 @@ in
         enable = true;
         dependencies = [ "xolox/vim-misc" ];
         branch = "shados-local";
-        nvimrc.postPlugin = let
+        extraConfig = let
         in ''
           let g:session_autoload = 'no'
           let g:session_autosave = 'prompt'
@@ -649,8 +642,8 @@ in
       # current file, in a sidebar
       tagbar = {
         enable = true;
-        on = "TagbarToggle";
-        nvimrc.postPlugin = ''
+        on_cmd = "TagbarToggle";
+        extraConfig = ''
           " Default tag sorting by order of appearance within file (still grouped by
           " scope)
           let g:tagbar_sort = 0
@@ -687,7 +680,7 @@ in
       # General extra functionality {{{
       vim-easymotion = {
         enable = true;
-        nvimrc.postPlugin = ''
+        extraConfig = ''
           " s{char}{char} to easymotion-highlight all matching two-character sequences in sight
           nmap s <Plug>(easymotion-overwin-f2)
         '';
@@ -703,22 +696,18 @@ in
       # Allows you to visualize your undo tree in a pane opened with :GundoToggle
       gundo-vim = {
         enable = true;
-        on = "GundoToggle";
+        on_cmd = "GundoToggle";
         remote.python3 = true;
         # Theoretically works with python 2 or 3; in practice it has a fixed
         # check for python2 support unless you specify this pref.
         # https://github.com/sjl/gundo.vim/pull/36 &&
         # https://github.com/sjl/gundo.vim/pull/35
-        nvimrc = {
-          prePlugin = ''
+        extraConfig = ''
           let g:gundo_prefer_python3 = 1
-          '';
-          postPlugin = ''
-            " Visualize undo tree in pane
-            nnoremap <Leader>u :GundoToggle<CR>
-            let g:gundo_right = 1 " Opposite nerdtree's pane
-          '';
-        };
+          " Visualize undo tree in pane
+          nnoremap <Leader>u :GundoToggle<CR>
+          let g:gundo_right = 1 " Opposite nerdtree's pane
+        '';
       };
       # Allows doing `vim filename:lineno`
       "bogado/file-line".enable = true;
@@ -741,7 +730,7 @@ in
       vim-startify = {
         enable = true;
         after = [ "Shados/vim-session" ];
-        nvimrc.postPlugin = optionalString (plugCfg."Shados/vim-session".enable) ''
+        extraConfig = optionalString (plugCfg."Shados/vim-session".enable) ''
           let g:startify_session_dir = g:session_directory
         '' + ''
           let g:startify_list_order = [
@@ -770,14 +759,14 @@ in
       # "Shados/codestats.nvim" = {
       #   enable = true;
       #   dependencies = [ "Shados/facade.nvim" "Shados/earthshine" ];
-      #   nvimrc.postPlugin = ''
+      #   extraConfig = ''
       #     " Pull the oh-so-important sekret API key from an environment variable
       #     let g:codestats_api_key = $CODESTATS_API_KEY
       #   '';
       # };
       ack-vim = {
         enable = true;
-        nvimrc.postPlugin = ''
+        extraConfig = ''
           " Use the current under-cursor word if the ack search is empty
           let g:ack_use_cword_for_empty_search = 1
 

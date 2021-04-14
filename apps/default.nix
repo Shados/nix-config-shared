@@ -2,11 +2,8 @@
 with lib;
 
 let
-  envy = builtins.fetchGit {
-    url = https://github.com/Shados/envy;
-    ref = "master";
-    rev = "b8a10b6272cc8bc1a662a29a426a84b3f7bbb696";
-  };
+  pins = import ../pins;
+  inherit (pins) envy;
 in
 {
   imports = [
