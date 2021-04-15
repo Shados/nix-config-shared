@@ -3,6 +3,9 @@ with lib;
 let
   nvimCfg = config.sn.programs.neovim;
   plugCfg = nvimCfg.pluginRegistry;
+  pins = import ../../pins;
+  neovimSrc = pins.neovim;
+  flakeCompat = import pins.flake-compat;
 in
 {
   imports = [
@@ -15,6 +18,9 @@ in
     rgPkg = pkgs.ripgrep;
     rg = "${rgPkg}/bin/rg";
   in {
+    neovimPackage = (flakeCompat {
+      src = "${neovimSrc}/contrib";
+    }).defaultNix.default;
     mergePlugins = mkDefault true;
     files = {
       "ftplugin/python.vim".source = ./nvim-files/ftplugin/python.vim;
