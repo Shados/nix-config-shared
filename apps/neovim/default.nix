@@ -567,19 +567,16 @@ in
         extraConfig = optionalString (plugCfg."Shados/vim-session".enable) ''
           g["startify_session_dir"] = g["session_directory"]
         '' + ''
-          g["startify_list_order"] = {
-            {'  Bookmarks'}, 'bookmarks',
-            {'  Sessions'}, 'sessions',
-            {'  Commands'}, 'commands',
-            {'  MRU Current Tree Files by Modification Time'}, 'dir',
+          g["startify_lists"] = {
+            { header: {'  Bookmarks'}, type: 'bookmarks' },
+            { header: {'  Sessions'}, type: 'sessions' },
+            { header: {'  Commands'}, type: 'commands' },
+            { header: {'  MRU Current Tree Files by Modification Time'}, type: 'dir' },
           }
           g["startify_bookmarks"] = {
-            -- FIXME stdpath?
-            {c: '#{env_home}/.config/nvim/init.vim'},
-            -- FIXME notes/todo.md?
-            {d: '#{env_home}/todo.md'},
-            -- FIXME xdg dir instead?
-            {x: '#{env_home}/.tmuxp/'},
+            {d: "~/notes/Todo.md"},
+            -- FIXME move it to an xdg dir instead?
+            {x: "~/.tmuxp/"},
           }
           g["startify_fortune_use_unicode"] = 1
           -- Prepend devicon language logos to file paths
