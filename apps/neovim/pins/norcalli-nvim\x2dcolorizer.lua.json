@@ -1,0 +1,13 @@
+{
+  "date": "2020-06-11T21:39:05+09:00",
+  "deepClone": false,
+  "fetchSubmodules": false,
+  "fetchType": "github",
+  "leaveDotGit": false,
+  "path": "/nix/store/b947gpzfy3x3iss7f75n497mcgzn0qxn-nvim-colorizer.lua",
+  "plugName": "norcalli/nvim-colorizer.lua",
+  "rev": "36c610a9717cc9ec426a07c8e6bf3b3abcb139d6",
+  "sha256": "0gvqdfkqf6k9q46r0vcc3nqa6w45gsvp8j4kya1bvi24vhifg2p9",
+  "url": "https://github.com/norcalli/nvim-colorizer.lua.git",
+  "version": "unstable-2020-06-11"
+}

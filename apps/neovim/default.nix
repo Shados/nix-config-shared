@@ -51,7 +51,16 @@ in
       oceanic-next.enable = true;
       gruvbox.enable = false;
       # Visually colorise CSS-compatible # colour code strings
-      vim-css-color.enable = true;
+      "norcalli/nvim-colorizer.lua" = {
+        enable = true;
+        extraConfig = ''
+          require("colorizer").setup {
+            "*",
+            css:
+              css: true
+          }
+        '';
+      };
       nvim-web-devicons = {
         # TODO add font dep and config?
         enable = true;
