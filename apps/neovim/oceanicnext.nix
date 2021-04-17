@@ -12,21 +12,69 @@ in
   '';
   sn.programs.neovim.pluginRegistry = {
     oceanic-next = {
+      before = [
+        "famiu/feline.nvim"
+      ];
       extraConfig = ''
         set "background", "dark"
         cmd 'colorscheme OceanicNext'
+        statusline_highlights = do
+          statusline_highlights
+          colors =
+            base00: '#1b2b34'
+            base01: '#343d46'
+            base02: '#4f5b66'
+            base03: '#65737e'
+            base04: '#a7adba'
+            base05: '#c0c5ce'
+            base06: '#cdd3de'
+            base07: '#d8dee9'
+            red: '#ec5f67'
+            orange: '#f99157'
+            yellow: '#fac863'
+            green: '#99c794'
+            cyan: '#62b3b2'
+            blue: '#6699cc'
+            purple: '#c594c5'
+            brown: '#ab7967'
+            white: '#ffffff'
+          mode_colors =
+            NORMAL: {colors.white, colors.blue}
+            ['OP-PENDING']: {colors.base01, colors.green}
+            INSERT: {colors.base01, colors.red}
+            VISUAL: {colors.base01, colors.cyan}
+            ['V-LINE']: {colors.base01, colors.cyan}
+            ['V-BLOCK']: {colors.base01, colors.cyan}
+            REPLACE: {colors.white, colors.purple}
+            ENTER: {colors.base01, colors.yellow}
+            MORE: {colors.base01, colors.yellow}
+            SELECT: {colors.base01, colors.orange}
+            COMMAND: {colors.base01, colors.green}
+            SHELL: {colors.base01, colors.green}
+            TERM: {colors.base01, colors.green}
+            NONE: {colors.base01, colors.purple}
+          base_hi = { bg: colors.base01, fg: colors.white }
+          file_hi = { bg: colors.base03, fg: colors.white }
+          fileinfo_hi = file_hi
+          warning_hi = { bg: colors.yellow, fg: colors.base01 }
+          mode_highlight = (group_outputs) ->
+            mode_output = group_outputs[2]
+            if mode_output == "" -- means we're not in active statusline
+              base_hi
+            else
+              {fg, bg} = mode_colors[mode_output]
+              { :fg, :bg }
+
+          {
+            mode_highlight
+            file_hi
+            warning_hi,
+            base_hi,
+            fileinfo_hi
+            base_hi
+          }
       '';
     };
-    # TODO figure out why I can't just mkIf the whole block, or even mapAttrs mkIf them...
-    # I can mkIf at any level beneath the pluginRegistry.<pluginName> level...
-    lightline-vim.extraConfig = mkIfOceanic (mkAfter ''
-      -- cmd "let g:lightline.colorscheme = 'oceanicnext'"
-      -- lightline = g["lightline"]
-      -- .colorscheme = "oceanicnext"
-      with lightline = g["lightline"]
-        lightline.colorscheme = "oceanicnext"
-        g["lightline"] = lightline
-    '');
     vim-buffet.extraConfig = mkIfOceanic ''
       -- Customize vim-workspace colours based on oceanic-next colours
       cmd [[

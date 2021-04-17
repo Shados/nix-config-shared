@@ -1,4 +1,4 @@
-{ :api, :cmd, :fn, :g, :env, :o, :bo, :wo, :empty_dict } = vim
+{ :api, :cmd, :fn, :g, :env, :o, :bo, :wo, :empty_dict, :is_callable } = vim
 { :stdpath } = fn
 { :dir_exists, :set } = nvim
 map = api.nvim_set_keymap
@@ -190,4 +190,177 @@ map "i", "<C-k>", 'pumvisible() ? "\\<Down>" : "\\<C-k>"', {noremap: true, expr:
 -- For debugging syntax highlighters
 syntax_debug_map = ':echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . \'> trans<\' . synIDattr(synID(line("."),col("."),0),"name") . "> lo<" . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>'
 map "", "<F10>", syntax_debug_map, {}
+-- }}}
+
+-- Status line setup {{{
+export setup_status_line, status_line, is_active_statusline
+is_active_statusline = -> g.statusline_winid == fn.win_getid!
+setup_status_line = (widget_groups, highlights) ->
+  -- TODO rethink this interface to allow same level of flexibility, but
+  -- cleanly separate content and presentation?
+  for i, widgets in ipairs widget_groups
+    widgets = [{:widget, callable: is_callable widget} for widget in *widgets]
+    widget_groups[i] = widgets
+  highlights = [{:highlight, callable_highlight: is_callable highlight} for highlight in *highlights]
+  assert #widget_groups == #highlights, "Number of widget groups does not match number of highlights, #{#widget_groups} vs #{#highlights}"
+  highlight_cache = {}
+
+  highlight_name = (idx) -> "StatusLineWidgetGroup#{idx}"
+  generate_highlight = (idx, highlight) ->
+    name = highlight_name idx
+    base = "hi #{name} guifg=#{highlight.fg} guibg=#{highlight.bg}"
+    if highlight.style
+      base .. " gui=#{highlight.style}"
+    else
+      base
+
+  status_line = ->
+    output_line = ""
+    for idx, widget_group in ipairs widget_groups
+      -- for idx, {:widget, :callable} in ipairs widgets
+      group_outputs = {}
+      for {:widget, :callable} in *widget_group
+        -- Create widget output
+        output = if callable
+          widget!
+        else
+          widget
+        table.insert group_outputs, output
+
+      -- Determine if highlight group needs to recreated from the highlight data
+      {:highlight, :callable_highlight} = highlights[idx]
+      highlight = if callable_highlight
+        highlight group_outputs
+      else
+        highlight
+      set_highlight = false
+      if cached = highlight_cache[idx]
+        for key, val in pairs highlight
+          if cached[key] != val
+            cached[key] = val
+            set_highlight = true
+      else
+        highlight_cache[idx] = highlight
+        set_highlight = true
+
+      -- Write highlight group for highlight
+      if set_highlight
+        cmd (generate_highlight idx, highlight)
+
+      -- Append highlight information & widget output to the output status line
+      output_line ..= string.format "%%#%s#%s", (highlight_name idx), (table.concat group_outputs)
+
+    output_line
+
+  o.statusline = [[%!luaeval("status_line()")]]
+  return
+
+do
+  mode_mapping =
+    n: "NORMAL"
+    niI: "NORMAL"
+    niR: "NORMAL"
+    niV: "NORMAL"
+    no: "OP-PENDING"
+    nov: "OP-PENDING"
+    noV: "OP-PENDING"
+    ['no']: "OP-PENDING"
+    v: "VISUAL"
+    V: "V-LINE"
+    ['']: "V-BLOCK"
+    s: "SELECT"
+    S: "S-LINE"
+    ['']: "S-BLOCK"
+    i: "INSERT"
+    ic: "INSERT"
+    ix: "INSERT"
+    R: "REPLACE"
+    Rc: "REPLACE"
+    Rv: "REPLACE"
+    Rx: "REPLACE"
+    c: "COMMAND"
+    cv: "COMMAND"
+    ce: "COMMAND"
+    r: "ENTER"
+    rm: "MORE"
+    ['r?']: "CONFIRM"
+    ['!']: "SHELL"
+    t: "TERMINAL"
+
+  get_mode_str = ->
+    -- TODO: mode | PASTE?
+    -- paste indicator separately?
+    { :mode } = api.nvim_get_mode!
+    if mode_str = mode_mapping[mode]
+      mode_str
+    else
+      mode
+
+  file_name = ->
+    name = fn.expand '%:t'
+    ext = fn.expand '%:e'
+    icon = if nvim_web_devicons
+      nvim_web_devicons.get_icon name, ext, { default: true }
+
+    if icon
+      string.format "%s %s", icon, name
+    else
+      name
+
+  file_osinfo = ->
+    os = string.lower bo.fileformat
+    icon = switch os
+      when "unix"
+        icon = ''
+      when "mac"
+        icon = ''
+      else
+        icon = ''
+    "#{icon} #{os}"
+
+  file_percentage = ->
+    (fn.round ((fn.line '.') / (fn.line '$') * 100)) .. '%%'
+
+  file_encoding = ->
+    if bo.fenc != ''
+      bo.fenc
+    else
+      o.enc
+
+  file_type = ->
+    ft = bo.filetype
+    if ft != ""
+      ft
+    else
+      "none"
+
+  active_only = (widget_group) ->
+    for idx, widget in ipairs widget_group
+      wrapped_widget = if is_callable widget
+        () ->
+          active = is_active_statusline!
+          if active
+            widget!
+          else
+            ""
+      else
+        () ->
+          active = is_active_statusline!
+          if active
+            widget
+          else
+            ""
+      widget_group[idx] = wrapped_widget
+    widget_group
+
+  widgets = {
+    (active_only { ' ', get_mode_str, ' ' }),
+    { ' ', file_name, ' ' }, -- Filename
+    { '%r', '%m' }, -- Read-only & buffer modification status
+    { '%=' }, -- Left/right breaker
+    (active_only { ' ', file_osinfo, ' | ', file_encoding, ' | ', file_type, ' ' }),
+    { ' ', file_percentage, ' %l:%c ' }, -- Line & column information
+  }
+
+  setup_status_line widgets, statusline_highlights
 -- }}}

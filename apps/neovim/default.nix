@@ -52,81 +52,14 @@ in
       gruvbox.enable = false;
       # Visually colorise CSS-compatible # colour code strings
       vim-css-color.enable = true;
-      lightline-vim = {
-        enable = true;
-        extraConfig = ''
-          -- lightline {{{
-          g["lightline"] = {
-            active: {
-              left: {
-                {"mode", "paste"},
-                {"fugitive", "filename"},
-              },
-              component_function: {
-                fugitive: "LLFugitive"
-                readonly: "LLReadonly"
-                modified: "LLModified"
-                filename: "LLFilename"
-                mode: "LLMode"
-              }
-            }
-          }
-          -- FIXME Replace once we have a nice way to define vim-callable functions from Lua (0.5 has v:lua)
-          cmd [[
-            function! LLMode()
-              let fname = expand('%:t')
-              return fname ==# '__Tagbar__' ? 'Tagbar' :
-                    \ fname ==# 'ControlP' ? 'CtrlP' :
-                    \ lightline#mode() ==# 'NORMAL' ? 'N' :
-                    \ lightline#mode() ==# 'INSERT' ? 'I' :
-                    \ lightline#mode() ==# 'VISUAL' ? 'V' :
-                    \ lightline#mode() ==# 'V-LINE' ? 'V' :
-                    \ lightline#mode() ==# 'V-BLOCK' ? 'V' :
-                    \ lightline#mode() ==# 'REPLACE' ? 'R' : lightline#mode()
-            endfunction
-            function! LLModified()
-              if &filetype ==# 'help'
-                return '''
-              elseif &modified
-                return '+'
-              elseif &modifiable
-                return '''
-              else
-                return '''
-              endif
-            endfunction
-            function! LLReadonly()
-              if &filetype ==# 'help'
-                return '''
-              elseif &readonly
-                return '!'
-              else
-                return '''
-              endif
-            endfunction
-            function! LLFugitive()
-              return exists('*fugitive#head') ? fugitive#head() : '''
-            endfunction
-            function! LLFilename()
-              return (''' !=# LLReadonly() ? LLReadonly() . ' ' : ''') .
-                    \ (''' !=# expand('%:t') ? expand('%:t') : '[No Name]') .
-                    \ (''' !=# LLModified() ? ' ' . LLModified() : ''')
-            endfunction
-          ]]
-          -- }}}
-        '';
-        after = [ "gruvbox" "oceanic-next" ];
-      };
-      vim-devicons = {
+      nvim-web-devicons = {
         # TODO add font dep and config?
         enable = true;
-        # vim-devicons needs to be loaded after these plugins, if they
-        # are being used, as per its installation guide
-        after = [
-          "nerdtree" "vim-airline" "ctrlp-vim" "powerline/powerline"
-          "denite-nvim" "unite-vim" "lightline-vim" "vim-startify"
-          "vimfiler" "vim-flagship"
-        ];
+        extraConfig = ''
+          nvim_web_devicons = require "nvim-web-devicons"
+          nvim_web_devicons.setup
+            default: true
+        '';
       };
 
       # Incremental highlight on incsearch, including of partial regex matches
@@ -350,19 +283,8 @@ in
       vim-buffet = {
         source = "bagrat/vim-buffet";
         enable = true;
-        dependencies = [
-          "lightline-vim"
-        ];
         commit = "044f2954a5e49aea8625973de68dda8750f1c42d";
         extraConfig = ''
-          -- TODO better way of doing this in Lua
-          lightline = api.nvim_eval "get(g:, 'lightline', {})"
-          --  Disable lightline's tabline functionality, as it conflicts with this
-          unless lightline.enable
-            lightline.enable = {}
-          lightline.enable.tabline = 0
-          g["lightline"] = lightline
-
           -- Prettify
           g["workspace_powerline_separators"] = 1
           g["workspace_tab_icon"] = ""
@@ -563,7 +485,7 @@ in
       # A fancy start screen for vim (mainly for bookmarks and session listing)
       vim-startify = {
         enable = true;
-        after = [ "Shados/vim-session" ];
+        after = [ "Shados/vim-session" "nvim-web-devicons" ];
         extraConfig = optionalString (plugCfg."Shados/vim-session".enable) ''
           g["startify_session_dir"] = g["session_directory"]
         '' + ''
@@ -579,12 +501,18 @@ in
             {x: "~/.tmuxp/"},
           }
           g["startify_fortune_use_unicode"] = 1
+        '' + optionalString plugCfg.nvim-web-devicons.enable ''
           -- Prepend devicon language logos to file paths
           -- TODO: improve vim-startify to use this for bookmark entries as well
           -- FIXME once we have native Lua way of defining viml functions
+          export icon_from_path
+          icon_from_path = (path) ->
+            file_name = path\match "^.-([^/]*)$"
+            extension = path\match "^.-([^.]*)$"
+            nvim_web_devicons.get_icon file_name, extension
           cmd [[
             function! StartifyEntryFormat()
-              return 'WebDevIconsGetFileTypeSymbol(absolute_path) ." ". entry_path'
+              return 'luaeval("icon_from_path(_A[1])", [absolute_path]) ." ". entry_path'
             endfunction
           ]]
         '';
