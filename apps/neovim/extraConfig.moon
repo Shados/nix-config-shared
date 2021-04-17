@@ -334,6 +334,12 @@ do
     else
       "none"
 
+  paste_mode = ->
+    if o.paste
+      "[PASTE]"
+    else
+      ""
+
   active_only = (widget_group) ->
     for idx, widget in ipairs widget_group
       wrapped_widget = if is_callable widget
@@ -356,7 +362,7 @@ do
   widgets = {
     (active_only { ' ', get_mode_str, ' ' }),
     { ' ', file_name, ' ' }, -- Filename
-    { '%r', '%m' }, -- Read-only & buffer modification status
+    { paste_mode, '%r', '%m' }, -- Paste-mode, read-only & dirty buffer warnings
     { '%=' }, -- Left/right breaker
     (active_only { ' ', file_osinfo, ' | ', file_encoding, ' | ', file_type, ' ' }),
     { ' ', file_percentage, ' %l:%c ' }, -- Line & column information
