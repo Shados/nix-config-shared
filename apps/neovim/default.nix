@@ -88,8 +88,10 @@ in
           g.indent_blankline_show_first_indent_level = false
         '';
       };
+
       # Displays function signatures from completions in the command line
       "Shougo/echodoc.vim" = {
+        # TODO re-enable once I sort out my completion setup
         enable = false;
         extraConfig = ''
           -- So the current mode indicator in the command line does not overwrite the
