@@ -1,0 +1,13 @@
+{
+  "date": "2021-04-11T21:38:20+09:00",
+  "deepClone": false,
+  "fetchSubmodules": false,
+  "fetchType": "github",
+  "leaveDotGit": false,
+  "path": "/nix/store/rwdi4khszwyc9ah7lk29a5ydgn4qpb23-indent-blankline.nvim",
+  "plugName": "lukas-reineke/indent-blankline.nvim",
+  "rev": "1bc7d243012aefa0b596c9559f320056e492ebba",
+  "sha256": "1adi110vpi1r1jn4yrh0fdq4a2cz382rgkbkmjdn91y10iz5nnsl",
+  "url": "https://github.com/lukas-reineke/indent-blankline.nvim.git",
+  "version": "lua-2021-04-11"
+}

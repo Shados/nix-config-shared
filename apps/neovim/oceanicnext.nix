@@ -91,12 +91,13 @@ in
       ]]
     '';
     # TODO change colour
-    "Yggdroot/indentLine".extraConfig = mkIfOceanic ''
-      -- Set the indent line's colour to a subtle, faded grey
-      cmd [[
-        let g:indentLine_color_gui = '#343d46'
-      ]]
-    '';
+    "lukas-reineke/indent-blankline.nvim" = {
+      after = mkIfOceanic [ "oceanic-next" ]; # Ensure 'colorscheme' is applied first, or it resets the highlight we set here
+      extraConfig = mkIfOceanic ''
+        -- Set the indent line's colour to a subtle, faded grey
+        cmd "highlight IndentBlanklineChar guifg=#343d46 gui=nocombine"
+      '';
+    };
     ale.extraConfig = mkIfOceanic ''
       -- Gutter colours that match with oceanic-next
       cmd [[

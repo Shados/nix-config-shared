@@ -72,10 +72,20 @@ in
       };
 
       # Visual display of indent levels
-      "Yggdroot/indentLine" = {
+      "lukas-reineke/indent-blankline.nvim" = {
         enable = true;
+        branch = "lua"; # TODO can revert to master once nvim 0.5 is released
+        # TODO indent_blankline_use_treesitter ?
+        # TODO indent_blankline_show_current_context ? may be extra-useful when
+        # working with Python and MoonScript
         extraConfig = ''
-          g["indentLine_char"] = '▏'
+          -- FIXME Remove once identline-blankline.nvim#59 / neovim#14209 is resolved
+          set "colorcolumn", "99999"
+          g.indent_blankline_char = '▏'
+          g.indent_blankline_buftype_exclude = {
+            "terminal", "help", "quickfix", "prompt", "nofile", "nowrite"
+          }
+          g.indent_blankline_show_first_indent_level = false
         '';
       };
       # Displays function signatures from completions in the command line
