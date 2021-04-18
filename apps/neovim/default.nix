@@ -71,16 +71,6 @@ in
         '';
       };
 
-      # Incremental highlight on incsearch, including of partial regex matches
-      incsearch-vim = {
-        enable = true;
-        extraConfig = ''
-          -- Replace normal search with incsearch.vim
-          map "", "/", "<Plug>(incsearch-forward)", {}
-          map "", "?", "<Plug>(incsearch-backward)", {}
-          map "", "g/", "<Plug>(incsearch-stay)", {}
-        '';
-      };
       # Visual display of indent levels
       "Yggdroot/indentLine" = {
         enable = true;
