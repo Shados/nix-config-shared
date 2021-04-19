@@ -1,0 +1,13 @@
+{
+  "date": "2021-03-09T22:51:55-05:00",
+  "deepClone": false,
+  "fetchSubmodules": false,
+  "fetchType": "github",
+  "leaveDotGit": false,
+  "path": "/nix/store/r9xgqv3snmb753mw5yy4k06sjlrd9h46-popup.nvim",
+  "plugName": "nvim-lua/popup.nvim",
+  "rev": "bc98ca6df9179452c368f0d7bac821a8fd4c01ac",
+  "sha256": "0j1gkaba6z5vb922j47i7sq0d1zwkr5581w0nxd8c31klghg3kyn",
+  "url": "https://github.com/nvim-lua/popup.nvim.git",
+  "version": "unstable-2021-03-09"
+}

@@ -1,0 +1,13 @@
+{
+  "date": "2021-04-18T10:51:34-04:00",
+  "deepClone": false,
+  "fetchSubmodules": false,
+  "fetchType": "github",
+  "leaveDotGit": false,
+  "path": "/nix/store/gqgk8b8600sb372688wri0n6z6bm10w1-plenary.nvim",
+  "plugName": "nvim-lua/plenary.nvim",
+  "rev": "bf8038e837dfdf802ca1a294f5e6887fb798bc2a",
+  "sha256": "046vz06k78gpklzbmjjkp5ffs1i6znq277i5mnm8a264snf784xb",
+  "url": "https://github.com/nvim-lua/plenary.nvim.git",
+  "version": "unstable-2021-04-18"
+}

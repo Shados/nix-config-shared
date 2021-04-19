@@ -561,6 +561,11 @@ in
         '';
       };
       "tpope/vim-unimpaired".enable = true;
+      # TODO set these up
+      "nvim-telescope/telescope.nvim" = {
+        enable = true;
+        dependencies = [ "nvim-lua/plenary.nvim" "nvim-lua/popup.nvim" ];
+      };
       # }}}
 
       # Next-up {{{
@@ -584,6 +589,7 @@ in
           "Shados/earthshine"
         ];
       };
+      "nvim-lua/popup.nvim".dependencies = [ "nvim-lua/plenary.nvim" ];
       # }}}
     };
   };
