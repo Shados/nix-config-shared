@@ -18,7 +18,7 @@ in
       extraConfig = ''
         set "background", "dark"
         cmd 'colorscheme OceanicNext'
-        statusline_highlights = do
+        statusline_base_highlights, statusline_highlights = do
           statusline_highlights
           colors =
             base00: '#1b2b34'
@@ -53,7 +53,7 @@ in
             SHELL: {colors.base01, colors.green}
             TERM: {colors.base01, colors.green}
             NONE: {colors.base01, colors.purple}
-          base_hi = { bg: colors.base01, fg: colors.white }
+          base_hi = { bg: colors.base01, fg: colors.white, style: "NONE" }
           file_hi = { bg: colors.base03, fg: colors.white }
           fileinfo_hi = file_hi
           warning_hi = { bg: colors.yellow, fg: colors.base01 }
@@ -65,6 +65,9 @@ in
               base_hi
 
           {
+            base_hi,
+            base_hi,
+          }, {
             mode_highlight
             file_hi
             warning_hi,

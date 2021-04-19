@@ -202,7 +202,7 @@ status_widget_functions = {}
 is_active_statusline = (statusline_winid) ->
   statusline_winid == fn.win_getid!
 
-setup_status_line = (widget_groups, highlights) ->
+setup_status_line = (widget_groups, base_highlights, highlights) ->
   -- TODO rethink this interface to allow same level of flexibility, but
   -- cleanly separate content and presentation?
   for i, widgets in ipairs widget_groups
@@ -213,13 +213,15 @@ setup_status_line = (widget_groups, highlights) ->
   highlight_cache = {}
 
   highlight_name = (idx) -> "StatusLineWidgetGroup#{idx}"
-  generate_highlight = (idx, highlight) ->
-    name = highlight_name idx
+  generate_highlight = (name, highlight) ->
     base = "hi #{name} guifg=#{highlight.fg} guibg=#{highlight.bg}"
     if highlight.style
       base .. " gui=#{highlight.style}"
     else
       base
+
+  cmd (generate_highlight "StatusLine", base_highlights[1])
+  cmd (generate_highlight "StatusLineNC", base_highlights[2])
 
   widget_group_strs = {}
 
@@ -257,7 +259,8 @@ setup_status_line = (widget_groups, highlights) ->
 
       -- Write highlight group for highlight
       if set_highlight
-        cmd (generate_highlight idx, highlight)
+        hi_name = highlight_name idx
+        cmd (generate_highlight hi_name, highlight)
 
       widget_group_str = ""
       for {:callable, :widget_str} in *widget_strs
@@ -385,5 +388,5 @@ do
     { ' ', sl.file_percentage, ' %l:%c ' }, -- Line & column information
   }
 
-  setup_status_line widgets, statusline_highlights
+  setup_status_line widgets, statusline_base_highlights, statusline_highlights
 -- }}}
