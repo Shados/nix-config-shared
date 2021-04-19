@@ -6,6 +6,7 @@ let
   pins = import ../../pins;
   neovimSrc = pins.neovim;
   flakeCompat = import pins.flake-compat;
+  # TODO figure out why moonscript filetype doesn't appear to be applying automatically/correctly
 in
 {
   imports = [
@@ -37,6 +38,7 @@ in
     prePluginConfig = ''
       -- Early-load settings
 
+      local sl -- Mildly hacky forward-declaration to work around a code ordering issue
       ${builtins.readFile ./prePluginConfig.moon}
     '';
     extraConfig = ''
@@ -194,6 +196,8 @@ in
         # }}}
       ];
       "ericpruitt/tmux.vim".enable = true;
+      # TODO debug weird auto-un/folding shit when entering a newline after a
+      # #-level title in a markdown file with a YAML frontmatter
       vim-markdown = {
         enable = true;
         extraConfig = ''
@@ -250,6 +254,7 @@ in
 
       # Text/code creation & refactoring {{{
       # Code snippets, the mighty slayer of boilerplate
+      # TODO: Consider building my own solution on top of snippets.nvim instead
       neosnippet-vim = {
         enable = true;
         extraConfig = ''
@@ -575,7 +580,7 @@ in
 
       # Some transitive dependency specs {{{
       "Shados/facade.nvim" = {
-        after = [
+        dependencies = [
           "Shados/earthshine"
         ];
       };

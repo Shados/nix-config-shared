@@ -23,6 +23,9 @@ set "smartcase", true
 set "number", true
 set "relativenumber", true
 
+-- I have mode information as part of my status line, so don't need this
+set "showmode", false
+
 -- Indentation
 -- Copy indent to new line
 set "autoindent", true
@@ -193,8 +196,12 @@ map "", "<F10>", syntax_debug_map, {}
 -- }}}
 
 -- Status line setup {{{
-export setup_status_line, status_line, is_active_statusline
-is_active_statusline = -> g.statusline_winid == fn.win_getid!
+export setup_status_line, status_line, status_widget_functions, is_active_statusline
+
+status_widget_functions = {}
+is_active_statusline = (statusline_winid) ->
+  statusline_winid == fn.win_getid!
+
 setup_status_line = (widget_groups, highlights) ->
   -- TODO rethink this interface to allow same level of flexibility, but
   -- cleanly separate content and presentation?
@@ -214,23 +221,28 @@ setup_status_line = (widget_groups, highlights) ->
     else
       base
 
-  status_line = ->
-    output_line = ""
-    for idx, widget_group in ipairs widget_groups
-      -- for idx, {:widget, :callable} in ipairs widgets
-      group_outputs = {}
-      for {:widget, :callable} in *widget_group
-        -- Create widget output
-        output = if callable
-          widget!
-        else
-          widget
-        table.insert group_outputs, output
+  widget_group_strs = {}
 
+  for group_idx, widget_group in ipairs widget_groups
+    widget_group_strs[group_idx] = {}
+    for {:widget, :callable} in *widget_group
+      -- Create widget output
+      output = if callable
+        fn_idx = #status_widget_functions + 1
+        status_widget_functions[fn_idx] = widget
+        "%%{luaeval('status_widget_functions[#{fn_idx}](%i)')}"
+      else
+        widget
+      table.insert widget_group_strs[group_idx], {:callable, widget_str: output}
+
+  status_line = ->
+    statusline_winid = fn.win_getid!
+    output_line = ""
+    for idx, widget_strs in ipairs widget_group_strs
       -- Determine if highlight group needs to recreated from the highlight data
       {:highlight, :callable_highlight} = highlights[idx]
       highlight = if callable_highlight
-        highlight group_outputs
+        highlight statusline_winid
       else
         highlight
       set_highlight = false
@@ -247,16 +259,23 @@ setup_status_line = (widget_groups, highlights) ->
       if set_highlight
         cmd (generate_highlight idx, highlight)
 
+      widget_group_str = ""
+      for {:callable, :widget_str} in *widget_strs
+        if callable
+          widget_group_str ..= string.format widget_str, statusline_winid
+        else
+          widget_group_str ..= widget_str
       -- Append highlight information & widget output to the output status line
-      output_line ..= string.format "%%#%s#%s", (highlight_name idx), (table.concat group_outputs)
+      output_line ..= string.format "%%#%s#%s", (highlight_name idx), widget_group_str
 
     output_line
 
-  o.statusline = [[%!luaeval("status_line()")]]
+  set "statusline", [[%!luaeval("status_line()")]]
   return
 
+sl = {}
 do
-  mode_mapping =
+  sl.mode_mapping =
     n: "NORMAL"
     niI: "NORMAL"
     niR: "NORMAL"
@@ -287,27 +306,25 @@ do
     ['!']: "SHELL"
     t: "TERMINAL"
 
-  get_mode_str = ->
+  sl.get_mode_str = ->
     -- TODO: mode | PASTE?
     -- paste indicator separately?
     { :mode } = api.nvim_get_mode!
-    if mode_str = mode_mapping[mode]
+    if mode_str = sl.mode_mapping[mode]
       mode_str
     else
       mode
 
-  file_name = ->
+  sl.file_name = ->
     name = fn.expand '%:t'
     ext = fn.expand '%:e'
-    icon = if nvim_web_devicons
-      nvim_web_devicons.get_icon name, ext, { default: true }
-
-    if icon
+    if nvim_web_devicons
+      icon = nvim_web_devicons.get_icon name, ext, { default: true }
       string.format "%s %s", icon, name
     else
       name
 
-  file_osinfo = ->
+  sl.file_osinfo = ->
     os = string.lower bo.fileformat
     icon = switch os
       when "unix"
@@ -318,23 +335,23 @@ do
         icon = ''
     "#{icon} #{os}"
 
-  file_percentage = ->
+  sl.file_percentage = ->
     (fn.round ((fn.line '.') / (fn.line '$') * 100)) .. '%%'
 
-  file_encoding = ->
+  sl.file_encoding = ->
     if bo.fenc != ''
       bo.fenc
     else
       o.enc
 
-  file_type = ->
+  sl.file_type = ->
     ft = bo.filetype
     if ft != ""
       ft
     else
       "none"
 
-  paste_mode = ->
+  sl.paste_mode = ->
     if o.paste
       "[PASTE]"
     else
@@ -343,15 +360,15 @@ do
   active_only = (widget_group) ->
     for idx, widget in ipairs widget_group
       wrapped_widget = if is_callable widget
-        () ->
-          active = is_active_statusline!
+        (statusline_winid) ->
+          active = is_active_statusline statusline_winid
           if active
-            widget!
+            widget statusline_winid
           else
             ""
       else
-        () ->
-          active = is_active_statusline!
+        (statusline_winid) ->
+          active = is_active_statusline statusline_winid
           if active
             widget
           else
@@ -360,12 +377,12 @@ do
     widget_group
 
   widgets = {
-    (active_only { ' ', get_mode_str, ' ' }),
-    { ' ', file_name, ' ' }, -- Filename
-    { paste_mode, '%r', '%m' }, -- Paste-mode, read-only & dirty buffer warnings
+    (active_only { ' ', sl.get_mode_str, ' ' }),
+    { ' ', sl.file_name, ' ' }, -- Filename
+    { sl.paste_mode, '%r', '%m' }, -- Paste-mode, read-only & dirty buffer warnings
     { '%=' }, -- Left/right breaker
-    (active_only { ' ', file_osinfo, ' | ', file_encoding, ' | ', file_type, ' ' }),
-    { ' ', file_percentage, ' %l:%c ' }, -- Line & column information
+    (active_only { ' ', sl.file_osinfo, ' | ', sl.file_encoding, ' | ', sl.file_type, ' ' }),
+    { ' ', sl.file_percentage, ' %l:%c ' }, -- Line & column information
   }
 
   setup_status_line widgets, statusline_highlights

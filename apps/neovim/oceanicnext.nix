@@ -57,13 +57,12 @@ in
           file_hi = { bg: colors.base03, fg: colors.white }
           fileinfo_hi = file_hi
           warning_hi = { bg: colors.yellow, fg: colors.base01 }
-          mode_highlight = (group_outputs) ->
-            mode_output = group_outputs[2]
-            if mode_output == "" -- means we're not in active statusline
-              base_hi
-            else
-              {fg, bg} = mode_colors[mode_output]
+          mode_highlight = (statusline_winid) ->
+            if is_active_statusline statusline_winid
+              {fg, bg} = mode_colors[sl.get_mode_str!]
               { :fg, :bg }
+            else
+              base_hi
 
           {
             mode_highlight
