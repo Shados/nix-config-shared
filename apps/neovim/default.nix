@@ -201,19 +201,21 @@ in
           cmd 'autocmd vimrc FileType markdown normal zR'
           -- Set indent/tab for markdown files to 4 spaces
           cmd 'autocmd vimrc FileType markdown setlocal shiftwidth=4 softtabstop=4 tabstop=4'
+          -- Fixes re-wrapping long list items
+          g.vim_markdown_auto_insert_bullets = 0
 
-          g["vim_markdown_toc_autofit"] = 1
+          g.vim_markdown_toc_autofit = 1
 
           -- Explicitly disable conceal usage
-          g["vim_markdown_conceal"] = 0
-          g["vim_markdown_conceal_code_blocks"] = 0
-          g["tex_conceal"] = ""
+          g.vim_markdown_conceal = 0
+          g.vim_markdown_conceal_code_blocks = 0
+          g.tex_conceal = ""
 
           -- Extensions
-          g["vim_markdown_strikethrough"] = 1
-          g["vim_markdown_frontmatter"] = 1
-          ${optionalString plugCfg.vim-toml.enable ''g["vim_markdown_toml_frontmatter"] = 1''}
-          ${optionalString plugCfg.vim-json.enable ''g["vim_markdown_json_frontmatter"] = 1''}
+          g.vim_markdown_strikethrough = 1
+          g.vim_markdown_frontmatter = 1
+          ${optionalString plugCfg.vim-toml.enable ''g.vim_markdown_toml_frontmatter = 1''}
+          ${optionalString plugCfg.vim-json.enable ''g.vim_markdown_json_frontmatter = 1''}
         '';
       };
       # Nix syntax highlighting, error checking/linting is handled by ALE
