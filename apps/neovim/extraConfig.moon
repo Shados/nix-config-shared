@@ -196,7 +196,7 @@ map "", "<F10>", syntax_debug_map, {}
 -- }}}
 
 -- Status line setup {{{
-export setup_status_line, status_line, status_widget_functions, is_active_statusline
+export setup_status_line, status_line, status_widget_functions, is_active_statusline, prefix_fixer
 
 status_widget_functions = {}
 is_active_statusline = (statusline_winid) ->
@@ -225,6 +225,14 @@ setup_status_line = (widget_groups, base_highlights, highlights) ->
 
   widget_group_strs = {}
 
+  -- Hacky workaround for vim/vim#3898
+  prefix_fixer = (fn_idx, statusline_winid) ->
+    widget_str = status_widget_functions[fn_idx](statusline_winid)
+    if (widget_str\sub 1, 1) == " "
+      " " .. widget_str
+    else
+      widget_str
+
   for group_idx, widget_group in ipairs widget_groups
     widget_group_strs[group_idx] = {}
     for {:widget, :callable} in *widget_group
@@ -232,7 +240,7 @@ setup_status_line = (widget_groups, base_highlights, highlights) ->
       output = if callable
         fn_idx = #status_widget_functions + 1
         status_widget_functions[fn_idx] = widget
-        "%%{luaeval('status_widget_functions[#{fn_idx}](%i)')}"
+        "%%{luaeval('prefix_fixer(#{fn_idx}, %i)')}"
       else
         widget
       table.insert widget_group_strs[group_idx], {:callable, widget_str: output}
