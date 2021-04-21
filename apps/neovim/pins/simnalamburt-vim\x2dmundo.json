@@ -1,0 +1,13 @@
+{
+  "date": "2021-03-26T06:45:27+09:00",
+  "deepClone": false,
+  "fetchSubmodules": false,
+  "fetchType": "github",
+  "leaveDotGit": false,
+  "path": "/nix/store/zkpkjkqbq4ism2wqgm28i0ngv10wm83x-vim-mundo",
+  "plugName": "simnalamburt/vim-mundo",
+  "rev": "c6dcea90166750bb5ed40321749966b1a8020a1a",
+  "sha256": "1bd9xab96m2j6zcp6bh7k958wj95m8w40hczmn2qzpq3cvpy8nb0",
+  "url": "https://github.com/simnalamburt/vim-mundo.git",
+  "version": "unstable-2021-03-26"
+}

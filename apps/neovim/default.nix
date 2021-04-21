@@ -468,19 +468,13 @@ in
       # Toggle commenting of lines with gc{motion}, also works in visual mode
       vim-commentary.enable = true;
       # Allows you to visualize your undo tree in a pane opened with :GundoToggle
-      gundo-vim = {
+      "simnalamburt/vim-mundo" = {
         enable = true;
-        on_cmd = "GundoToggle";
         remote.python3 = true;
-        # Theoretically works with python 2 or 3; in practice it has a fixed
-        # check for python2 support unless you specify this pref.
-        # https://github.com/sjl/gundo.vim/pull/36 &&
-        # https://github.com/sjl/gundo.vim/pull/35
         extraConfig = ''
-          g["gundo_prefer_python3"] = 1
           -- Visualize undo tree in pane
-          map "n", "<leader>u", ":GundoToggle<CR>", {noremap: true}
-          g["gundo_right"] = 1 -- Opposite nerdtree's pane
+          map "n", "<leader>u", ":MundoToggle<CR>", {noremap: true}
+          g.mundo_right = 1 -- Opposite nerdtree's pane
         '';
       };
       # Allows doing `vim filename:lineno`
