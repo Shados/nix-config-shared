@@ -4,9 +4,8 @@ let
   nvimCfg = config.sn.programs.neovim;
   plugCfg = nvimCfg.pluginRegistry;
   pins = import ../../pins;
-  neovimSrc = pins.neovim;
-  flakeCompat = import pins.flake-compat;
   # TODO figure out why moonscript filetype doesn't appear to be applying automatically/correctly
+  # TODO migrate plugins to non-upstream packages where possible, for more control over updates
 in
 {
   imports = [
@@ -14,14 +13,15 @@ in
     ./gruvbox.nix
     ./oceanicnext.nix
   ];
+  nixpkgs.overlays = [
+    (import pins.neovim-nightly-overlay)
+  ];
 
   sn.programs.neovim = let
     rgPkg = pkgs.ripgrep;
     rg = "${rgPkg}/bin/rg";
   in {
-    neovimPackage = (flakeCompat {
-      src = "${neovimSrc}/contrib";
-    }).defaultNix.default;
+    neovimPackage = pkgs.neovim-nightly;
     mergePlugins = mkDefault true;
     files = {
       "ftplugin/python.vim".source = ./nvim-files/ftplugin/python.vim;

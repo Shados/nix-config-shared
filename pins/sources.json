@@ -11,40 +11,16 @@
         "url": "https://github.com/Shados/envy/archive/ee5033fab4533458393be2907b50fb2053bae5f3.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
-    "flake-compat": {
+    "neovim-nightly-overlay": {
         "branch": "master",
-        "description": null,
-        "homepage": null,
-        "owner": "edolstra",
-        "repo": "flake-compat",
-        "rev": "99f1c2157fba4bfe6211a321fd0ee43199025dbf",
-        "sha256": "0x2jn3vrawwv9xp15674wjz9pixwjyj3j771izayl962zziivbx2",
-        "type": "tarball",
-        "url": "https://github.com/edolstra/flake-compat/archive/99f1c2157fba4bfe6211a321fd0ee43199025dbf.tar.gz",
-        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
-    },
-    "neovim": {
-        "branch": "master",
-        "description": "Vim-fork focused on extensibility and usability",
-        "homepage": "https://neovim.io",
-        "owner": "neovim",
-        "repo": "neovim",
-        "rev": "d19348923e01bdc729fcb513327dd386be1be98e",
-        "sha256": "16qjljqbjyh57h1yygizqwyp8xd8br6zd0mkzbsk6367k9q2vxjn",
-        "type": "tarball",
-        "url": "https://github.com/neovim/neovim/archive/d19348923e01bdc729fcb513327dd386be1be98e.tar.gz",
-        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
-    },
-    "nixpkgs": {
-        "branch": "release-20.03",
-        "description": "Nix Packages collection",
+        "description": "[maintainer=@mjlbach] ",
         "homepage": "",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "6d1a044fc9ff3cc96fca5fa3ba9c158522bbf2a5",
-        "sha256": "07a3nyrj3pwl017ig0rbn5rbmbf14gl3vqggvkyrdby01726p5fg",
+        "owner": "nix-community",
+        "repo": "neovim-nightly-overlay",
+        "rev": "95d09ed259fa6e9fc00d8e44680436b612a4c7df",
+        "sha256": "0rb1akgjac7mz6v0nk0s6nfz7kabrki4kv5f0gs2nbx525jyal5s",
         "type": "tarball",
-        "url": "https://github.com/NixOS/nixpkgs/archive/6d1a044fc9ff3cc96fca5fa3ba9c158522bbf2a5.tar.gz",
+        "url": "https://github.com/nix-community/neovim-nightly-overlay/archive/95d09ed259fa6e9fc00d8e44680436b612a4c7df.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "nur": {
