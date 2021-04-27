@@ -16,25 +16,35 @@
 #define S_base0F #AB7967
 
 ! special colors
-*foreground:  S_base04
+*foreground:  S_base05
 *background:  S_base00
-*cursorColor:  S_base06
-*color0:      S_base01
+*cursorColor:  S_base05
+
+! 16 color space
+*color0:      S_base00
 *color1:      S_base08
 *color2:      S_base0B
 *color3:      S_base0A
 *color4:      S_base0D
 *color5:      S_base0E
 *color6:      S_base0C
-*color7:      S_base07
-*color8:      S_base00
-*color9:     S_base09
-*color10:      S_base02
-*color11:     S_base05
-*color12:     S_base00
-*color13:     S_base0F
-*color14:     S_base06
+*color7:      S_base05
+*color8:      S_base03
+*color9:     S_base08
+*color10:      S_base0B
+*color11:     S_base0A
+*color12:     S_base0D
+*color13:     S_base0E
+*color14:     S_base0C
 *color15:     S_base07
+
+! 256 color space
+*color16:     S_base09
+*color17:     S_base0F
+*color18:     S_base01
+*color19:     S_base02
+*color20:     S_base04
+*color21:     S_base06
 
 ! Urxvt-required
 *borderColor:   #1b2b34
