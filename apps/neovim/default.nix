@@ -323,64 +323,6 @@ in
           map "n", "<C-\\>", ":NvimTreeFindFile<CR>", {noremap: true}
         '';
       };
-      # Full path fuzzy file/buffer/mru/tag/.../arbitrary list search, bound to
-      # <leader>f (for find?)
-      denite-nvim = {
-        enable = true;
-        remote.python3 = true;
-        extraConfig = ''
-          -- Sane ignore for file tree matching, this ignores vcs files, binaries,
-          -- temporary files, etc.
-          fn['denite#custom#filter'] "matcher_ignore_globs", "ignore_globs", {
-            '.git/', '.hg/', '.svn/', '.yardoc/', 'public/mages/',
-            'public/system/', 'log/', 'tmp/', '__pycache__/', 'venv/',
-            '*.min.*', '*.pyc', '*.exe', '*.so', '*.dat', '*.bin', '*.o'
-          }
-          -- Use ripgrep for denite file search backend
-          fn['denite#custom#var'] "file/rec", "command",
-            {"${rg}", "--files", "--color", "never"}
-          fn['denite#custom#var'] "grep", {
-            command: {"${rg}"}
-            default_opts: {"--vimgrep", "--smart-case", "--no-heading", "--max-filesize=4M"}
-            recursive_opts: {}
-            pattern_opt: {"--regexp"}
-            separator: {"--"}
-            final_opts: {}
-          }
-          -- Change the default sorter for the sources I care about
-          fn['denite#custom#source'] "file/rec", "sorters", {"sorter_sublime"}
-          -- fn['denite#custom#source'] "file/mru", "sorters", {"sorter_sublime"}
-          fn['denite#custom#source'] "buffer", "sorters", {"sorter_sublime"}
-
-          -- Searches through current buffers and recursive file/dir tree
-          map "n", "<leader>f", ":<C-u>Denite buffer file/rec -split=floating -winrow=1<cr>", {noremap: true}
-          map "n", "<leader>b", ':<C-u>Denite buffer -quick-move="immediately" -split=floating -winrow=1<cr>', {noremap: true}
-
-          -- Default to filtering the resultant buffer
-          fn['denite#custom#option'] "_", {start_filter: 1}
-
-          -- Define default mappings for the denite buffers
-          -- FIXME once we have a more native Lua way to do this
-          cmd [[
-            function! g:DeniteBinds() abort
-              nnoremap <silent><buffer><expr> <CR> denite#do_map('do_action')
-              nnoremap <silent><buffer><expr> d denite#do_map('do_action', 'delete')
-              nnoremap <silent><buffer><expr> p denite#do_map('do_action', 'preview')
-              nnoremap <silent><buffer><expr> <Esc> denite#do_map('quit')
-              nnoremap <silent><buffer><expr> i denite#do_map('open_filter_buffer')
-              nnoremap <silent><buffer><expr> <Space> denite#do_map('toggle_select').'j'
-            endfunction
-            function! g:DeniteFilterBinds() abort
-              inoremap <silent><buffer><expr> <CR> denite#do_map('do_action')
-              inoremap <silent><buffer><expr> <Esc> denite#do_map('quit')
-              inoremap <silent><buffer> <C-j> <Esc><C-w>p:call cursor(line('.')+1,0)<CR><C-w>pA
-              inoremap <silent><buffer> <C-k> <Esc><C-w>p:call cursor(line('.')-1,0)<CR><C-w>pA
-            endfunction
-            autocmd FileType denite call g:DeniteBinds()
-            autocmd FileType denite-filter call g:DeniteFilterBinds()
-          ]]
-        '';
-      };
       # Display FIXME/TODO/etc. in handy browseable list pane, bound to <Leader>t,
       # then q to cancel, e to quit browsing but leave tasklist up, <CR> to quit
       # and place cursor on selected task
