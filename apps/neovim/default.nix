@@ -497,6 +497,11 @@ in
       "nvim-telescope/telescope.nvim" = {
         enable = true;
         dependencies = [ "nvim-lua/plenary.nvim" "nvim-lua/popup.nvim" ];
+        extraConfig = ''
+          -- Searches through current buffers and recursive file/dir tree
+          map "n", "<leader>b", "<cmd>lua require('telescope.builtin').buffers()<CR>", {noremap: true}
+          map "n", "<leader>f", "<cmd>lua require('telescope.builtin').find_files()<CR>", {noremap: true}
+        '';
       };
       # }}}
 
