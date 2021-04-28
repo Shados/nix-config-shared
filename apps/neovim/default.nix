@@ -41,6 +41,7 @@ in
       local sl -- Mildly hacky forward-declaration to work around a code ordering issue
       ${builtins.readFile ./prePluginConfig.moon}
     '';
+    # TODO disable my statusline in the nvim-tree, and mundo windows
     extraConfig = ''
       rg_bin = '${rg}'
       ${builtins.readFile ./extraConfig.moon}
@@ -196,13 +197,11 @@ in
         # }}}
       ];
       "ericpruitt/tmux.vim".enable = true;
-      # TODO debug weird auto-un/folding shit when entering a newline after a
-      # #-level title in a markdown file with a YAML frontmatter
       vim-markdown = {
         enable = true;
         extraConfig = ''
-          -- Open all folds by default
-          cmd 'autocmd vimrc FileType markdown normal zR'
+          -- Just disable header folding; it's pretty buggy
+          g.vim_markdown_folding_disabled = 1
           -- Set indent/tab for markdown files to 4 spaces
           cmd 'autocmd vimrc FileType markdown setlocal shiftwidth=4 softtabstop=4 tabstop=4'
           -- Fixes re-wrapping long list items
@@ -237,7 +236,7 @@ in
           -- Don't conceal quote marks, that's fucking horrific. Who the hell would
           -- choose to default to that behaviour? Do they only ever read json, never
           -- write it?! Hell, even then it's still problematic!
-          g["vim_json_syntax_conceal"] = 0
+          g.vim_json_syntax_conceal = 0
         '';
       };
       "gutenye/json5.vim".enable = true;
@@ -298,6 +297,8 @@ in
 
       # Project management {{{
       # Statusline with buffers and tabs listed very cleanly
+      # TODO consider writing my own version in MoonScript, with a
+      # jump-to-buffer function that works like vimfx follow-links?
       vim-buffet = {
         source = "bagrat/vim-buffet";
         enable = true;
@@ -390,6 +391,7 @@ in
       # Display FIXME/TODO/etc. in handy browseable list pane, bound to <Leader>t,
       # then q to cancel, e to quit browsing but leave tasklist up, <CR> to quit
       # and place cursor on selected task
+      # TODO find/make equivalent but for telescope.nvim
       "vim-scripts/TaskList.vim".enable = true;
       # Extended session management, auto-save/load
       "Shados/vim-session" = {
@@ -420,11 +422,12 @@ in
         extraConfig = ''
           --- Default tag sorting by order of appearance within file (still grouped by
           -- scope)
-          g["tagbar_sort"] = 0
+          g.tagbar_sort = 0
           -- Keep all tagbar folds closed initially; better for a top-level overview
-          g["tagbar_foldlevel"] = 0
+          g.tagbar_foldlevel = 0
           -- Move cursor to the tagbar window when it is opened
-          g["tagbar_autofocus"] = 1
+          g.tagbar_autofocus = 1
+          g.tagbar_ctags_bin = '${pkgs.universal-ctags}/bin/ctags'
 
           map "n", "<leader>m", ":TagbarToggle<CR>", {}
         '';
@@ -555,7 +558,7 @@ in
         '';
       };
       "tpope/vim-unimpaired".enable = true;
-      # TODO set these up
+      # TODO set this up for fuzzy file opening, searching, etc.
       "nvim-telescope/telescope.nvim" = {
         enable = true;
         dependencies = [ "nvim-lua/plenary.nvim" "nvim-lua/popup.nvim" ];
