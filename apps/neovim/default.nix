@@ -493,14 +493,25 @@ in
         '';
       };
       "tpope/vim-unimpaired".enable = true;
-      # TODO set this up for fuzzy file opening, searching, etc.
       "nvim-telescope/telescope.nvim" = {
         enable = true;
         dependencies = [ "nvim-lua/plenary.nvim" "nvim-lua/popup.nvim" ];
         extraConfig = ''
+          -- Setup with defaults
+          telescope = require "telescope"
+          telescope.setup!
+
           -- Searches through current buffers and recursive file/dir tree
           map "n", "<leader>b", "<cmd>lua require('telescope.builtin').buffers()<CR>", {noremap: true}
           map "n", "<leader>f", "<cmd>lua require('telescope.builtin').find_files()<CR>", {noremap: true}
+        '';
+      };
+      "telescope-fzy-native.nvim" = {
+        enable = true;
+        source = pkgs.callPackage ./plugins/telescope-fzy-native.nix { };
+        dependencies = [ "nvim-telescope/telescope.nvim" ];
+        extraConfig = ''
+          telescope.load_extension "fzy_native"
         '';
       };
       # }}}

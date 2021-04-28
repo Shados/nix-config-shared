@@ -34,5 +34,17 @@
         "type": "tarball",
         "url": "https://github.com/nix-community/NUR/archive/b16dd10e2f6c6187f15e4f76d072d3769ee301db.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "telescope-fzy-native.nvim": {
+        "branch": "master",
+        "description": "FZY style sorter that is compiled",
+        "homepage": null,
+        "owner": "nvim-telescope",
+        "repo": "telescope-fzy-native.nvim",
+        "rev": "7b3d2528102f858036627a68821ccf5fc1d78ce4",
+        "sha256": "13jxrvf7cgzhw5zbf69hcnjf1la3prll780lq07h06wakpyrrm4y",
+        "type": "tarball",
+        "url": "https://github.com/nvim-telescope/telescope-fzy-native.nvim/archive/7b3d2528102f858036627a68821ccf5fc1d78ce4.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     }
 }
