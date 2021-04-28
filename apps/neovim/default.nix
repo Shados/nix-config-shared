@@ -311,23 +311,16 @@ in
           g["workspace_right_trunc_icon"] = ""
         '';
       };
-      nerdtree = {
+      "kyazdani42/nvim-tree.lua" = {
+        # TODO override the git icons with something more legible / immediately comprehensible
         enable = true;
-        on_cmd = [ "NERDTreeToggle" "NERDTreeFind" ];
+        dependencies = [
+          "nvim-web-devicons"
+        ];
         extraConfig = ''
-          -- Prettify NERDTree
-          g["NERDTreeMinimalUI"] = 1
-          g["NERDTreeDirArrows"] = 1
-
-          -- Open project file explorer in pane
-          map "n", "<leader>p", ":NERDTreeToggle<CR>", {}
-          -- Open the project tree and expose current file in the tree with Ctrl-\
-          map "n", "<C-\\>", ":NERDTreeFind<CR>", {noremap: true, silent: true}
-
-          -- Disable the scrollbars
-          -- FIXME once we have Lua equivalent to set-=
-          cmd 'set guioptions-=r'
-          cmd 'set guioptions-=L'
+          g.nvim_tree_ignore = {".git"}
+          map "n", "<leader>p", ":NvimTreeToggle<CR>", {noremap: true}
+          map "n", "<C-\\>", ":NvimTreeFindFile<CR>", {noremap: true}
         '';
       };
       # Full path fuzzy file/buffer/mru/tag/.../arbitrary list search, bound to

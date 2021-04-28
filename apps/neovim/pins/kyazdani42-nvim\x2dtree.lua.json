@@ -1,0 +1,13 @@
+{
+  "date": "2021-04-20T23:48:23+02:00",
+  "deepClone": false,
+  "fetchSubmodules": false,
+  "fetchType": "github",
+  "leaveDotGit": false,
+  "path": "/nix/store/bz6pfah5a4c86ciwl894n95j6n5vsgan-nvim-tree.lua",
+  "plugName": "kyazdani42/nvim-tree.lua",
+  "rev": "796628a7651f9399637ad8376bab920fb10493cf",
+  "sha256": "1mb7ncp35yhzwzwp6l54dr1y3is705sa63hlx6bf5ny84q13kvxd",
+  "url": "https://github.com/kyazdani42/nvim-tree.lua.git",
+  "version": "unstable-2021-04-20"
+}
