@@ -46,7 +46,7 @@ in
       ];
     })
     (mkIf cfg.remote {
-      console.keyMap = ./system/sn.map.gz;
+      console.keyMap = ./sn.map.gz;
       systemd.enableEmergencyMode = mkDefault false;
     })
     {
