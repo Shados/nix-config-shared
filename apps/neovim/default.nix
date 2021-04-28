@@ -46,8 +46,8 @@ in
       rg_bin = '${rg}'
       ${builtins.readFile ./extraConfig.moon}
     '' + optionalString plugCfg.ale.enable ''
-      g["ale_linters"] = ale_linters
-      g["ale_fixers"] = ale_fixers
+      g.ale_linters = ale_linters
+      g.ale_fixers = ale_fixers
     '';
     pluginRegistry = {
       # Appearance & UI {{{
@@ -125,10 +125,10 @@ in
             cmd 'autocmd vimrc TextChanged,TextChangedI * ALEResetBuffer'
 
             -- To still make it easy to know if there is *something* in the gutter *somewhere*
-            g["ale_change_sign_column_color"] = 1
+            g.ale_change_sign_column_color = 1
 
             -- Enable completion where LSP servers are available
-            g["ale_completion_enabled"] = 1
+            g.ale_completion_enabled = 1
 
             -- Per-language, non-LSP config after here
             register_ale_tool = (dict, lang, tool, linter_name) ->
@@ -305,10 +305,10 @@ in
         commit = "044f2954a5e49aea8625973de68dda8750f1c42d";
         extraConfig = ''
           -- Prettify
-          g["workspace_powerline_separators"] = 1
-          g["workspace_tab_icon"] = ""
-          g["workspace_left_trunc_icon"] = ""
-          g["workspace_right_trunc_icon"] = ""
+          g.workspace_powerline_separators = 1
+          g.workspace_tab_icon = ""
+          g.workspace_left_trunc_icon = ""
+          g.workspace_right_trunc_icon = ""
         '';
       };
       "kyazdani42/nvim-tree.lua" = {
@@ -335,15 +335,15 @@ in
         branch = "shados-local";
         extraConfig = let
         in ''
-          g["session_autoload"] = "no"
-          g["session_autosave"] = "prompt"
-          g["session_autosave_only_with_explicit_session"] = 1
+          g.session_autoload = "no"
+          g.session_autosave = "prompt"
+          g.session_autosave_only_with_explicit_session = 1
           -- Session-prefixed command aliases, e.g. OpenSession -> SessionOpen
-          g["session_command_aliases"] = 1
+          g.session_command_aliases = 1
           session_dir = "#{stdpath "data"}/sessions"
           session_lock_dir = "#{stdpath "data"}/session-locks"
-          g["session_directory"] = session_dir
-          g["session_lock_directory"] = session_lock_dir
+          g.session_directory = session_dir
+          g.session_lock_directory = session_lock_dir
           -- Ensure session dirs exist
           fn.mkdir session_dir, "p"
           fn.mkdir session_lock_dir, "p"
@@ -437,20 +437,20 @@ in
         enable = true;
         after = [ "Shados/vim-session" "nvim-web-devicons" ];
         extraConfig = optionalString (plugCfg."Shados/vim-session".enable) ''
-          g["startify_session_dir"] = g["session_directory"]
+          g.startify_session_dir = g.session_directory
         '' + ''
-          g["startify_lists"] = {
+          g.startify_lists = {
             { header: {'  Bookmarks'}, type: 'bookmarks' },
             { header: {'  Sessions'}, type: 'sessions' },
             { header: {'  Commands'}, type: 'commands' },
             { header: {'  MRU Current Tree Files by Modification Time'}, type: 'dir' },
           }
-          g["startify_bookmarks"] = {
+          g.startify_bookmarks = {
             {d: "~/notes/Todo.md"},
             -- FIXME move it to an xdg dir instead?
             {x: "~/.tmuxp/"},
           }
-          g["startify_fortune_use_unicode"] = 1
+          g.startify_fortune_use_unicode = 1
         '' + optionalString plugCfg.nvim-web-devicons.enable ''
           -- Prepend devicon language logos to file paths
           -- TODO: improve vim-startify to use this for bookmark entries as well
@@ -483,7 +483,7 @@ in
         enable = true;
         extraConfig = ''
           -- Use the current under-cursor word if the ack search is empty
-          g["ack_use_cword_for_empty_search"] = 1
+          g.ack_use_cword_for_empty_search = 1
 
           -- Don't jump to first match
           -- FIXME once we have native Lua / API method
