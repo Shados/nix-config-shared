@@ -279,16 +279,29 @@ in
       # Flexible word-variant tooling; mostly useful to me for 'coercing' between
       # different variable-naming styles (e.g. snake_case to camelCase via `crc`)
       vim-abolish.enable = true;
-      "Shados/precog.nvim" = {
+      nvim-compe = {
         enable = true;
-        dependencies = [ "Shados/facade.nvim" "Shados/earthshine" ];
-        luaDeps = ps: with ps; [
-          luafilesystem
-        ];
         extraConfig = ''
-          set "shortmess", "#{o["shortmess"]}c"
-          -- Open preview/details window
-          set "completeopt", "#{o["completeopt"]},preview"
+          set "completeopt", "menuone,noselect"
+          compe = require "compe"
+          compe.setup
+            enabled: true
+            autocomplete: true
+            min_length: 1
+            preselect: enable
+            source:
+              path: true
+              buffer: true
+              nvim_lsp: true
+              nvim_lua: true
+
+          -- Mappings
+          map "i", "<C-Space>", "compe#complete()", { noremap: true, silent: true, expr: true }
+          enter_map_keys = string.format '%c%c%cdelimitMateCR', 0x80, 253, 83 -- K_SPECIAL, KS_EXTRA, KE_PLUG == "\<Plug>"
+          map "i", "<CR>", "compe#confirm({'keys': '#{enter_map_keys}, 'mode': '''})", { noremap: true, silent: true, expr: true }
+          map "i", "<C-e>", "compe#close('<C-e')", { noremap: true, silent: true, expr: true }
+          map "i", "<C-f>", "compe#scroll({'delta': +4})", { noremap: true, silent: true, expr: true }
+          map "i", "<C-d>", "compe#scroll({'delta': -4})", { noremap: true, silent: true, expr: true }
         '';
       };
       # Completion sources
@@ -313,6 +326,7 @@ in
       };
       "kyazdani42/nvim-tree.lua" = {
         # TODO override the git icons with something more legible / immediately comprehensible
+        # TODO add lines and arrows for dir structure?
         enable = true;
         dependencies = [
           "nvim-web-devicons"
