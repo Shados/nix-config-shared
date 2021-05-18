@@ -282,8 +282,10 @@ in
       nvim-compe = {
         enable = true;
         extraConfig = ''
+          set "shortmess", "#{o["shortmess"]}c"
           set "completeopt", "menuone,noselect"
           compe = require "compe"
+          -- TODO add treesitter source once I have ts set up?
           compe.setup
             enabled: true
             autocomplete: true
