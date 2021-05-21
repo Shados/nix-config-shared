@@ -173,8 +173,8 @@ in
       services = {
         # This is like 70% of what `services.gnome3.core-shell.enable = true;` does
         gvfs.enable = true;
-        gnome3.gnome-settings-daemon.enable = true;
-        gnome3.glib-networking.enable = false;
+        gnome.gnome-settings-daemon.enable = true;
+        gnome.glib-networking.enable = false;
       };
       systemd.packages = with pkgs.gnome3; [ gnome-session ];
       xdg.portal.extraPortals = [ pkgs.gnome3.gnome-shell ];
