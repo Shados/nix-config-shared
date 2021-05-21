@@ -5,10 +5,10 @@
         "homepage": "https://envy.shados.net",
         "owner": "Shados",
         "repo": "envy",
-        "rev": "ee5033fab4533458393be2907b50fb2053bae5f3",
-        "sha256": "034gaspgzk6s5713wfk8fa8r0j0jgab746mpy94cinjamqplym51",
+        "rev": "4a6a65bee68e4b800d31174ccbb6f693008fbeef",
+        "sha256": "0jlh76dxz4bb4iry9yrbprq1fh0zf44b3g9k7hdjshvvyynq6dzs",
         "type": "tarball",
-        "url": "https://github.com/Shados/envy/archive/ee5033fab4533458393be2907b50fb2053bae5f3.tar.gz",
+        "url": "https://github.com/Shados/envy/archive/4a6a65bee68e4b800d31174ccbb6f693008fbeef.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "neovim-nightly-overlay": {
