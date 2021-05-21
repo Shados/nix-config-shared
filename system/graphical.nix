@@ -188,15 +188,7 @@ in
       # Adapt from https://gitlab.gnome.org/GNOME/gnome-build-meta/blob/gnome-3-32/elements/core/meta-gnome-core-shell.bst
       environment.systemPackages = with pkgs.gnome3; [
         adwaita-icon-theme
-        gnome-backgrounds
-        gnome-bluetooth
-        gnome-color-manager
-        gnome-control-center
-        gnome-getting-started-docs
-        gnome-shell
-        gnome-shell-extensions
         gnome-themes-extra
-        gnome-user-docs
         pkgs.orca
         pkgs.glib # for gsettings
         pkgs.gnome-menus
