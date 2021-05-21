@@ -3,6 +3,7 @@
 {
   users.mutableUsers = false;
   users.users.shados = {
+    isNormalUser = true;
     createHome = true;
     home = "/home/shados";
     description = "Alexei Robyn";
