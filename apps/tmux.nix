@@ -31,7 +31,7 @@ with lib;
     keyMode = "vi";
     shortcut = "a";
     terminal = "screen-256color";
-    historyLimit = 10000;
+    historyLimit = 20000;
     extraConfig = ''
       # Prevent the server from quitting when there are no live sessions
       set-option -s exit-empty off
@@ -99,6 +99,9 @@ with lib;
       bind -r C-h resize-pane -L
       bind -r C-l resize-pane -R
       # }}}
+
+      # Type-in-all-panes binding, useful when working on clusters
+      bind -n C-x setw synchronize-panes
 
       ##CLIPBOARD selection integration
       ##Requires prefix key before the command key
@@ -172,6 +175,8 @@ with lib;
       set-option -ga update-environment " SSH_CLIENT SSH_TTY"
       # Make sure we attach to the same DBUS session as the desktop environment
       set-option -ga update-environment " DBUS_SESSION_BUS_ADDRESS"
+      # Ease a HM post-installation issue
+      set-option -ga update-environment " NIX_PATH"
     '';
   };
 }
