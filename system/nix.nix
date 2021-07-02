@@ -23,12 +23,10 @@ with lib;
     binaryCaches = mkOrder 999 [
       "https://cache.nixos.org/"
     ];
+
+    package = pkgs.nixFlakes;
+    extraOptions = ''
+      experimental-features = nix-command flakes
+    '';
   };
-  # Add an opt-in flake-enabled Nix command under the name 'flk'
-  environment.systemPackages = [
-    (pkgs.writeScriptBin "flk" ''
-      #!/usr/bin/env bash
-      exec ${pkgs.nixFlakes}/bin/nix --experimental-features "nix-command flakes" "$@"
-    '')
-  ];
 }
