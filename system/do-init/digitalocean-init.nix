@@ -23,7 +23,7 @@ stdenv.mkDerivation {
     wrapProgram $out/bin/digitalocean-init --prefix PATH ":" "${lib.makeBinPath [ bash iproute curl jshon systemd coreutils gnused ]}"
   '';
 
-  meta = with stdenv.lib; {
+  meta = with lib; {
     description = "Initialization script for DigitalOcean droplets";
     platforms = platforms.linux;
     maintainers = with maintainers; [ arobyn ];

@@ -1,4 +1,4 @@
-{ stdenv, writeScriptBin, fish, maim, xdotool, libnotify, pastebin }:
+{ stdenv, lib, writeScriptBin, fish, maim, xdotool, libnotify, pastebin }:
 
 let
   screenshot_dir = "~/technotheca/artifacts/media/images/screenshots";
@@ -11,7 +11,7 @@ let
 
   mkSnapScript = name: args: writeScriptBin name (let
     mapAttrsToStringSep = sep: mapFn: attrs:
-      stdenv.lib.concatStringsSep sep (stdenv.lib.mapAttrsToList mapFn attrs);
+      lib.concatStringsSep sep (lib.mapAttrsToList mapFn attrs);
     mkArgFlag = argname: argval: "-${argname}${if (! isNull argval) then " ${argval}" else ""}";
     mkSnapLine = args:
       "${bin.maim} ${mapAttrsToStringSep " " mkArgFlag args}";
@@ -41,7 +41,7 @@ stdenv.mkDerivation rec {
   phases = [ "installPhase" ];
   installPhase = ''
     mkdir -p $out/bin/
-    ${stdenv.lib.concatMapStringsSep "\n" (script: ''
+    ${lib.concatMapStringsSep "\n" (script: ''
       cp -r ${script}/bin/* $out/bin/
     '') scripts}
     chmod +x $out/bin/*
