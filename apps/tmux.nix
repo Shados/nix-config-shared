@@ -101,7 +101,7 @@ with lib;
       # }}}
 
       # Type-in-all-panes binding, useful when working on clusters
-      bind -n C-x setw synchronize-panes
+      bind C-x setw synchronize-panes
 
       ##CLIPBOARD selection integration
       ##Requires prefix key before the command key
