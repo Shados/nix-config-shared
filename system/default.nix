@@ -65,5 +65,8 @@ in
         # includeAllModules = true;
       };
     }
+    { # Workaround for openzfs/zfs issue #9810
+      boot.kernelParams = mkIf config.boot.zfs.enabled [ "spl.spl_taskq_thread_dynamic=0" ];
+    }
   ];
 }
