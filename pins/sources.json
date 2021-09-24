@@ -17,10 +17,10 @@
         "homepage": "",
         "owner": "nix-community",
         "repo": "neovim-nightly-overlay",
-        "rev": "95d09ed259fa6e9fc00d8e44680436b612a4c7df",
-        "sha256": "0rb1akgjac7mz6v0nk0s6nfz7kabrki4kv5f0gs2nbx525jyal5s",
+        "rev": "983c5fb2447b95d13e831b61813f9d0e2d409f87",
+        "sha256": "0z1nfdfdplkrmg90iffi18x7w2bz1pbh9fvwbwp37c56ihil94rp",
         "type": "tarball",
-        "url": "https://github.com/nix-community/neovim-nightly-overlay/archive/95d09ed259fa6e9fc00d8e44680436b612a4c7df.tar.gz",
+        "url": "https://github.com/nix-community/neovim-nightly-overlay/archive/983c5fb2447b95d13e831b61813f9d0e2d409f87.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "nur": {
@@ -29,10 +29,10 @@
         "homepage": "https://nur.nix-community.org/",
         "owner": "nix-community",
         "repo": "NUR",
-        "rev": "e068ada1360351894a2c040d0a0c6839b6117343",
-        "sha256": "08xcvnk8gw1bfw4bbc7cj0qdzb5sz6r2wkz8dk7h7p1n8f6xa5qc",
+        "rev": "e7add581d5f758592088508b184551b68a4e7bed",
+        "sha256": "1f9x8cd357nll0an82krdp30cmk1ar33bdg1z8i12i7lnpcyxg8d",
         "type": "tarball",
-        "url": "https://github.com/nix-community/NUR/archive/e068ada1360351894a2c040d0a0c6839b6117343.tar.gz",
+        "url": "https://github.com/nix-community/NUR/archive/e7add581d5f758592088508b184551b68a4e7bed.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "telescope-fzy-native.nvim": {
