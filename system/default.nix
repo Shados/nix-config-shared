@@ -38,6 +38,7 @@ in
       services.logind.extraConfig = ''
         KillUserProcesses=no
       '';
+      systemd.enableEmergencyMode = mkDefault false;
     }
     (mkIf config.documentation.nixos.enable {
       environment.systemPackages = with pkgs; [
@@ -47,7 +48,6 @@ in
     })
     (mkIf cfg.remote {
       console.keyMap = ./sn.map.gz;
-      systemd.enableEmergencyMode = mkDefault false;
     })
     {
       boot.cleanTmpDir = true;
