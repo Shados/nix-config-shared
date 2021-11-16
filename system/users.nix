@@ -20,7 +20,7 @@
       "/etc/nixos/modules/keys/shados@nhnt.shados.net.id_ecdsa.pub"
       "/etc/nixos/modules/keys/shados@sn-u1-malkieri.id_ecdsa.pub"
     ];
-    passwordFile = "/etc/nixos/modules/passwords/shados";
+    passwordFile = toString ../passwords/shados;
     linger = true;
   };
   users.users.root = {
