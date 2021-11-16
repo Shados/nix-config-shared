@@ -25,29 +25,6 @@ let
 
     ${colors.oceanicNext}
   '';
-
-  nixos-gsettings-desktop-schemas = pkgs.runCommand "nixos-gsettings-desktop-schemas" {
-    preferLocalBuild = true;
-  } # {{{
-    ''
-     mkdir -p $out/share/gsettings-schemas/nixos-gsettings-overrides/glib-2.0/schemas
-     cp -rf ${pkgs.gnome3.gsettings_desktop_schemas}/share/gsettings-schemas/gsettings-desktop-schemas*/glib-2.0/schemas/*.xml $out/share/gsettings-schemas/nixos-gsettings-overrides/glib-2.0/schemas
-
-     ${concatMapStrings (pkg: "cp -rf ${pkg}/share/gsettings-schemas/*/glib-2.0/schemas/*.xml $out/share/gsettings-schemas/nixos-gsettings-overrides/glib-2.0/schemas\n") gnome_cfg.extraGSettingsOverridePackages}
-
-     chmod -R a+w $out/share/gsettings-schemas/nixos-gsettings-overrides
-     cat - > $out/share/gsettings-schemas/nixos-gsettings-overrides/glib-2.0/schemas/nixos-defaults.gschema.override <<- EOF
-       [org.gnome.desktop.background]
-       picture-uri='${pkgs.nixos-artwork.wallpapers.gnome-dark}/share/artwork/gnome/Gnome_Dark.png'
-
-       [org.gnome.desktop.screensaver]
-       picture-uri='${pkgs.nixos-artwork.wallpapers.gnome-dark}/share/artwork/gnome/Gnome_Dark.png'
-
-       ${gnome_cfg.extraGSettingsOverrides}
-     EOF
-
-     ${pkgs.glib.dev}/bin/glib-compile-schemas $out/share/gsettings-schemas/nixos-gsettings-overrides/glib-2.0/schemas/
-    ''; # }}}
 in
 
 {
@@ -84,9 +61,6 @@ in
           };
 
           displayManager.sessionCommands = ''
-            # Override gsettings-desktop-schema
-            export NIX_GSETTINGS_OVERRIDES_DIR=${nixos-gsettings-desktop-schemas}/share/gsettings-schemas/nixos-gsettings-overrides/glib-2.0/schemas
-
             # Custom Xresources setup
             ${pkgs.xorg.xrdb}/bin/xrdb -merge ${default_xresources}
           '';
@@ -118,8 +92,6 @@ in
         "${pkgs.gnome3.gvfs}/lib/gio/modules"
       ];
       environment.systemPackages = with pkgs; with pkgs.xlibs; [
-        openbox
-
         xmodmap
 
         # Baseline themes / theme engines
