@@ -11,6 +11,18 @@
         "url": "https://github.com/Shados/envy/archive/4a6a65bee68e4b800d31174ccbb6f693008fbeef.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
+    "impermanence": {
+        "branch": "master",
+        "description": "Modules to help you handle persistent state on systems with ephemeral root storage [maintainer=@talyz]",
+        "homepage": "",
+        "owner": "nix-community",
+        "repo": "impermanence",
+        "rev": "ce77ed9bd069e57a7a688d360196e576ca63a842",
+        "sha256": "1snlcs99vfz3di3vxj1lxnjsl82aimcyv1irs029gzwrsxzpq9gj",
+        "type": "tarball",
+        "url": "https://github.com/nix-community/impermanence/archive/ce77ed9bd069e57a7a688d360196e576ca63a842.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
     "neovim-nightly-overlay": {
         "branch": "master",
         "description": "[maintainer=@mjlbach] ",

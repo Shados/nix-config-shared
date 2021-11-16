@@ -2,6 +2,9 @@
 { config, lib, pkgs, ... }:
 # TODO Prettify console? Fonts, colour scheme?
 with lib;
+let
+  pins = import ./pins;
+in
 {
   imports = [
     # Self-packaged and custom/bespoke packages & services
@@ -19,6 +22,9 @@ with lib;
     ./services
     # System default configuration changes
     ./system
+
+    # For working with stateless-root systems
+    (pins.impermanence + /nixos.nix)
   ];
 
 
