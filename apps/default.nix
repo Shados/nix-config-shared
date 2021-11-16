@@ -59,6 +59,9 @@ in
     moreutils # sponge
     ncdu
     unixtools.xxd
+
+    # Tooling for this repo/NixOS itself
+    niv
   ];
 
   # Config for various standard services & programs
