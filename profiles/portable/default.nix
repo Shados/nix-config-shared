@@ -63,6 +63,7 @@ in
           enable = true;
           efiSupport = mkDefault true;
           zfsSupport = true;
+          efiInstallAsRemovable = true;
         };
         efi = {
           canTouchEfiVariables = false;
