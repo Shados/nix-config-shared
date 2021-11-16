@@ -39,6 +39,10 @@ in
         KillUserProcesses=no
       '';
       systemd.enableEmergencyMode = mkDefault false;
+      services.zfs.autoScrub = {
+        enable = true;
+        interval = "Mon 05:00";
+      };
     }
     (mkIf config.documentation.nixos.enable {
       environment.systemPackages = with pkgs; [
