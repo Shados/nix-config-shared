@@ -57,7 +57,7 @@ in
       boot.cleanTmpDir = true;
 
       # Internationalisation & localization properties.
-      console.font   = mkDefault "lat9w-16";
+      console.font   = mkOverride 999 "lat9w-16";
       i18n = {
         defaultLocale = "en_US.UTF-8";
       };
