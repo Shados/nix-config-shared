@@ -34,6 +34,7 @@ in
       lingeringUsers =  map (u: u.name) (builtins.attrValues (filterAttrs (name: user: user.linger == true) config.users.users));
       ephemeralUsers =  map (u: u.name) (builtins.attrValues (filterAttrs (name: user: user.linger == false) config.users.users));
     in ''
+      shopt -s nullglob
       # Skip if the system isn't running (e.g. during nixos-install)
       if [[ -e /run/booted-system ]]; then
         if ! [[ -e ${lingerDir} ]]; then
