@@ -20,12 +20,12 @@
       "/etc/nixos/modules/keys/shados@nhnt.shados.net.id_ecdsa.pub"
       "/etc/nixos/modules/keys/shados@sn-u1-malkieri.id_ecdsa.pub"
     ];
-    passwordFile = toString ../passwords/shados;
+    hashedPassword = "$6$WccM6haN$4ogyI4b1MPv1bSEpuOhh1kVsyyMXiT9a1P3fUNfT1/noyS7OY4V676c.v9GVSotJdxr3gnts8mxAIx.d1xNhE/";
     linger = true;
   };
   users.users.root = {
     linger = true;
-    initialHashedPassword = "$6$t6l9e3mAk$rohvE4HsBPPbsy1pQmtZSVvYUX0Gjl.seA/h6xYiKHc5ZSug0HAe/4F1EDq8XO.7aRrnfv2f9eDMf4kGKIDQ6/";
+    hashedPassword = "$6$t6l9e3mAk$rohvE4HsBPPbsy1pQmtZSVvYUX0Gjl.seA/h6xYiKHc5ZSug0HAe/4F1EDq8XO.7aRrnfv2f9eDMf4kGKIDQ6/";
   };
 
   services.openssh.allowed_users = [ "shados" ];
