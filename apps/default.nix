@@ -29,7 +29,6 @@ in
     dash # To have a lightweight POSIX shell around for scripts
     iftop
     iotop
-    atop
     smem
     nethogs
     tcpdump
@@ -66,8 +65,13 @@ in
 
   # Config for various standard services & programs
   programs = {
-    atop.settings = {
-      interval = 1;
+    atop = {
+      enable = true;
+      atopService.enable = false;
+      settings = {
+        interval = 1;
+        flags = "afF";
+      };
     };
     bash = {
       enableCompletion = true;
