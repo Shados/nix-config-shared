@@ -55,7 +55,9 @@ in
     unar
     rename # perl-rename
     ripgrep
-    moreutils # sponge
+    (moreutils.overrideAttrs (oa: { meta = oa.meta // { priority = 10; }; })) # sponge, but don't override ts or parallel
+    ts # taskspooler
+    parallel
     ncdu
     unixtools.xxd
 
