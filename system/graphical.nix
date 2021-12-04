@@ -51,7 +51,7 @@ in
         xserver = {
           enable = true;
 
-          displayManager.defaultSession = "xsession+none";
+          displayManager.defaultSession = "xsession";
           desktopManager.xterm.enable = false;
           desktopManager.session = singleton {
             name = "xsession";

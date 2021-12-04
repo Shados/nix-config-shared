@@ -13,8 +13,8 @@ with lib;
     autoOptimiseStore = true;
 
     # Have the builders run at low CPU and IO priority
-    daemonIONiceLevel = mkDefault 7;
-    daemonNiceLevel = mkDefault 19;
+    daemonIOSchedClass = "idle";
+    daemonCPUSchedPolicy = "idle";
     trustedUsers = [
       "root"
       "shados"
