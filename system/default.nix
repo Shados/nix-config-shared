@@ -47,7 +47,7 @@ in
     }
     (mkIf config.documentation.nixos.enable {
       environment.systemPackages = with pkgs; [
-        nix-help
+        # nix-help # FIXME un-break this
         nixpkgs-help
       ];
     })
