@@ -381,7 +381,9 @@ in
         configuredDatasets = let
           fsDatasets = map (fs: fs.device) zfsFilesystems;
           explicitDatsets = concatLists (
-            flip mapAttrsToList cfg.pools (name: poolSpec: flip mapAttrsToList poolSpec.datasets (name: ds: ds.path))
+            flip mapAttrsToList cfg.pools (name: poolSpec: flip mapAttrsToList poolSpec.datasets (name: ds: if ds.path == ""
+            then "${poolSpec.name}"
+            else "${poolSpec.name}/${ds.path}"))
           );
         in unique (explicitDatsets ++ optionals cfg.defineFromMounts fsDatasets);
       in recursiveUpdate (mapDsToPools (ds: {}) allDatasets) basePools;
