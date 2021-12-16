@@ -45,6 +45,7 @@ in
     lsof
     psmisc
     bind.dnsutils # We only care about the client-side DNS utilities, not the server
+    jq.bin jq.man
 
     # Generally-useful file utilities
     wget
@@ -60,6 +61,7 @@ in
     parallel
     ncdu
     unixtools.xxd
+    pv
 
     # Tooling for this repo/NixOS itself
     niv
