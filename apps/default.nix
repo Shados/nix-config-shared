@@ -72,7 +72,7 @@ in
       atopService.enable = false;
       settings = {
         interval = 1;
-        flags = "afF";
+        flags = "aF";
       };
     };
     bash = {
