@@ -52,8 +52,7 @@ in
     axel
     tree
     file
-    zip
-    unar
+    zip unzip unrar lzop p7zip lrzip
     rename # perl-rename
     ripgrep
     (moreutils.overrideAttrs (oa: { meta = oa.meta // { priority = 10; }; })) # sponge, but don't override ts or parallel
@@ -63,8 +62,7 @@ in
     unixtools.xxd
     pv
 
-    # Tooling for this repo/NixOS itself
-    niv
+    # TODO niv via .envrc that adds nix-shell wrapp for it to path; the GHC dep is way too large to want it in by default
   ];
 
   # Config for various standard services & programs
