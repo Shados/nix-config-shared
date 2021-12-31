@@ -14,7 +14,9 @@ with lib;
 
     # Have the builders run at low CPU and IO priority
     daemonIOSchedClass = "idle";
-    daemonCPUSchedPolicy = "idle";
+    # FIXME breaks fpc builds because they unilaterally attempt to set cpu
+    # priority/class and fail without a real warning if this is set
+    # daemonCPUSchedPolicy = "idle";
     trustedUsers = [
       "root"
       "shados"
