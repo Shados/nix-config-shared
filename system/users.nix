@@ -1,5 +1,7 @@
-{ config, pkgs, ... }:
-
+{ config, lib, pkgs, ... }:
+let
+  inherit (lib) optional;
+in
 {
   users.mutableUsers = false;
   users.users.shados = {
@@ -13,7 +15,7 @@
       "users"
       "systemd-journal"
       "grsecurity"
-    ];
+    ] ++ optional config.fragments.sound.enable "audio";
     uid = 1000;
     shell = pkgs.fish;
     openssh.authorizedKeys.keyFiles = [
