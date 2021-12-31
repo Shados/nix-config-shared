@@ -52,7 +52,7 @@ in
     axel
     tree
     file
-    zip unzip unrar lzop p7zip lrzip
+    zip unzip unrar lzop p7zip lrzip pixz
     rename # perl-rename
     ripgrep
     (moreutils.overrideAttrs (oa: { meta = oa.meta // { priority = 10; }; })) # sponge, but don't override ts or parallel
