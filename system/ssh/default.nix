@@ -29,6 +29,9 @@
   # Allow X11 forwarding by default, useful for porting remote clipboard to local
   # Also needs ForwardX11 and ForwardX11Trusted set on the client side for this host
   services.openssh.forwardX11 = true;
+  programs.ssh.knownHosts = {
+    "git.shados.net".publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIO0oGzy9ylQHKEYaH4jJ38QM9nFxiQTF+flQUYbpqbF6";
+  };
   programs.ssh.globalHosts = {
     # Host entry for the SN NixOS configuration remote git repo
     gitolite = {
