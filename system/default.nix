@@ -20,9 +20,7 @@ in
     ./nix.nix
     ./smtp.nix
     ./sound.nix
-    ./ssh.nix
-    # Global ssh_config Host definitions
-    ./ssh-globalhosts.nix
+    ./ssh
     ./systemd.nix
     ./users.nix
     ./zfs.nix
