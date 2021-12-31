@@ -35,6 +35,7 @@ in
     {
       boot.kernelParams = mkIf (! config.fragments.remote) [ "boot.shell_on_fail" ];
       environment.sessionVariables.TERMINFO = pkgs.lib.mkDefault "/run/current-system/sw/share/terminfo"; # TODO: the fish bug that needed this may now be fixed, should test
+      environment.sessionVariables.EDITOR = "nvim";
       services.locate.enable = false;
       services.logind.extraConfig = ''
         KillUserProcesses=no
