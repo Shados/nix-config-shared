@@ -262,5 +262,60 @@ in
         };
       };
     })
+    (mkIf config.virtualisation.libvirtd.enable {
+      # Trigger libvirtd restarts whenever nftables is started or reloaded
+      systemd.services.nftables.serviceConfig.ExecStartPost = pkgs.writeScript "libvirtd-restart" "systemctl restart libvirtd.service || true";
+      systemd.services.nftables.serviceConfig.ExecReload = let
+        rulesScript = pkgs.writeScript "nftables-rules" ''
+          #! ${pkgs.nftables}/bin/nft -f
+          flush ruleset
+          include "${config.networking.nftables.rulesetFile}"
+        '';
+        checkScript = pkgs.writeScript "nftables-check" ''
+          #! ${pkgs.runtimeShell} -e
+          if $(${pkgs.kmod}/bin/lsmod | grep -q ip_tables); then
+            echo "Unload ip_tables before using nftables!" 1>&2
+            exit 1
+          else
+            ${rulesScript}
+          fi
+
+          systemctl restart libvirtd.service || true
+        '';
+      in mkForce checkScript;
+      # TODO once we know how to get libvirtd to reload firewall rules from
+      # scratch without requiring a restart:
+      #systemd.services.nftables.serviceConfig.ExecReload = let
+      #  rulesScript = pkgs.writeScript "nftables-rules" ''
+      #    #! ${pkgs.nftables}/bin/nft -f
+      #    flush ruleset
+      #    include "${config.networking.nftables.rulesetFile}"
+      #  '';
+      #  checkScript = pkgs.writeScript "nftables-check" ''
+      #    #! ${pkgs.runtimeShell} -e
+      #    if $(${pkgs.kmod}/bin/lsmod | grep -q ip_tables); then
+      #      echo "Unload ip_tables before using nftables!" 1>&2
+      #      exit 1
+      #    else
+      #      ${rulesScript}
+      #    fi
+
+      #    systemctl reload libvirtd.service || true
+      #  '';
+      #in mkForce checkScript;
+      #systemd.services.nftables.serviceConfig.ExecStartPost = "systemctl reload libvirtd.service";
+      #systemd.services.libvirtd = let
+      #  configFile = pkgs.writeText "libvirtd.conf" ''
+      #    auth_unix_ro = "polkit"
+      #    auth_unix_rw = "polkit"
+      #    ${config.virtualisation.libvirtd.extraConfig}
+      #  '';
+      #in {
+      #  environment.LIBVIRTD_ARGS = mkForce (escapeShellArgs ([
+      #    "--config" configFile
+      #  ] ++ config.virtualisation.libvirtd.extraOptions));
+      #  restartTriggers = [ configFile ];
+      #};
+    })
   ];
 }
