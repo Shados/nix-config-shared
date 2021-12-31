@@ -158,48 +158,53 @@ in
               ''}
               jump nixos-fw-refuse
             '';
-            nixos-fw.rules = ''
-              # Accept all traffic on the trusted interfaces
-              ${flip concatMapStrings fwcfg.trustedInterfaces (iface: ''
-                meta iifname "${iface}" jump nixos-fw-accept
-              '')}
+            nixos-fw.rules = mkMerge [
+              (mkBefore ''
+                # Accept all traffic on the trusted interfaces
+                ${flip concatMapStrings fwcfg.trustedInterfaces (iface: ''
+                  meta iifname "${iface}" jump nixos-fw-accept
+                '')}
 
-              # Accept packets from established/related connections
-              ct state established,related accept
+                # Accept packets from established/related connections
+                ct state established,related accept
+              '')
+              ''
+                # Accept connections to allowed TCP ports
+                ${concatMapStrings (port: ''
+                  tcp dport ${toString port} jump nixos-fw-accept
+                '') fwcfg.allowedTCPPorts}
 
-              # Accept connections to allowed TCP ports
-              ${concatMapStrings (port: ''
-                tcp dport ${toString port} jump nixos-fw-accept
-              '') fwcfg.allowedTCPPorts}
+                # Accept connections to allowed TCP port ranges
+                ${concatMapStrings (rangeAttr:
+                  let range = toString rangeAttr.from + "-" + toString rangeAttr.to; in ''
+                  tcp dport ${range} jump nixos-fw-accept
+                '') fwcfg.allowedTCPPortRanges}
 
-              # Accept connections to allowed TCP port ranges
-              ${concatMapStrings (rangeAttr:
-                let range = toString rangeAttr.from + "-" + toString rangeAttr.to; in ''
-                tcp dport ${range} jump nixos-fw-accept
-              '') fwcfg.allowedTCPPortRanges}
+                # Accept connections to allowed UDP ports
+                ${concatMapStrings (port: ''
+                  udp dport ${toString port} jump nixos-fw-accept
+                '') fwcfg.allowedUDPPorts}
 
-              # Accept connections to allowed UDP ports
-              ${concatMapStrings (port: ''
-                udp dport ${toString port} jump nixos-fw-accept
-              '') fwcfg.allowedUDPPorts}
+                # Accept connections to allowed UDP port ranges
+                ${concatMapStrings (rangeAttr:
+                  let range = toString rangeAttr.from + "-" + toString rangeAttr.to; in ''
+                  udp dport ${range} jump nixos-fw-accept
+                '') fwcfg.allowedUDPPortRanges}
 
-              # Accept connections to allowed UDP port ranges
-              ${concatMapStrings (rangeAttr:
-                let range = toString rangeAttr.from + "-" + toString rangeAttr.to; in ''
-                udp dport ${range} jump nixos-fw-accept
-              '') fwcfg.allowedUDPPortRanges}
+                # Optionally respond to ICMPv4 pings
+                ${optionalString fwcfg.allowPing ''
+                  ip6 nexthdr icmpv6 icmpv6 type echo-request ${optionalString (fwcfg.pingLimit != null) "limit rate ${fwcfg.pingLimit}"} jump nixos-fw-accept
+                  ip protocol icmp icmp type echo-request ${optionalString (fwcfg.pingLimit != null) "limit rate ${fwcfg.pingLimit}"} jump nixos-fw-accept
+                ''}
 
-              # Optionally respond to ICMPv4 pings
-              ${optionalString fwcfg.allowPing ''
-                ip6 nexthdr icmpv6 icmpv6 type echo-request ${optionalString (fwcfg.pingLimit != null) "limit rate ${fwcfg.pingLimit}"} accept
-                ip protocol icmp icmp type echo-request ${optionalString (fwcfg.pingLimit != null) "limit rate ${fwcfg.pingLimit}"} accept
-              ''}
+                # Filter rules
+              ''
 
-              # Filter rules
-
-              # Reject/drop everything else
-              jump nixos-fw-log-refuse
-            '';
+              (mkAfter ''
+                # Reject/drop everything else
+                jump nixos-fw-log-refuse
+              '')
+            ];
             INPUT = {
               definition = "type filter hook input priority 0; policy drop";
               rules = mkAfter ''
