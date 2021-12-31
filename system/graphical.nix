@@ -161,7 +161,6 @@ in
       environment.systemPackages = with pkgs.gnome3; [
         adwaita-icon-theme
         gnome-themes-extra
-        pkgs.orca
         pkgs.glib # for gsettings
         pkgs.gnome-menus
         pkgs.gtk3.out # for gtk-launch
