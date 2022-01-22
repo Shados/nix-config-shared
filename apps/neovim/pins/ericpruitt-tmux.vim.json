@@ -1,10 +1,14 @@
 {
-  "date": "2019-05-11T00:00:02-07:00",
+  "date": "2021-11-04T00:00:05-07:00",
+  "deepClone": false,
+  "fetchLFS": false,
   "fetchSubmodules": false,
   "fetchType": "github",
+  "leaveDotGit": false,
+  "path": "/nix/store/bix177gmvvy8pysk9n32ibzy7iva73ly-tmux.vim",
   "plugName": "ericpruitt/tmux.vim",
-  "rev": "cb8c29955f0654c8f1e4d2cd453a470a7a828ed4",
-  "sha256": "1m4s4ahdcpi1hhqy4dincz4a4cwybyzxw33q5ca6rchyncknawxs",
+  "rev": "c188af0ba1086e813a1528a7773c3f94325a944a",
+  "sha256": "07kwwfh7hlsiaz69xr1m994c99947a8zz9fxlb4l3v1qw32zklcd",
   "url": "https://github.com/ericpruitt/tmux.vim.git",
-  "version": "unstable-2019-05-11"
+  "version": "unstable-2021-11-04"
 }

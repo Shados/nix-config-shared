@@ -1,6 +1,7 @@
 {
   "date": "2019-04-01T13:35:59+08:00",
   "deepClone": false,
+  "fetchLFS": false,
   "fetchSubmodules": false,
   "fetchType": "github",
   "leaveDotGit": false,

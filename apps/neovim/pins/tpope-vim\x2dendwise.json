@@ -1,10 +1,14 @@
 {
-  "date": "2018-12-26T12:20:06-05:00",
+  "date": "2021-03-06T18:41:02-05:00",
+  "deepClone": false,
+  "fetchLFS": false,
   "fetchSubmodules": false,
   "fetchType": "github",
+  "leaveDotGit": false,
+  "path": "/nix/store/qci58cf6qdiiqjjqg2gsmibgscgv74dq-vim-endwise",
   "plugName": "tpope/vim-endwise",
-  "rev": "f67d022169bd04d3c000f47b1c03bfcbc4209470",
-  "sha256": "0lq2sphh2mfciva184b4b3if202hr4yls4d2gzbjx7ibch45zb9i",
+  "rev": "4289889a2622f9bc7c594a6dd79763781f63dfb5",
+  "sha256": "0sixr3rpcgqbaiyk7w6ghcrvllh35cb3gq9isdlwkww3dz4jyyxc",
   "url": "https://github.com/tpope/vim-endwise.git",
-  "version": "unstable-2018-12-26"
+  "version": "unstable-2021-03-06"
 }

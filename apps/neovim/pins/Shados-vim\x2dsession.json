@@ -1,7 +1,11 @@
 {
   "date": "2018-09-20T15:29:31+10:00",
+  "deepClone": false,
+  "fetchLFS": false,
   "fetchSubmodules": false,
   "fetchType": "github",
+  "leaveDotGit": false,
+  "path": "/nix/store/bfx0g8x4wyaf6v4ar07n9qvzmwx05bv4-vim-session",
   "plugName": "Shados/vim-session",
   "rev": "3f48093ce2ca5e7f43e74965bdb6cc4c55375cfd",
   "sha256": "1shx4547bwdqn7ajb6f6s5y88v4v5kjw4shy7523pk5c7yrvvsp2",

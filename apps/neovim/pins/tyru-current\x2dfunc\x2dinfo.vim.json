@@ -1,7 +1,11 @@
 {
   "date": "2019-07-07T06:25:26+09:00",
+  "deepClone": false,
+  "fetchLFS": false,
   "fetchSubmodules": false,
   "fetchType": "github",
+  "leaveDotGit": false,
+  "path": "/nix/store/k54ksxbkdg320s3nswxbx6whb02zq0vn-current-func-info.vim",
   "plugName": "tyru/current-func-info.vim",
   "rev": "893c964f7d5692fe1ea114667869858503fc903a",
   "sha256": "194ppxs7iwiryr507kxi9j7zsv17rymhr403ya3axkj3f2qp323g",

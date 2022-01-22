@@ -77,7 +77,6 @@ in
       # Visual display of indent levels
       "lukas-reineke/indent-blankline.nvim" = {
         enable = true;
-        branch = "lua"; # TODO can revert to master once nvim 0.5 is released
         # TODO indent_blankline_use_treesitter ?
         # TODO indent_blankline_show_current_context ? may be extra-useful when
         # working with Python and MoonScript

@@ -1,7 +1,11 @@
 {
   "date": "2013-10-05T19:03:44-03:00",
+  "deepClone": false,
+  "fetchLFS": false,
   "fetchSubmodules": false,
   "fetchType": "github",
+  "leaveDotGit": false,
+  "path": "/nix/store/j7a6fvs51nn19x3dibp53s751hbd39kl-ctrlr.vim",
   "plugName": "goldfeld/ctrlr.vim",
   "rev": "479893591ae3d66edbcf88b9b5dbab82eec61e29",
   "sha256": "05bpz80wzwm0y9lxb65hfgy9zswima85vv32n8n7hxkmzb700bz9",

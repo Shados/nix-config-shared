@@ -1,7 +1,11 @@
 {
   "date": "2010-10-17T18:59:14-07:00",
+  "deepClone": false,
+  "fetchLFS": false,
   "fetchSubmodules": false,
   "fetchType": "github",
+  "leaveDotGit": false,
+  "path": "/nix/store/0sjblkyq5r9q96sxm1zw9w2i2g3np42k-TaskList.vim",
   "plugName": "vim-scripts/TaskList.vim",
   "rev": "8e2dfdcc6e13d8afab5b3f620ee06ebb29b786f9",
   "sha256": "1z8kxm1ifpschsj2wa4nggp8mvy9lacgyxbgvbps8zwg8j6iczf1",
