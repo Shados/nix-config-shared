@@ -333,7 +333,11 @@ in
           "nvim-web-devicons"
         ];
         extraConfig = ''
-          g.nvim_tree_ignore = {".git"}
+          nvim_tree = require "nvim-tree"
+          nvim_tree.setup
+            filters:
+              custom: {".git"}
+
           map "n", "<leader>p", ":NvimTreeToggle<CR>", {noremap: true}
           map "n", "<C-\\>", ":NvimTreeFindFile<CR>", {noremap: true}
         '';
