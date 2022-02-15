@@ -44,7 +44,7 @@ mkIf cfg.enable {
       access_log  ${nginxRootDir}/logs/access.log  main;
 
       server_names_hash_bucket_size 64; # Increases maximum domain name size allowed
-      proxy_headers_hash_bucket_size 64;
+      proxy_headers_hash_bucket_size 128;
 
       # directio for larger files
       # sendfile for smaller (<16MB) files
@@ -62,7 +62,6 @@ mkIf cfg.enable {
       tcp_nodelay on;
 
       keepalive_timeout 65;
-      types_hash_max_size 4096;
 
       #langoff = nginx
     '';
