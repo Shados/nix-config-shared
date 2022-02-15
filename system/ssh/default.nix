@@ -9,7 +9,7 @@
     # Some options for improved security
     ports = [ 54201 ]; # Non-default port for security, SSH module automatically adds its ports to the FW
     passwordAuthentication = false;
-    challengeResponseAuthentication = false;
+    kbdInteractiveAuthentication = false;
     permitRootLogin = "no";
     extraConfig = ''
       LogLevel VERBOSE
