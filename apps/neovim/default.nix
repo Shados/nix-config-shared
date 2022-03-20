@@ -466,6 +466,9 @@ in
             { header: {'  Commands'}, type: 'commands' },
             { header: {'  MRU Current Tree Files by Modification Time'}, type: 'dir' },
           }
+          g.startify_skiplist = {
+            "^/home/shados/technotheca/cdata"
+          }
           g.startify_bookmarks = {
             {d: "~/notes/Todo.md"},
             -- FIXME move it to an xdg dir instead?
