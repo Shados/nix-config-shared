@@ -7,8 +7,8 @@ in
 {
   options = {
     users.users = mkOption {
-      options = [{
-        linger = mkOption {
+      type = types.attrsOf (types.submodule {
+        options.linger = mkOption {
           type = with types; enum [ true false "imperative" ];
           default = false;
           description = ''
@@ -21,7 +21,7 @@ in
             - "imperative"
           '';
         };
-      }];
+      });
     };
   };
 
