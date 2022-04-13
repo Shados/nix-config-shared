@@ -25,7 +25,7 @@ in
     git gitAndTools.git-octopus
 
     # Debugging/sysadmin/System information
-    manpages # Linux kernel dev ones, e.g. man 5 proc
+    man-pages # Linux kernel dev ones, e.g. man 5 proc
     dash # To have a lightweight POSIX shell around for scripts
     iftop
     iotop
@@ -39,8 +39,8 @@ in
     mtr
     gptfdisk
     parted
-    telnet
-    netcat-openbsd # The one true netcat
+    inetutils
+    libressl.nc # The one true netcat
     rsync
     lsof
     psmisc
