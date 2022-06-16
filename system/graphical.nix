@@ -86,23 +86,18 @@ in
           ];
         };
       };
-      environment.variables.GIO_EXTRA_MODULES = [
-        "${lib.getLib pkgs.gnome3.dconf}/lib/gio/modules"
-        "${pkgs.gnome3.glib_networking.out}/lib/gio/modules"
-        "${pkgs.gnome3.gvfs}/lib/gio/modules"
-      ];
-      environment.systemPackages = with pkgs; with pkgs.xlibs; [
+      environment.systemPackages = with pkgs; with pkgs.xorg; [
         xmodmap
 
         # Baseline themes / theme engines
         tango-icon-theme
-        hicolor_icon_theme
+        hicolor-icon-theme
         gnome2.gnome_icon_theme
         oxygen
         gnome2.gtk
         gtk_engines
         gtk-engine-murrine
-        gnome3.gnome_themes_standard
+        gnome.gnome-themes-extra
         gnome3.adwaita-icon-theme
 
         arc-theme
@@ -110,12 +105,11 @@ in
 
         glxinfo
         lxappearance
-        obconf
 
         snap
 
         # Shit needed for gnome apps to work right
-        gnome3.dconf gnome3.dconf-editor
+        dconf gnome3.dconf-editor
 
         # Spellchecking dictionary
         hunspellDicts.en-gb-ise
@@ -162,6 +156,7 @@ in
         adwaita-icon-theme
         gnome-themes-extra
         pkgs.glib # for gsettings
+        pkgs.gsettings-desktop-schemas
         pkgs.gnome-menus
         pkgs.gtk3.out # for gtk-launch
         pkgs.hicolor-icon-theme
