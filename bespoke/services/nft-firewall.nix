@@ -263,16 +263,26 @@ in
       };
     })
     (mkIf config.virtualisation.libvirtd.enable {
+      assertions = [
+        { assertion = config.boot.kernel.sysctl."net.ipv4.conf.all.forwarding" && config.boot.kernel.sysctl."net.ipv4.conf.default.forwarding";
+          message = ''boot.kernel.sysctl."net.ipv4.conf.all.forwarding" and boot.kernel.sysctl."net.ipv4.conf.default.forwarding" must both be enabled if you want to use libvirtd NAT networking'';
+        }
+      ];
       # Trigger libvirtd restarts whenever nftables is started or reloaded
-      systemd.services.nftables.serviceConfig.ExecStartPost = pkgs.writeScript "libvirtd-restart" "systemctl restart libvirtd.service || true";
+      systemd.services.nftables.serviceConfig.ExecStartPost = pkgs.writeScript "libvirtd-restart" ''
+        #!${pkgs.runtimeShell} -e
+        if systemctl is-active libvirtd.service; then
+          systemctl restart libvirtd.service || true
+        fi
+      '';
       systemd.services.nftables.serviceConfig.ExecReload = let
         rulesScript = pkgs.writeScript "nftables-rules" ''
-          #! ${pkgs.nftables}/bin/nft -f
+          #!${pkgs.nftables}/bin/nft -f
           flush ruleset
           include "${config.networking.nftables.rulesetFile}"
         '';
         checkScript = pkgs.writeScript "nftables-check" ''
-          #! ${pkgs.runtimeShell} -e
+          #!${pkgs.runtimeShell} -e
           if $(${pkgs.kmod}/bin/lsmod | grep -q ip_tables); then
             echo "Unload ip_tables before using nftables!" 1>&2
             exit 1
