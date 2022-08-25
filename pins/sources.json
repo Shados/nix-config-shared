@@ -5,10 +5,10 @@
         "homepage": "https://envy.shados.net",
         "owner": "Shados",
         "repo": "envy",
-        "rev": "5e8ba41cb8040ddcc5417771d1302b32854a814d",
-        "sha256": "0607pzwbdqvd6l2w4pl16098r6j4y9krwjk004pwpzz0pfgmwfac",
+        "rev": "1ff0177049ee7519c7812bc47f0c1aa9e48cecde",
+        "sha256": "0s1zis7hqrs3qzyw956nc3rvp84vqsnxzbnqmfz42s6s1paryx0k",
         "type": "tarball",
-        "url": "https://github.com/Shados/envy/archive/5e8ba41cb8040ddcc5417771d1302b32854a814d.tar.gz",
+        "url": "https://github.com/Shados/envy/archive/1ff0177049ee7519c7812bc47f0c1aa9e48cecde.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "impermanence": {
