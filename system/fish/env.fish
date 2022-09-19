@@ -2,19 +2,6 @@
 # sbin doesn't get added to non-root users normally, but fuck that
 path_append /run/current-system/sw/sbin
 
-# Locale
-# Enable UTF-8 with Australian settings
-set -gx LANG "en_AU.UTF-8"
-
-# Keep the default sort order (e.g. files starting with a '.' should appear at the start of a directory listing) 
-set -gx LC_COLLATE "C"
-
-# Set the short date to YYYY-MM-DD
-set -gx LC_TIME "en_DK.UTF-8"
-
-# Set the fallback locales
-set -gx LANGUAGE "en_AU:en_GB:en_US:en"
-
 # Tools
 # Ensure less always respects terminal colour codes by default
 set -gx LESS ' -R '

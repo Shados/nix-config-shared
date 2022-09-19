@@ -59,7 +59,16 @@ in
       # Internationalisation & localization properties.
       console.font   = mkOverride 999 "lat9w-16";
       i18n = {
-        defaultLocale = "en_US.UTF-8";
+        defaultLocale = "en_AU.UTF-8";
+        extraLocaleSettings = {
+          # Set the fallback locales
+          LANGUAGE = "en_AU:en_GB:en_US:en";
+          # Keep the default sort order (e.g. files starting with a '.' should
+          # appear at the start of a directory listing)
+          LC_COLLATE = "C.UTF-8";
+          # yyyy-mm-dd date format :D
+          LC_TIME = "en_DK.UTF-8";
+        };
       };
       time.timeZone = "Australia/Melbourne";
 
