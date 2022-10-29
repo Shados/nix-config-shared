@@ -5,10 +5,10 @@
         "homepage": "https://envy.shados.net",
         "owner": "Shados",
         "repo": "envy",
-        "rev": "1ff0177049ee7519c7812bc47f0c1aa9e48cecde",
-        "sha256": "0s1zis7hqrs3qzyw956nc3rvp84vqsnxzbnqmfz42s6s1paryx0k",
+        "rev": "17e7d47c98b0e17dafd530c385147db44a530424",
+        "sha256": "00z81n5wfb9ywz42xp2m0bfya8yfrfqlw54x56yf6xkisvl8yy3s",
         "type": "tarball",
-        "url": "https://github.com/Shados/envy/archive/1ff0177049ee7519c7812bc47f0c1aa9e48cecde.tar.gz",
+        "url": "https://github.com/Shados/envy/archive/17e7d47c98b0e17dafd530c385147db44a530424.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "impermanence": {
@@ -29,10 +29,10 @@
         "homepage": "",
         "owner": "nix-community",
         "repo": "neovim-nightly-overlay",
-        "rev": "33d6b662d3e7152b9635ef96c55b042eef3db9ee",
-        "sha256": "14vx6594zahg4ic05mv3k8al3azfqawp5p9jllkpdd090d8p7kyr",
+        "rev": "95aa3665a667a913d7082859290654c586136a31",
+        "sha256": "0fkjmsyb7smlhf0fwrbxhmhp4vhq7dc5zg15h0407v795aa1754p",
         "type": "tarball",
-        "url": "https://github.com/nix-community/neovim-nightly-overlay/archive/33d6b662d3e7152b9635ef96c55b042eef3db9ee.tar.gz",
+        "url": "https://github.com/nix-community/neovim-nightly-overlay/archive/95aa3665a667a913d7082859290654c586136a31.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "nur": {
@@ -41,10 +41,10 @@
         "homepage": "https://nur.nix-community.org/",
         "owner": "nix-community",
         "repo": "NUR",
-        "rev": "28556f4175d82d3b5fa6b3c0df439617bf511ce4",
-        "sha256": "07dlc4igh7z19l1v8879xlx3fnw6y9fiwkqii986344sg48jw930",
+        "rev": "248c0ebe4a3c450fa1aa90b3c4a7a847a61fe574",
+        "sha256": "1ampbcypq88bkjj9l88zifi4zgdw0m3bghkb6chq9kjmp9jd21mg",
         "type": "tarball",
-        "url": "https://github.com/nix-community/NUR/archive/28556f4175d82d3b5fa6b3c0df439617bf511ce4.tar.gz",
+        "url": "https://github.com/nix-community/NUR/archive/248c0ebe4a3c450fa1aa90b3c4a7a847a61fe574.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "telescope-fzy-native.nvim": {
