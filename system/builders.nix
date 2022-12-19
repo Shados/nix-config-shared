@@ -12,6 +12,13 @@ let
           IP address or hostname of the builder node.
         '';
       };
+      sshPort = mkOption {
+        type = with types; ints.u16;
+        default = 54201;
+        description = ''
+          SSH port on the builder node.
+        '';
+      };
       sshKeyFile = mkOption {
         type = with types; str;
         description = ''
@@ -37,7 +44,6 @@ let
 
   mkSshHostName = name: "${name}-builder";
   sshUser = "nix-builder";
-  sshPort = 54201;
 in
 {
   options = {
@@ -88,7 +94,7 @@ in
         (mkSshHostName name)
         { hostName = node.address;
           user = sshUser;
-          port = sshPort;
+          port = node.sshPort;
           keyFile = node.sshKeyFile;
         }
       ) cfg.nodes;
