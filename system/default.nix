@@ -43,6 +43,10 @@ in
         enable = true;
         interval = "Mon 05:00";
       };
+      systemd.coredump.extraConfig = ''
+        # Storage=none
+        ExternalSizeMax=10M
+      '';
     }
     (mkIf config.documentation.nixos.enable {
       environment.systemPackages = with pkgs; [
