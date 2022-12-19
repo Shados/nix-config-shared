@@ -335,6 +335,8 @@ in
         extraConfig = ''
           nvim_tree = require "nvim-tree"
           nvim_tree.setup
+            disable_netrw: false
+            hijack_netrw: false
             git:
               ignore: false
             filters:
@@ -471,6 +473,7 @@ in
           }
           g.startify_bookmarks = {
             {d: "~/notes/Todo.md"},
+            {d: "~/notes/Shopping.md"},
             -- FIXME move it to an xdg dir instead?
             {x: "~/.tmuxp/"},
           }
