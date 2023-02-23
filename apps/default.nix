@@ -14,6 +14,10 @@ in
     ./tmux.nix
   ];
 
+  environment.sessionVariables.MANPAGER = pkgs.writers.writeBash "nvim-pager" ''
+    col -b | nvim -c "set ft=man ts=8 nomod nolist nonu noma" -
+  '';
+
   # Base set of system-wide packages
   environment.systemPackages = with pkgs; [
     # Terminal enhancements
