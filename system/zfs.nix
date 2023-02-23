@@ -21,22 +21,28 @@ in
     };
   };
 
-  config = mkIf (cfg.scheduler != null) {
-    # TODO use libzutil's `zfs_dev_is_whole_disk` and only apply scheduler to
-    # disks that don't have it set by ZoL directly?
-    services.udev.extraRules = ''
-      # Use a PROGRAM to match on disks that contain *any* zfs partitions, and
-      # set their scheduler to noop/none
-      ACTION=="add|change", KERNEL=="sd[a-z]", ATTR{queue/scheduler}="${cfg.scheduler}", PROGRAM="${pkgs.writers.writeBash "zfsmatch" ''
-        # Cheap test first, expensive test second
-        if [[ $ID_FS_TYPE == zfs_member ]]; then
-          exit 0
-        elif [[ $(${pkgs.utillinux}/bin/blkid -s 'TYPE' "$DEVNAME"*) =~ zfs_member ]]; then
-          exit 0
-        else
-          exit 1
-        fi
-      ''}"
-    '';
-  };
+  config = mkMerge [
+    {
+      services.zfs.trim.interval = "Mon *-*-* 03:30:00";
+    }
+    # TODO Only enable if zfs is in use; NixOS has a way of determining this in the zfs module
+    (mkIf (cfg.scheduler != null) {
+      # TODO use libzutil's `zfs_dev_is_whole_disk` and only apply scheduler to
+      # disks that don't have it set by ZoL directly?
+      services.udev.extraRules = ''
+        # Use a PROGRAM to match on disks that contain *any* zfs partitions, and
+        # set their scheduler to noop/none
+        ACTION=="add|change", KERNEL=="sd[a-z]", ATTR{queue/scheduler}="${cfg.scheduler}", PROGRAM="${pkgs.writers.writeBash "zfsmatch" ''
+          # Cheap test first, expensive test second
+          if [[ $ID_FS_TYPE == zfs_member ]]; then
+            exit 0
+          elif [[ $(${pkgs.utillinux}/bin/blkid -s 'TYPE' "$DEVNAME"*) =~ zfs_member ]]; then
+            exit 0
+          else
+            exit 1
+          fi
+        ''}"
+      '';
+    })
+  ];
 }
