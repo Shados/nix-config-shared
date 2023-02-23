@@ -171,10 +171,12 @@ with lib;
         # Fix Putty ctrl-arrow keys as per tmux manual
         set -ga terminal-overrides ",xterm*:kLFT5=\eOD:kRIT5=\eOC:kUP5=\eOA:kDN5=\eOB:smkx@:rmkx@"
 
-      # Pass through some more SSH variables, in addition to the defautl (SSH_ASKPASS SSH_AUTH_SOCK SSH_AGENT_PID SSH_CONNECTION)
+      # Pass through some more SSH variables, in addition to the default (SSH_ASKPASS SSH_AUTH_SOCK SSH_AGENT_PID SSH_CONNECTION)
       set-option -ga update-environment " SSH_CLIENT SSH_TTY"
       # Make sure we attach to the same DBUS session as the desktop environment
       set-option -ga update-environment " DBUS_SESSION_BUS_ADDRESS"
+      # Pass through the XDG/logind session ID
+      set-option -ga update-environment " XDG_SESSION_ID"
       # Ease a HM post-installation issue
       set-option -ga update-environment " NIX_PATH"
     '';
