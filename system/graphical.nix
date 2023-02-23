@@ -1,5 +1,5 @@
 { config, pkgs, lib, ... }:
-
+# FIXME: Go through nixpkgs/nixos/modules/services/x11/desktop-managers/xfce.nix in detail and codge things
 with lib;
 let
   cfg = config.fragments.graphical;
@@ -71,6 +71,11 @@ in
           };
 
           updateDbusEnvironment = true;
+          # Necessary for GTK to support SVG. GTK uses SVG icons by default in
+          # many ways. Yes, not being able to support its own default icon
+          # format without an external run-time dependency *is* somewhat
+          # insane.
+          gdk-pixbuf.modulePackages = [ pkgs.librsvg ];
         };
       };
       xdg = {
