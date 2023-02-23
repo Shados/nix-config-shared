@@ -4,7 +4,6 @@ let
   nvimCfg = config.sn.programs.neovim;
   plugCfg = nvimCfg.pluginRegistry;
   pins = import ../../pins;
-  # TODO figure out why moonscript filetype doesn't appear to be applying automatically/correctly
   # TODO migrate plugins to non-upstream packages where possible, for more control over updates
 in
 {
@@ -16,6 +15,7 @@ in
   nixpkgs.overlays = [
     (import pins.neovim-nightly-overlay)
   ];
+
 
   sn.programs.neovim = let
     rgPkg = pkgs.ripgrep;
