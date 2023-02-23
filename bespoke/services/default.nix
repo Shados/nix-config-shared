@@ -6,7 +6,6 @@
   ];
   imports = [
     ./dnscrypt2.nix
-    ./nft-firewall.nix
     ./pppd.nix
     ./sn-firewall.nix
   ];
