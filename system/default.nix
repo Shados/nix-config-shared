@@ -58,7 +58,7 @@ in
       console.keyMap = ./sn.map.gz;
     })
     {
-      boot.cleanTmpDir = true;
+      boot.tmp.cleanOnBoot = true;
 
       # Internationalisation & localization properties.
       console.font   = mkOverride 999 "lat9w-16";
