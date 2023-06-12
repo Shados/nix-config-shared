@@ -86,7 +86,7 @@ let
     then "${poolName}/${datasetPath}"
     else poolName;
 
-  escapePathForName = path: lib.replaceChars [ "/" " " ] [ "-" "_" ] (lib.removePrefix "/" path);
+  escapePathForName = path: lib.replaceStrings [ "/" " " ] [ "-" "_" ] (lib.removePrefix "/" path);
 
   boolToStr = bool: if bool then "on" else "off";
   boolStrType = with types; coercedTo bool boolToStr str;

@@ -31,7 +31,7 @@ in
         allPeers = flatten (mapAttrsToList (n: cfg:
           map (peer: { intName = n; inherit peer; }) cfg.peers
         ) config.networking.wireguard.interfaces);
-        keyToUnitName = replaceChars
+        keyToUnitName = replaceStrings
           [ "/" "-"    " "     "+"     "="      ]
           [ "-" "\\x2d" "\\x20" "\\x2b" "\\x3d" ];
       in listToAttrs (map ({ intName, peer }: nameValuePair
