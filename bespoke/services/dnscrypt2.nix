@@ -423,7 +423,7 @@ in
           In addition to acting as a HOSTS file, it can also return the IP
           address of a different name. It will also do CNAME flattening.
         '';
-        example = literalExample ''
+        example = literalExpression ''
           [
             { domain = "example.com"; return = "10.1.1.1"; }
             { domain = "www.google.com"; return = "forcesafesearch.google.com"; }

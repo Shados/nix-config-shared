@@ -303,7 +303,7 @@ in
         type = types.package;
         default = pkgs.syncthing;
         defaultText = "pkgs.syncthing";
-        example = literalExample "pkgs.syncthing";
+        example = literalExpression "pkgs.syncthing";
         description = ''
           Syncthing package to use.
         '';
