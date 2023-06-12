@@ -7,10 +7,13 @@
   services.openssh = {
     enable = true;
     # Some options for improved security
-    ports = [ 54201 ]; # Non-default port for security, SSH module automatically adds its ports to the FW
-    passwordAuthentication = false;
-    kbdInteractiveAuthentication = false;
-    permitRootLogin = "no";
+    # Non-default to reduce drive-by SSH attacks, SSH module automatically adds its ports to the FW
+    ports = [ 54201 ];
+    settings = {
+      PermitRootLogin = "no";
+      PasswordAuthentication = false;
+      KbdInteractiveAuthentication = false;
+    };
     extraConfig = ''
       LogLevel VERBOSE
 
