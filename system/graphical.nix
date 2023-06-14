@@ -113,9 +113,6 @@ in
 
         snap
 
-        # Shit needed for gnome apps to work right
-        dconf gnome3.dconf-editor
-
         # Spellchecking dictionary
         hunspellDicts.en-gb-ise
       ];
@@ -139,7 +136,18 @@ in
         };
       };
     }
-    # Gnome compat crap
+    # GSettings stuff, hahhh
+    {
+      programs.dconf.enable = true;
+      environment.systemPackages = with pkgs; [
+        glib # for gsettings itself
+        gsettings-desktop-schemas
+      ];
+      environment.sessionVariables.XDG_DATA_DIRS = let
+        schema = pkgs.gsettings-desktop-schemas;
+      in singleton "${schema}/share/gsettings-schemas/${schema.name}";
+    }
+    # Further Gnome compat crap
     {
       services = {
         # This is like 70% of what `services.gnome3.core-shell.enable = true;` does
@@ -160,10 +168,8 @@ in
       environment.systemPackages = with pkgs.gnome3; [
         adwaita-icon-theme
         gnome-themes-extra
-        pkgs.glib # for gsettings
-        pkgs.gsettings-desktop-schemas
         pkgs.gnome-menus
-        pkgs.gtk3.out # for gtk-launch
+        pkgs.gtk3 # for gtk-launch
         pkgs.hicolor-icon-theme
         pkgs.shared-mime-info # for update-mime-database
         pkgs.xdg-user-dirs # Update user dirs as described in http://freedesktop.org/wiki/Software/xdg-user-dirs/
