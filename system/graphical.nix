@@ -130,8 +130,8 @@ in
           cache32Bit = true;
           # defaultFonts = {};
           subpixel = {
-            lcdfilter = "light";
-            rgba = "rgb";
+            lcdfilter = mkDefault "light";
+            rgba = mkDefault "rgb";
           };
         };
       };
