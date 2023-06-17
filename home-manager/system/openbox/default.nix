@@ -1134,7 +1134,9 @@ in
           # Attempt to reconfigure openbox if X is running.
           if systemctl --user is-active openbox-graphical-session.target >/dev/null; then
             echo "Reconfiguring openbox"
-            $DRY_RUN_CMD ${pkgs.openbox}/bin/openbox --reconfigure
+            if [[ -v DISPLAY ]]; then
+              $DRY_RUN_CMD ${pkgs.openbox}/bin/openbox --reconfigure
+            fi
           fi
         '';
       };
