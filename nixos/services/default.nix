@@ -6,6 +6,7 @@
     ./nginx.nix
     ./postgresql.nix
     ./quassel.nix
+    ./router
     ./samba.nix
     ./syncthing
     ./teamspeak3.nix

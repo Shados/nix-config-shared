@@ -1,3 +1,5 @@
+# TODO: move to profiles/nixos, rewrite to default-on as the presence of the
+# module will then be explicitly opt-in
 { config, pkgs, lib, ... }:
 
 with lib;

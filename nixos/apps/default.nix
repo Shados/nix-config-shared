@@ -2,7 +2,7 @@
 with lib;
 
 let
-  pins = import ../pins;
+  pins = import ../../pins;
   inherit (pins) envy;
 in
 {

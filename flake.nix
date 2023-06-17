@@ -17,8 +17,8 @@
     # - NUR: https://github.com/nix-community/NUR
     #
     # Can get away with not actually adding them currently because our only
-    # output is a module function, and all input references within it go through a
-    # top-level 'inputs' argument.
+    # output is a module function, and all input references within it go
+    # through a top-level 'inputs' argument.
     #
     # TODO: Consider which dependencies should be in Niv pins vs. Flake inputs.
     # The major advantage of Flake inputs is that they can be overridden by
@@ -28,6 +28,6 @@
   };
 
   outputs = { self, ... } @ inputs: {
-    nixosModules.default = import ./module.nix;
+    nixosModules.default = import ./nixos/module.nix;
   };
 }

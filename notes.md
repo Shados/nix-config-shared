@@ -4,3 +4,4 @@
 - Prettify console? Fonts, colour scheme?
 - Add a basic readme
 - Clear out any TODO & FIXME lines
+- Document repo/folder structure

@@ -1,7 +1,7 @@
 { config, inputs, lib, pkgs, system, ... }:
 let
   inherit (lib) mkBefore mkMerge mkOption mkOptionDefault singleton;
-  pins = import ./pins;
+  pins = import ../pins;
 in
 {
   imports = [
@@ -11,9 +11,6 @@ in
     ./apps
     # Meta modules related to Nix/OS configuration itself
     ./meta
-    # Conveniently packaged system 'functional profiles', including
-    # container/VM profiles
-    ./profiles
     # Security-focused configuration
     ./security
     # Service configuration
