@@ -1,9 +1,6 @@
 { config, lib, pkgs, ... }:
 
 {
-  imports = [
-    ./kernels
-  ];
   nixpkgs.overlays = [
     (self: super: with super.lib; let inherit (super) callPackage; in {
       snap = callPackage ./snap.nix {};
