@@ -23,10 +23,24 @@ let
 in
 {
   config = mkMerge [
+    # FIXME Workaround for issue detailed in https://github.com/NixOS/nixpkgs/issues/180175#issuecomment-1595743529
+    # Sadly, this is quite a hack, and mostly defeats the purpose of
+    # network-online.target, but I cannot find a better workaround or fix
+    # currently. Probably need to talk to the NM devs.
+    (mkIf config.networking.networkmanager.enable {
+      systemd.services.NetworkManager-wait-online = {
+        serviceConfig = {
+          ExecStart = [ "" "${pkgs.networkmanager}/bin/nm-online -q" ];
+          Restart = "on-failure";
+          RestartSec = 1;
+        };
+        unitConfig.StartLimitIntervalSec = 0;
+      };
+    })
     {
       systemd.services = listToAttrs (map (modifyWgService) wgInts);
     }
-    { # Workaround for issue detailed in https://github.com/NixOS/nixpkgs/issues/63869#issuecomment-514655131
+    { # FIXME: Workaround for issue detailed in https://github.com/NixOS/nixpkgs/issues/63869#issuecomment-514655131
       systemd.services = let
         allPeers = flatten (mapAttrsToList (n: cfg:
           map (peer: { intName = n; inherit peer; }) cfg.peers
