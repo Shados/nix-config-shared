@@ -1,0 +1,10 @@
+{
+  "date": "2018-07-22T16:44:00+08:00",
+  "fetchSubmodules": false,
+  "fetch_type": "github",
+  "plug_name": "peterhoeg/vim-qml",
+  "rev": "8af43da6950ce5483704bb97f5b24471d8ffda1a",
+  "sha256": "1y1xvbfr1ffxyyk3zzf50xn87a85i1zszj4fqlq5ka8zhgdrnhvc",
+  "url": "https://github.com/peterhoeg/vim-qml.git",
+  "version": "unstable-2018-07-22"
+}

@@ -1,0 +1,10 @@
+{
+  "date": "2019-04-05T21:25:51-07:00",
+  "fetchSubmodules": false,
+  "fetch_type": "github",
+  "plug_name": "ryanoasis/vim-devicons",
+  "rev": "cdc08fd72ffa2e4754c1ceefccd485f07a735177",
+  "sha256": "1fv8ah0lfxn2hs4lzp1zbnmwmy5gzl2fgryawrvi7lyd5gxmqjpb",
+  "url": "https://github.com/ryanoasis/vim-devicons.git",
+  "version": "unstable-2019-04-05"
+}

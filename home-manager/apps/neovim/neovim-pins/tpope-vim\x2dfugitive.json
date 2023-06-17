@@ -1,0 +1,10 @@
+{
+  "date": "2019-05-21T17:00:12-04:00",
+  "fetchSubmodules": false,
+  "fetch_type": "github",
+  "plug_name": "tpope/vim-fugitive",
+  "rev": "0f9db6af704f6fcf5cd06de964deb8223e47db4c",
+  "sha256": "1210fj7sxf59da79ccxh9b60928s8fsw98283r0ld9ssncic8c7n",
+  "url": "https://github.com/tpope/vim-fugitive.git",
+  "version": "unstable-2019-05-21"
+}

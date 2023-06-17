@@ -1,0 +1,10 @@
+{
+  "date": "2019-05-11T00:42:30+02:00",
+  "fetchSubmodules": false,
+  "fetch_type": "github",
+  "plug_name": "mhinz/vim-startify",
+  "rev": "2e5d068572f1e6899d7cb7b509020b0a6f0c3f68",
+  "sha256": "1hkf8lc63bdjwdcp0cabwx3p1jydiy4h5gzm042110szxx5xir3q",
+  "url": "https://github.com/mhinz/vim-startify.git",
+  "version": "unstable-2019-05-11"
+}

@@ -1,0 +1,10 @@
+{
+  "date": "2019-03-24T12:27:55+09:00",
+  "fetchSubmodules": false,
+  "fetch_type": "github",
+  "plug_name": "Shougo/neomru.vim",
+  "rev": "d3d47938fb3f3205bbb9eb8796a5da33f1d7c2cc",
+  "sha256": "0cvj2y6i55x04rcv8cpvgy7grgc0rq7z2sxjxn6xxi0ligqpvjp7",
+  "url": "https://github.com/Shougo/neomru.vim.git",
+  "version": "unstable-2019-03-24"
+}

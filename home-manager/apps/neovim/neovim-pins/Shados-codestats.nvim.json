@@ -1,0 +1,10 @@
+{
+  "date": "2019-05-03T15:01:43+10:00",
+  "fetchSubmodules": false,
+  "fetchType": "github",
+  "plugName": "Shados/codestats.nvim",
+  "rev": "24f486e0c4d3318eb7fccf56b88a134b65242519",
+  "sha256": "0l0lhgxx6iy8iiimilffdc00d2lrm6hq0bwhj2911fgyq5wmb08j",
+  "url": "https://github.com/Shados/codestats.nvim.git",
+  "version": "unstable-2019-05-03"
+}

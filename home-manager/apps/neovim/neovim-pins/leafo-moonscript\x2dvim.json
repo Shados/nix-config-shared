@@ -1,0 +1,14 @@
+{
+  "date": "2016-11-21T22:46:20-08:00",
+  "deepClone": false,
+  "fetchLFS": false,
+  "fetchSubmodules": false,
+  "fetchType": "github",
+  "leaveDotGit": false,
+  "path": "/nix/store/n9qawm4p0hpvpc3d6iaaj582dj9gy0pk-moonscript-vim",
+  "plugName": "leafo/moonscript-vim",
+  "rev": "715c96c7c3b02adc507f84bf5754985460afc426",
+  "sha256": "1m4yz2xnazqagmkcli2xvwidsgssy9p650ykgdybk7wwlrq2vvqi",
+  "url": "https://github.com/leafo/moonscript-vim.git",
+  "version": "unstable-2016-11-21"
+}

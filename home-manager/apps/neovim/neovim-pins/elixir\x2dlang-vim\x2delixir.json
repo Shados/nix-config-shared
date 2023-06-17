@@ -1,0 +1,10 @@
+{
+  "date": "2019-05-14T13:18:22-04:00",
+  "fetchSubmodules": false,
+  "fetch_type": "github",
+  "plug_name": "elixir-lang/vim-elixir",
+  "rev": "38e8bbfd0019033ae53d623e3fd1d9cf6ec2d335",
+  "sha256": "1mbgks1460vm8sl2hkag6hrsvbf9gfvdlswqr5hh8hy3laylh6qf",
+  "url": "https://github.com/elixir-lang/vim-elixir.git",
+  "version": "unstable-2019-05-14"
+}

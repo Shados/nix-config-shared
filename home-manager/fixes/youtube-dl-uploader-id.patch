@@ -1,0 +1,13 @@
+diff --git a/youtube_dl/extractor/youtube.py b/youtube_dl/extractor/youtube.py
+index 62e58c13e..4c9574e5d 100644
+--- a/youtube_dl/extractor/youtube.py
++++ b/youtube_dl/extractor/youtube.py
+@@ -1791,7 +1791,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
+                 microformat.get('uploadDate')
+                 or search_meta('uploadDate')),
+             'uploader': video_details['author'],
+-            'uploader_id': self._search_regex(r'/(?:channel|user)/([^/?&#]+)', owner_profile_url, 'uploader id') if owner_profile_url else None,
++            'uploader_id': self._search_regex(r'/(?:channel/|user/|(?=@))([^/?&#]+)', owner_profile_url, 'uploader id', default=None),
+             'uploader_url': owner_profile_url,
+             'channel_id': channel_id,
+             'channel_url': 'https://www.youtube.com/channel/' + channel_id if channel_id else None,

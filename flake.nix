@@ -29,5 +29,6 @@
 
   outputs = { self, ... } @ inputs: {
     nixosModules.default = import ./nixos/module.nix;
+    homeModules.default = import ./home-manager/module.nix;
   };
 }

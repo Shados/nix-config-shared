@@ -1,0 +1,14 @@
+{
+  "date": "2021-10-17T21:58:16-04:00",
+  "deepClone": false,
+  "fetchLFS": false,
+  "fetchSubmodules": false,
+  "fetchType": "github",
+  "leaveDotGit": false,
+  "path": "/nix/store/kij1x79ajpkba5d1srrsky885x5rkq9y-vim-unimpaired",
+  "plugName": "tpope/vim-unimpaired",
+  "rev": "e4006d68cd4f390efef935bc09be0ce3bd022e72",
+  "sha256": "048n8p7bjpcwdk924glqkwkp10fl813ffrjsagwwzsnakax3da5f",
+  "url": "https://github.com/tpope/vim-unimpaired.git",
+  "version": "unstable-2021-10-17"
+}

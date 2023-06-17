@@ -1,0 +1,87 @@
+{ config, lib, pkgs, ... }:
+with lib;
+let
+  cfg = config.fuse.sshfs;
+  escapeSystemdName = s:
+    replaceStrings
+      [ "/" " " ]
+      [ "-" "-" ]
+    (if hasPrefix "/" s then substring 1 (stringLength s) s else s);
+  # escapeSystemdName = replaceStrings
+  #   [ "/" "-"    " "     "+"     "="      ]
+  #   [ "-" "\\x2d" "\\x20" "\\x2b" "\\x3d" ];
+  # escapeSystemdPath = s:
+  #  replaceStrings ["/" "-" " "] ["-" "\\x2d" "\\x20"]
+  #   (if hasPrefix "/" s then substring 1 (stringLength s) s else s);
+in
+{
+  options = {
+    fuse.sshfs = {
+      enable = mkEnableOption "SSHFS mounts";
+      mounts = mkOption {
+        default = {};
+        description = ''
+        '';
+        type = types.attrsOf (types.submodule ({ config, ... }: {
+          options = {
+            mountPath = mkOption {
+              type = types.str;
+              default = config._module.args.name;
+              description = ''
+                Path on the local machine to mount at.
+              '';
+            };
+
+            path = mkOption {
+              type = types.str;
+              default = null;
+              description = ''
+                Path on the remote machine to mount from.
+              '';
+            };
+            host = mkOption {
+              type = types.str;
+              default = null;
+              description = ''
+                SSH host machine to mount from.
+              '';
+            };
+            user = mkOption {
+              type = types.str;
+              default = null;
+              description = ''
+                User to SSH into the target machine as.
+              '';
+            };
+          };
+        }));
+      };
+    };
+  };
+  config = mkIf cfg.enable {
+    systemd.user.services = flip mapAttrs' cfg.mounts (_:  opts: nameValuePair
+      "sshfs-${escapeSystemdName opts.mountPath}"
+      {
+        Unit = {
+          Description = "SSHFS auto-mounter service";
+          StartLimitIntervalSec = 0;
+        };
+        Service = {
+          ExecStartPre = "${pkgs.coreutils}/bin/mkdir -p ${opts.mountPath}";
+          ExecStart = "${pkgs.sshfs}/bin/sshfs -f -o follow_symlinks,auto_unmount,reconnect,ServerAliveInterval=14 ${opts.user}@${opts.host}:${opts.path} ${opts.mountPath}";
+          Restart = "on-failure";
+          RestartSec = 1;
+          Environment = [
+            "PATH=${config.lib.sn.makePath config.lib.sn.baseUserPath}"
+          ];
+        };
+        Install = {
+          WantedBy = [ "default.target" ];
+        };
+      }
+    );
+    home.packages = with pkgs; [
+      sshfs
+    ];
+  };
+}

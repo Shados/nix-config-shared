@@ -1,0 +1,10 @@
+{
+  "date": "2018-11-25T07:48:11-05:00",
+  "fetchSubmodules": false,
+  "fetch_type": "github",
+  "plug_name": "tpope/vim-abolish",
+  "rev": "b95463a1cffd8fc9aff2a1ff0ae9327944948699",
+  "sha256": "1cvhylz6hgvl63zhlrxqrjqqp07pm29i436xv33dzzhdp8dcj1mp",
+  "url": "https://github.com/tpope/vim-abolish.git",
+  "version": "unstable-2018-11-25"
+}

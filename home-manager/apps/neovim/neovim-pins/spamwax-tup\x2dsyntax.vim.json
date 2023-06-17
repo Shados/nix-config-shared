@@ -1,0 +1,14 @@
+{
+  "date": "2017-03-10T15:41:03-05:00",
+  "deepClone": false,
+  "fetchLFS": false,
+  "fetchSubmodules": false,
+  "fetchType": "github",
+  "leaveDotGit": false,
+  "path": "/nix/store/n01irq4hnx9nkxg71rg1f86i20h1vysj-tup-syntax.vim",
+  "plugName": "spamwax/tup-syntax.vim",
+  "rev": "8e858e7ad4af25fdc4edcdd9aa1ea007c5e7cfcf",
+  "sha256": "1s4b0xz6s1gmrv98rc44z1lygdzbcvcc3vnwjbrwywqr9a2bhyai",
+  "url": "https://github.com/spamwax/tup-syntax.vim.git",
+  "version": "unstable-2017-03-10"
+}

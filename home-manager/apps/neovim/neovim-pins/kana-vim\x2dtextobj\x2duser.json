@@ -1,0 +1,14 @@
+{
+  "date": "2020-02-21T18:29:24+09:00",
+  "deepClone": false,
+  "fetchLFS": false,
+  "fetchSubmodules": false,
+  "fetchType": "github",
+  "leaveDotGit": false,
+  "path": "/nix/store/qb2wa7pfsz16wj2d9hsjsc3yicfambqv-vim-textobj-user",
+  "plugName": "kana/vim-textobj-user",
+  "rev": "41a675ddbeefd6a93664a4dc52f302fe3086a933",
+  "sha256": "1y1g3vcm97fqjyigiajbvbck4nlc04vxl3535x4sl40s5jbm5vz3",
+  "url": "https://github.com/kana/vim-textobj-user.git",
+  "version": "unstable-2020-02-21"
+}

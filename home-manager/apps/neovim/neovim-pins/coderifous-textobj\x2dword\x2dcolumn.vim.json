@@ -1,0 +1,14 @@
+{
+  "date": "2012-11-19T17:00:23-05:00",
+  "deepClone": false,
+  "fetchLFS": false,
+  "fetchSubmodules": false,
+  "fetchType": "github",
+  "leaveDotGit": false,
+  "path": "/nix/store/d0d97sn9nc9j6wpss1a847b4fajhp53z-textobj-word-column.vim",
+  "plugName": "coderifous/textobj-word-column.vim",
+  "rev": "cb40e1459817a7fa23741ff6df05e4481bde5a33",
+  "sha256": "1g8mayj7jy2gq0cvnn7cpgwqphqag92iwmvckg5j15di8v1fdfp9",
+  "url": "https://github.com/coderifous/textobj-word-column.vim.git",
+  "version": "unstable-2012-11-19"
+}

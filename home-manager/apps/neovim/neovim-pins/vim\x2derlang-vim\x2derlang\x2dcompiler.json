@@ -1,0 +1,14 @@
+{
+  "date": "2021-06-20T16:35:45+02:00",
+  "deepClone": false,
+  "fetchLFS": false,
+  "fetchSubmodules": false,
+  "fetchType": "github",
+  "leaveDotGit": false,
+  "path": "/nix/store/b3wfsbgzqj01acsmdvwdg5iqxbvblg2z-vim-erlang-compiler",
+  "plugName": "vim-erlang/vim-erlang-compiler",
+  "rev": "b334e956026f61c0bf289ffdf37ce9b2aefe01e1",
+  "sha256": "1lhy5kdq3chr1zd0f67nfzmd81jiiw4hif11rx7pkwh019wyalxx",
+  "url": "https://github.com/vim-erlang/vim-erlang-compiler.git",
+  "version": "unstable-2021-06-20"
+}

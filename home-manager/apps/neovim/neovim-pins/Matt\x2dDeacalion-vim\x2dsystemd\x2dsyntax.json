@@ -1,0 +1,14 @@
+{
+  "date": "2019-12-13T12:39:47+00:00",
+  "deepClone": false,
+  "fetchLFS": false,
+  "fetchSubmodules": false,
+  "fetchType": "github",
+  "leaveDotGit": false,
+  "path": "/nix/store/k82p0h6rc8w0niny01jvgwirk984v9x0-vim-systemd-syntax",
+  "plugName": "Matt-Deacalion/vim-systemd-syntax",
+  "rev": "394a516f524e74ac8808ede1496b25d8b9824827",
+  "sha256": "0fqk5fxrdf8nazic244ia4bi75midmpj896vdkdmxnv563lnhkcy",
+  "url": "https://github.com/Matt-Deacalion/vim-systemd-syntax.git",
+  "version": "unstable-2019-12-13"
+}

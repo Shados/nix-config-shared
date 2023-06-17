@@ -1,0 +1,14 @@
+{
+  "date": "2021-02-19T10:05:45+01:00",
+  "deepClone": false,
+  "fetchLFS": false,
+  "fetchSubmodules": false,
+  "fetchType": "github",
+  "leaveDotGit": false,
+  "path": "/nix/store/xqx6w0dxw9r0hglkd3ix72i93g8a7gy7-vim-erlang-tags",
+  "plugName": "vim-erlang/vim-erlang-tags",
+  "rev": "d7eaa8f6986de0f266dac48b7dcfbf41d67ce611",
+  "sha256": "03wxy29z0rjnf3hilap7c86di7dkjwb8sdlfh74ch8vhan8h6rv0",
+  "url": "https://github.com/vim-erlang/vim-erlang-tags.git",
+  "version": "unstable-2021-02-19"
+}

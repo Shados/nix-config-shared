@@ -1,0 +1,10 @@
+{
+  "date": "2019-05-13T08:25:32+02:00",
+  "fetchSubmodules": false,
+  "fetch_type": "github",
+  "plug_name": "LnL7/vim-nix",
+  "rev": "1403934ebe9f2e1951ebafa38dd93ca9326c890e",
+  "sha256": "0910slyddcgl03ijayx2p2vhvsz4442q7ffsz7xsrl6fr0k0xkj9",
+  "url": "https://github.com/LnL7/vim-nix.git",
+  "version": "unstable-2019-05-13"
+}

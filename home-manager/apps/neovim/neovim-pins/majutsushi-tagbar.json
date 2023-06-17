@@ -1,0 +1,10 @@
+{
+  "date": "2017-12-17T16:14:51+13:00",
+  "fetchSubmodules": false,
+  "fetch_type": "github",
+  "plug_name": "majutsushi/tagbar",
+  "rev": "387bbadda98e1376ff3871aa461b1f0abd4ece70",
+  "sha256": "0srmslg0v1a7zhzz0wgzgv7jyr0j3q9m766qzb7zimkkb32fcbx9",
+  "url": "https://github.com/majutsushi/tagbar.git",
+  "version": "unstable-2017-12-17"
+}

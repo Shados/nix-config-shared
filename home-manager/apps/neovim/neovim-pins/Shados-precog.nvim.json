@@ -1,0 +1,10 @@
+{
+  "date": "2019-04-11T21:55:23+10:00",
+  "fetchSubmodules": false,
+  "fetchType": "github",
+  "plugName": "Shados/precog.nvim",
+  "rev": "5613503197a0d6f95c3b6d2cf4fc56d8786c1c3e",
+  "sha256": "04ijvarambxrssny4c42sbi889rmpxr0g9968a8c0ya15ji7374k",
+  "url": "https://github.com/Shados/precog.nvim.git",
+  "version": "unstable-2019-04-11"
+}

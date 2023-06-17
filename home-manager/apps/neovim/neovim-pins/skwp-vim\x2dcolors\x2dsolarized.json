@@ -1,0 +1,10 @@
+{
+  "date": "2012-05-30T01:09:58-07:00",
+  "fetchSubmodules": false,
+  "fetch_type": "github",
+  "plug_name": "skwp/vim-colors-solarized",
+  "rev": "dda70ab66551c7d454b7b6831cde68ba1a383069",
+  "sha256": "0z20q4qycr3s193ikchp6qqhw0q3yyf77s0gwmlriz3nwfjfmhy3",
+  "url": "https://github.com/skwp/vim-colors-solarized.git",
+  "version": "unstable-2012-05-30"
+}

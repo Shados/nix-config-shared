@@ -1,0 +1,10 @@
+{
+  "date": "2010-10-17T19:01:01-07:00",
+  "fetchSubmodules": false,
+  "fetch_type": "github",
+  "plug_name": "vim-scripts/argtextobj.vim",
+  "rev": "f3fbe427f7b4ec436416a5816d714dc917dc530b",
+  "sha256": "1l4jh5hdmky1qj5z26jpnk49a6djjcvzyyr6pknrrgb8rzkiln48",
+  "url": "https://github.com/vim-scripts/argtextobj.vim.git",
+  "version": "unstable-2010-10-17"
+}

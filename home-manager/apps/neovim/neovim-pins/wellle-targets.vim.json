@@ -1,0 +1,10 @@
+{
+  "date": "2019-05-21T23:00:03+02:00",
+  "fetchSubmodules": false,
+  "fetch_type": "github",
+  "plug_name": "wellle/targets.vim",
+  "rev": "a79447f261e4b8b4327557aa03726f3849334b84",
+  "sha256": "0x6a9rmv220kncjgak6aw3gbf3sidnj6nijphnsm5360lvi3ck4w",
+  "url": "https://github.com/wellle/targets.vim.git",
+  "version": "unstable-2019-05-21"
+}

@@ -1,0 +1,14 @@
+{
+  "date": "2018-07-02T11:52:44+08:00",
+  "deepClone": false,
+  "fetchLFS": false,
+  "fetchSubmodules": false,
+  "fetchType": "github",
+  "leaveDotGit": false,
+  "path": "/nix/store/cbrnf4sai08farl0rh47idn8pvkl8i51-javascript-libraries-syntax.vim",
+  "plugName": "othree/javascript-libraries-syntax.vim",
+  "rev": "5ef435d8c28ebc3c9b52fb865f4c06db629857f7",
+  "sha256": "1sxdxgisrg6i46spl8gcrrcjfdkykq2bx3rgffg9l7nyjrnchw51",
+  "url": "https://github.com/othree/javascript-libraries-syntax.vim.git",
+  "version": "unstable-2018-07-02"
+}

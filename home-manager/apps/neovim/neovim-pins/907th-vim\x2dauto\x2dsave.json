@@ -1,0 +1,10 @@
+{
+  "date": "2019-03-19T10:19:00+05:00",
+  "fetchSubmodules": false,
+  "fetch_type": "github",
+  "plug_name": "907th/vim-auto-save",
+  "rev": "8c1d5dc919030aa712ad7201074ffb60961e9dda",
+  "sha256": "0dj45g56n0q4advc9sgch11ghb2h5ahk601gndwy02a0937axjh2",
+  "url": "https://github.com/907th/vim-auto-save.git",
+  "version": "unstable-2019-03-19"
+}

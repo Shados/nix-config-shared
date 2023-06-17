@@ -1,0 +1,10 @@
+{
+  "date": "2019-04-04T23:24:41-04:00",
+  "fetchSubmodules": false,
+  "fetch_type": "github",
+  "plug_name": "ElmCast/elm-vim",
+  "rev": "165107a9fd2b20c8f050fc4f977b4e41c790b1e7",
+  "sha256": "0gf7b49by0ybx3ndz7sz5dwcfnps4sz6wsr02lyarj8f8116ysy5",
+  "url": "https://github.com/ElmCast/elm-vim.git",
+  "version": "unstable-2019-04-04"
+}

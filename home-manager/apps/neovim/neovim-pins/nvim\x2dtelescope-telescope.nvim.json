@@ -1,0 +1,14 @@
+{
+  "date": "2022-01-18T08:10:15+01:00",
+  "deepClone": false,
+  "fetchLFS": false,
+  "fetchSubmodules": false,
+  "fetchType": "github",
+  "leaveDotGit": false,
+  "path": "/nix/store/m0rzqnc2a9zr352acx9jbw1glnrllkn9-telescope.nvim",
+  "plugName": "nvim-telescope/telescope.nvim",
+  "rev": "0011b1148d3975600f5a9f0be8058cdaac4e30d9",
+  "sha256": "129cha5pwr1blnkyvkl59ildap0zdvk2khajmvd79fkcncgffvfi",
+  "url": "https://github.com/nvim-telescope/telescope.nvim.git",
+  "version": "unstable-2022-01-18"
+}

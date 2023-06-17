@@ -1,0 +1,10 @@
+{
+  "date": "2019-05-24T01:21:02+01:00",
+  "fetchSubmodules": false,
+  "fetch_type": "github",
+  "plug_name": "w0rp/ale",
+  "rev": "bb08b81bf719d4c55669c583c65fbe4bbd795501",
+  "sha256": "004n2lq2i7pibly7qwzfkdd9k950k9462xlwd1xs543hsmrwqvci",
+  "url": "https://github.com/w0rp/ale.git",
+  "version": "unstable-2019-05-24"
+}

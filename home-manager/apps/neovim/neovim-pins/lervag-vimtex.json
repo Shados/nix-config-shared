@@ -1,0 +1,14 @@
+{
+  "date": "2022-01-22T11:29:51+01:00",
+  "deepClone": false,
+  "fetchLFS": false,
+  "fetchSubmodules": false,
+  "fetchType": "github",
+  "leaveDotGit": false,
+  "path": "/nix/store/8fglcpn6sv6a3r459r6y25azi95ibbj3-vimtex",
+  "plugName": "lervag/vimtex",
+  "rev": "c7c084a5215c9402f1cdfdaa662a7eaa9b67d81b",
+  "sha256": "0mcd8wzq9xhidfyyir689050j2nfvwhgjp1ypnp3nib0m10n7kb8",
+  "url": "https://github.com/lervag/vimtex.git",
+  "version": "unstable-2022-01-22"
+}
