@@ -41,10 +41,10 @@
         "homepage": "https://nur.nix-community.org/",
         "owner": "nix-community",
         "repo": "NUR",
-        "rev": "45f9a116a9f414d036423089696f4aea4b370bed",
-        "sha256": "0a4rvrs3dy49f1sbv2pqpv0bc5djlazsa051hfzz8nii1wr4hm7n",
+        "rev": "b202bb7af54f5b399df6d14ec5aa0914106a0bee",
+        "sha256": "0qcqfw0knr04rpmwlfkrw554y6af19kxyl9fa493klakflnhqm12",
         "type": "tarball",
-        "url": "https://github.com/nix-community/NUR/archive/45f9a116a9f414d036423089696f4aea4b370bed.tar.gz",
+        "url": "https://github.com/nix-community/NUR/archive/b202bb7af54f5b399df6d14ec5aa0914106a0bee.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "telescope-fzy-native.nvim": {
