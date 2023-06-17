@@ -1,8 +1,6 @@
-# Baseline SN NixOS configuration
-{ config, lib, pkgs, ... }:
-# TODO Prettify console? Fonts, colour scheme?
-with lib;
+{ config, inputs, lib, pkgs, system, ... }:
 let
+  inherit (lib) mkBefore mkMerge mkOption mkOptionDefault singleton;
   pins = import ./pins;
 in
 {
@@ -30,7 +28,7 @@ in
 
   options = {
     fragments.remote = mkOption {
-      type = with types; bool;
+      type = with lib.types; bool;
       default = true;
       description = ''
         Whether or not this system is remote (i.e. not one I will ever access
@@ -40,25 +38,20 @@ in
   };
 
   config = let
-    pins = import ./pins;
-    nur-no-packages = import pins.nur { };
-    nur = import pins.nur { inherit pkgs; };
+    nur-no-packages = import inputs.nur {
+      nurpkgs = inputs.nixpkgs.legacyPackages.${system};
+      pkgs = null;
+    };
   in mkMerge [
-    # Add a custom $NIX_PATH entry; has to be mkOptionDefault so I *append* to
-    # the default instead of overriding it
-    { nix.nixPath = mkOptionDefault [
-        "sn-nixos-modules=/etc/nixos/modules"
-      ];
-    }
     # Setup access to the Nix User Repository & my personal NUR Cachix cache
     { nix.settings = {
         substituters = singleton "https://shados-nur-packages.cachix.org";
         trusted-public-keys = singleton "shados-nur-packages.cachix.org-1:jGzLOsiYC+TlK8i7HZmNarRFf/LeZ0/J1BJ6NMpNAVU=";
       };
-      nixpkgs.overlays = singleton (self: super: { inherit nur; });
+      nixpkgs.overlays = singleton inputs.nur.overlay;
     }
     # Pull in overlays from my NUR
-    { nixpkgs.overlays = with nur-no-packages.repos.shados.overlays; lib.mkBefore [
+    { nixpkgs.overlays = with nur-no-packages.repos.shados.overlays; mkBefore [
         lua-overrides
         python-overrides
       ];

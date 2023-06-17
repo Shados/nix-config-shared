@@ -19,8 +19,9 @@ in
     uid = 1000;
     shell = pkgs.fish;
     openssh.authorizedKeys.keyFiles = [
-      "/etc/nixos/modules/keys/shados@nhnt.shados.net.id_ecdsa.pub"
-      "/etc/nixos/modules/keys/shados@sn-u1-malkieri.id_ecdsa.pub"
+      # FIXME: Update
+      (../keys + "/shados@nhnt.shados.net.id_ecdsa.pub")
+      (../keys + "/shados@sn-u1-malkieri.id_ecdsa.pub")
     ];
     hashedPassword = "$6$WccM6haN$4ogyI4b1MPv1bSEpuOhh1kVsyyMXiT9a1P3fUNfT1/noyS7OY4V676c.v9GVSotJdxr3gnts8mxAIx.d1xNhE/";
     linger = true;

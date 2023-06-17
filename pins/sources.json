@@ -35,18 +35,6 @@
         "url": "https://github.com/nix-community/neovim-nightly-overlay/archive/95aa3665a667a913d7082859290654c586136a31.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
-    "nur": {
-        "branch": "master",
-        "description": "Nix User Repository: User contributed nix packages [maintainer=@Mic92]",
-        "homepage": "https://nur.nix-community.org/",
-        "owner": "nix-community",
-        "repo": "NUR",
-        "rev": "b202bb7af54f5b399df6d14ec5aa0914106a0bee",
-        "sha256": "0qcqfw0knr04rpmwlfkrw554y6af19kxyl9fa493klakflnhqm12",
-        "type": "tarball",
-        "url": "https://github.com/nix-community/NUR/archive/b202bb7af54f5b399df6d14ec5aa0914106a0bee.tar.gz",
-        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
-    },
     "telescope-fzy-native.nvim": {
         "branch": "master",
         "description": "FZY style sorter that is compiled",
