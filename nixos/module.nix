@@ -17,9 +17,6 @@ in
     ./services
     # System default configuration changes
     ./system
-
-    # For working with stateless-root systems
-    (pins.impermanence + /nixos.nix)
   ];
 
 
