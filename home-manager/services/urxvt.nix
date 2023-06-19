@@ -107,6 +107,9 @@ in
         Unit = {
           Description = "Urxvt Terminal Daemon";
           Documentation = [ "man:urxvtd(1)" "man:urxvt(1)" ];
+          # Avoid killing active terminals; newer urxvtc versions can generally
+          # talk to older urxvtd instances anyway
+          X-RestartIfChanged = false;
         };
 
         # TODO prefer reload over restart when updating? are newer clients

@@ -62,6 +62,8 @@ in
         Unit = {
           Description = "Logind lock event to systemd target translation";
           Documentation = "https://sr.ht/~whynothugo/systemd-lock-handler";
+          # Don't restart on home-manager activation if paths have changed
+          X-RestartIfChanged = false;
         };
 
         Service = {
@@ -77,6 +79,8 @@ in
       systemd.user.services.xss-lock = {
         Unit = {
           PartOf = [ "hm-graphical-session.target" ];
+          # Don't restart on home-manager activation if paths have changed
+          X-RestartIfChanged = false;
         };
         Service = {
           ExecStart = "${pkgs.xss-lock}/bin/xss-lock -s $XDG_SESSION_ID -n ${pkgs.xsecurelock}/libexec/xsecurelock/dimmer -l -- ${locker}";
@@ -94,6 +98,8 @@ in
         };
         Unit = {
           Before = [ "lock.target" ];
+          # Don't restart on home-manager activation if paths have changed
+          X-RestartIfChanged = false;
         };
         Install = {
           WantedBy = [ "lock.target" ];
@@ -107,6 +113,8 @@ in
         };
         Unit = {
           Before = [ "unlock.target" ];
+          # Don't restart on home-manager activation if paths have changed
+          X-RestartIfChanged = false;
         };
         Install = {
           WantedBy = [ "unlock.target" ];

@@ -59,16 +59,32 @@ in
     };
   };
   config = mkIf cfg.enable {
+    # FIXME: Implement and depend on a user-level network-online.target, if
+    # we're using NetworkManager at the system level and can thus use nm-online
+    # to trvially implement it
     systemd.user.services = flip mapAttrs' cfg.mounts (_:  opts: nameValuePair
       "sshfs-${escapeSystemdName opts.mountPath}"
       {
         Unit = {
           Description = "SSHFS auto-mounter service";
           StartLimitIntervalSec = 0;
+          # Avoid killing active, possibly-in-use filesystems
+          X-RestartIfChanged = false;
         };
         Service = {
           ExecStartPre = "${pkgs.coreutils}/bin/mkdir -p ${opts.mountPath}";
           ExecStart = "${pkgs.sshfs}/bin/sshfs -f -o follow_symlinks,auto_unmount,reconnect,ServerAliveInterval=14 ${opts.user}@${opts.host}:${opts.path} ${opts.mountPath}";
+          ExecStop = let
+            umount-sshfs = pkgs.writers.writeBash "umount-sshfs" ''
+              if command -v "fusermount"; then
+                fusermount -u "$1"
+              elif command -v "umount"; then
+                umount "$1"
+              else; then
+                exit 1
+              fi
+            '';
+          in "${umount-sshfs} ${opts.mountPath}";
           Restart = "on-failure";
           RestartSec = 1;
           Environment = [
