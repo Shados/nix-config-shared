@@ -21,25 +21,6 @@ if not set -q __fish_prompt_normal
 end
 
 function fish_prompt
-  # Refresh tmux update-environment variables
-  if set -q TMUX
-    # Get the list of update-environment variables in use
-    set -g TMUX_UPDATE_LIST
-    tmux show-options -g update-environment | while read line
-      set env (string split ' ' $line)[2]
-      set env (string split '"' $env)[2]
-      set -a TMUX_UPDATE_LIST $env
-    end
-    # Parse the current tmux environment and refresh update-environment variables
-    set -l tmux_env (tmux show-environment | string split0)
-    for env in $TMUX_UPDATE_LIST
-      set -l tmux_val (string match -r "^$env=(.*)" -- "$tmux_env")
-      if [ (count $tmux_val) -gt 0 ]
-        set -gx $env $tmux_val[2]
-      end
-    end
-  end
-
   # Handle colouring the prompt
   # Color hostname differently if system is being accessed over SSH
   if set -q SSH_TTY

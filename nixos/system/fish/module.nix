@@ -4,6 +4,8 @@ let
   cfg = config.programs.fish;
 in
 {
+  # TODO: If tmux is enabled, refresh update-environment variables at the
+  # prompt and at fish_preexec event
   options = {
     programs.fish = {
       functionDirs = mkOption {
