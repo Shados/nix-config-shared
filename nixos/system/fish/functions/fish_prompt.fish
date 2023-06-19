@@ -47,7 +47,7 @@ function fish_prompt
   else
     set -g fish_color_host normal
   end
-  set -g __fish_prompt_hostname (set_color $fish_color_host)$HOSTNAME(set_color $fish_color_normal)
+  set -g __fish_prompt_hostname (set_color $fish_color_host)$hostname(set_color $fish_color_normal)
 
   switch $USER
     case root

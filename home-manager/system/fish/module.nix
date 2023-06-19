@@ -21,12 +21,8 @@ in
     # they can, e.g. override the default fish_prompt function. We add them
     # behind the first item because the first item refers to the user's XDG
     # config dir for fish.
-    # Including a nix-store version ensures that fish config is working OK
-    # even on a freshly nixos-install'd system, while including the
-    # out-of-store version *in front of* the store version allows dynamically
-    # overriding it on a built system.
     programs.fish.shellInit = mkBefore (concatMapStringsSep "\n" (dir: ''
-      set fish_function_path $fish_function_path[1] ${toString dir} ${dir} $fish_function_path[2..]
+      set fish_function_path $fish_function_path[1] ${dir} $fish_function_path[2..]
     '') cfg.functionDirs);
   };
 }

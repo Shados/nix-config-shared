@@ -18,8 +18,8 @@ in
       programs.fish = {
         shellInit = ''
           function safe_source -d "Source file if path exists"
-            if test -f $argv[1].fish
-              source $argv[1].fish
+            if test -f $argv[1]
+              source $argv[1]
             end
           end
           function path_append -d "Append each of the (existing) listed directories to path, in-order"
@@ -37,15 +37,10 @@ in
             end
           end
 
-          set HOSTNAME (hostname -s)
-          set -g NIX_SYSTEM_FISH_DIR "${toString ./.}/"
-          # Load Nix-managed system-wide, per-user, and local-system-specific Fish
-          # config files
-          for prefix in "" "$USER." "$HOSTNAME."
-            for file_stem in env functions
-              safe_source "$NIX_SYSTEM_FISH_DIR/$prefix$file_stem"
-            end
-          end
+          source ${./env.fish}
+          set -g NIX_SYSTEM_FISH_DIR "${toString ./.}"
+          safe_source "$NIX_SYSTEM_FISH_DIR/$USER.env.fish"
+          safe_source "$NIX_SYSTEM_FISH_DIR/$USER.functions.fish"
         '';
 
         interactiveShellInit = ''
