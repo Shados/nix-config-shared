@@ -15,6 +15,7 @@ in
     ./fonts.nix
     ./graphical.nix
     ./haveged.nix
+    ./initrd-secrets.nix
     ./memory.nix
     ./networking.nix
     ./nix.nix
