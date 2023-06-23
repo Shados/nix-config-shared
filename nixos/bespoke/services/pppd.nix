@@ -55,9 +55,10 @@ in
 
     systemd.services = listToAttrs (mapAttrsFlatten (name: value: nameValuePair "pppd-${name}" (makePPPDJob value name)) cfg.connections);
 
-    networking.sn-firewall.v4rules.filter = ''
-      # We need to clamp MSS as PMTU doesn't work universally on the open net, due to bad or mis-configured firewalls
-      -A FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
-    '';
+    # TODO replace with nft-firewall rules
+    # networking.sn-firewall.v4rules.filter = ''
+    #   # We need to clamp MSS as PMTU doesn't work universally on the open net, due to bad or mis-configured firewalls
+    #   -A FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
+    # '';
   };
 }

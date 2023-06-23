@@ -4,6 +4,7 @@
 {
   imports = [
     ./firewall.nix
+    ./nft-firewall-module.nix
   ];
 
   security.pam.loginLimits = [

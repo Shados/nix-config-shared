@@ -7,6 +7,5 @@
   imports = [
     ./dnscrypt2.nix
     ./pppd.nix
-    ./sn-firewall.nix
   ];
 }
