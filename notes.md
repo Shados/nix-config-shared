@@ -13,3 +13,4 @@
 - Fix up the fish config
 - Find a strict Nix formatter I like
 - Go through home-manager config and aggressively gate defaults behind graphical
+- nixos/meta/network.nix: uniqueness constraint on both mac and ipv4 addresses?

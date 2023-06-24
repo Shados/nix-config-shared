@@ -96,10 +96,12 @@ in
           Slice = "session.slice";
           Type = "oneshot";
         };
-        Unit = {
-          Before = [ "lock.target" ];
+        Unit = rec {
+          Before = [ "lock.target" ]; PartOf = Before;
           # Don't restart on home-manager activation if paths have changed
           X-RestartIfChanged = false;
+          RefuseManualStart = true;
+          RefuseManualStop = true;
         };
         Install = {
           WantedBy = [ "lock.target" ];
@@ -111,10 +113,12 @@ in
           Slice = "session.slice";
           Type = "oneshot";
         };
-        Unit = {
-          Before = [ "unlock.target" ];
+        Unit = rec {
+          Before = [ "unlock.target" ]; PartOf = Before;
           # Don't restart on home-manager activation if paths have changed
           X-RestartIfChanged = false;
+          RefuseManualStart = true;
+          RefuseManualStop = true;
         };
         Install = {
           WantedBy = [ "unlock.target" ];
