@@ -22,7 +22,7 @@ mkIf (cfg.enable && cfg.enableDhcp) {
     ''));
   };
 
-  networking.firewall.extraInputRules = ''
+  networking.nft-firewall.inet.filter.lan-fw.rules = ''
     tcp dport 53 accept
     udp dport {53, 67, 68} accept
   '';
