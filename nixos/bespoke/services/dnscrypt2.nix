@@ -283,13 +283,17 @@ in
           Keepalive interval for HTTPS and HTTP/2 queries, in seconds.
         '';
       };
-      refusedCodeInResponses = mkOption {
-        type = with types; bool;
-        default = false;
+      blockedQueryResponse = mkOption {
+        # TODO proper format for the "IP response" instead of just str
+        type = with types; either (enum [ "refused" "hinfo" ]) str;
+        default = "hinfo";
         description = ''
-          Use the REFUSED return code for blocked responses.
-          Setting this to 'false' means that some responses will be lies.
-          Unfortunately, 'false' appears to be required for Android 8+.
+          Response for blocked queries. Options are `refused`, `hinfo`
+          (default) or an IP response. To give an IP response, use the format
+          `a:<IPv4>,aaaa:<IPv6>`. Using the `hinfo` option means that some
+          responses will be lies.
+          Unfortunately, the `hinfo` option appears to be required for Android
+          8+
         '';
       };
       loadBalancingStrategy = mkOption {
@@ -349,23 +353,41 @@ in
           connecting to some DoH servers.
         '';
       };
-      fallbackResolver = mkOption {
-        type = with types; str;
-        default = "9.9.9.9:53";
+      bootstrapResolvers = mkOption {
+        type = with types; listOf str;
+        default = [ "9.9.9.9:53" "8.8.8.8:53" ];
         description = ''
-          This is a normal, non-encrypted DNS resolver, that will be only used
-          for one-shot queries when retrieving the initial resolvers list, and
-          only if the system DNS configuration doesn't work.
-          No user application queries will ever be leaked through this
-          resolver, and it will not be used after IP addresses of resolvers
-          URLs have been found.  It will never be used if lists have already
-          been cached, and if stamps don't include host names without IP
-          addresses.
-          It will not be used if the configured system DNS works.
-          A resolver supporting DNSSEC is recommended. This may become
-          mandatory.
+          These are normal, non-encrypted DNS resolvers, that will be only used
+          for one-shot queries when retrieving the initial resolvers list and
+          if the system DNS configuration doesn't work.
 
-          People in China may need to use 114.114.114.114:53 here.
+          No user queries will ever be leaked through these resolvers, and they
+          will not be used after IP addresses of DoH resolvers have been found
+          (if you are using DoH).
+
+          They will never be used if lists have already been cached, and if the
+          stamps of the configured servers already include IP addresses (which
+          is the case for most of DoH servers, and for all DNSCrypt servers and
+          relays).
+
+          They will not be used if the configured system DNS works, or after
+          the proxy already has at least one usable secure resolver.
+
+          Resolvers supporting DNSSEC are recommended, and, if you are using
+          DoH, bootstrap resolvers should ideally be operated by a different
+          entity than the DoH servers you will be using, especially if you have
+          IPv6 enabled.
+
+          People in China may want to use 114.114.114.114:53 here.
+          Other popular options include 8.8.8.8, 9.9.9.9 and 1.1.1.1.
+
+          If more than one resolver is specified, they will be tried in
+          sequence.
+
+          TL;DR: put valid standard resolver addresses here. Your actual
+          queries will not be sent there. If you're using DNSCrypt or
+          Anonymized DNS and your lists are up to date, these resolvers will
+          not even be used.
 
           The default (Quad9) is backed by the GCA (Global Cyber Alliance), an
           international organization founded by law enforcement agencies in the
@@ -374,10 +396,10 @@ in
       };
       ignoreSystemDns = mkOption {
         type = with types; bool;
-        default = false;
+        default = true;
         description = ''
           Never let dnscrypt-proxy try to use the system DNS settings;
-          unconditionally use the fallback resolver.
+          unconditionally use the bootstrap resolvers.
         '';
       };
       netprobeTimeout = mkOption {
@@ -905,14 +927,14 @@ in
       force_tcp = cfg.forceTcp;
       timeout = cfg.timeout;
       keepalive = cfg.keepalive;
-      refused_code_in_responses = cfg.refusedCodeInResponses;
+      blocked_query_response = cfg.blockedQueryResponse;
       lb_strategy = cfg.loadBalancingStrategy;
       log_level = cfg.logging.level;
       use_syslog = cfg.logging.useSyslog;
       cert_refresh_delay = cfg.certRefreshDelay;
       dnscrypt_ephemeral_keys = cfg.dnscryptEphemeralKeys;
       tls_disable_session_tickets = cfg.tlsDisableSessionTickets;
-      fallback_resolver = cfg.fallbackResolver;
+      bootstrap_resolvers = cfg.bootstrapResolvers;
       ignore_system_dns = cfg.ignoreSystemDns;
       netprobe_timeout = cfg.netprobeTimeout;
       offline_mode = cfg.offlineMode;
