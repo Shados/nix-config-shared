@@ -24,6 +24,3 @@ end
 
 # Nix on non-NixOS
 if test -f /nix/etc/fish-profile.d/nix.fish; source /nix/etc/fish-profile.d/nix.fish; end
-
-# ssh-agent
-set -gx SSH_AUTH_SOCK $XDG_RUNTIME_DIR/ssh-agent.socket
