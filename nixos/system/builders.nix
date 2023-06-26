@@ -96,6 +96,11 @@ in
           user = sshUser;
           port = node.sshPort;
           keyFile = node.sshKeyFile;
+          extraConfig = ''
+            ControlMaster auto
+            ControlPath %d/.ssh/.control-socket-%C
+            ControlPersist 10m
+          '';
         }
       ) cfg.nodes;
       programs.ssh.knownHosts = mapAttrs' (name: node: nameValuePair
