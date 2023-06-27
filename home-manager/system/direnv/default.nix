@@ -67,7 +67,7 @@ with lib;
     })
     { # layout_python with custom venv directory
     programs.direnv.stdlib = ''
-      source ${toString ./layout_python_venv.sh}
+      source ${./layout_python_venv.sh}
     '';
     }
   ];
