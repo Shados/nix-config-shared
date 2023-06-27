@@ -1,4 +1,4 @@
-{ config, lib, pkgs, ... }:
+{ config, inputs, lib, pkgs, ... }:
 with lib;
 {
   nix = {
@@ -30,6 +30,11 @@ with lib;
       auto-optimise-store = true;
       # 0 will auto-detect the number of physical cores and use that
       build-cores = mkDefault 0;
+    };
+
+    registry.nixpkgs = {
+      exact = true;
+      flake = inputs.nixpkgs;
     };
   };
 }
