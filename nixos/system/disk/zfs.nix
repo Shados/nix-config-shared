@@ -70,6 +70,9 @@ let
   datasetList = builtins.sort (a: b: a < b) (concatLists (flip mapAttrsToList cfg.finalPools (name: poolSpec:
     flip mapAttrsToList poolSpec.datasets (_: datasetSpec: datasetPath poolSpec.name datasetSpec.path)
   )));
+  sortedDatasets = builtins.sort (a: b: a.path < b.path) (concatLists (flip mapAttrsToList cfg.finalPools (name: poolSpec:
+    flip mapAttrsToList poolSpec.datasets (_: datasetSpec: { pool = poolSpec; dataset = datasetSpec; path = datasetPath poolSpec.name datasetSpec.path; })
+  )));
   # Take list of pools, generate list of (list of datasets for a pool, with the full path substituted in)
   # Concatenate the lists
   # Convert to attribute set where the keys are the full paths
@@ -137,6 +140,25 @@ let
         "DB/prod", then the resulting dataset will be "tank/DB/prod"
 
         Defaults to the attribute name of this dataset option item.
+      '';
+    };
+    # FIXME: Migrate these to a disko-like tool when I get around to that
+    options.postCreationHook = mkOption {
+      type = with types; nullOr lines;
+      default = null;
+      description = ''
+        Shell script fragments to run after creation of the dataset. The
+        `$dataset` variable will be set to the full zpool/dataset name/path.
+      '';
+    };
+    options.postCreationMountHook = mkOption {
+      type = with types; nullOr lines;
+      default = null;
+      description = ''
+        Shell script fragments to run after creation & initial mounting of the
+        dataset. The `$dataset` variable will be set to the full zpool/dataset
+        name/path, the `$mountpoint` variable will be set to the location the
+        dataset is mounted at.
       '';
     };
     options.properties = mkOption {
@@ -251,7 +273,7 @@ let
         if [[ $mounted != "yes" ]]; then
           ${action}
         else
-          echo "WARNING: Not changing '${prop}' property; cannot be changed while dataset is mounted without a remount"
+          echo "WARNING: Not changing '${prop}' property for ${dataset}; cannot be changed while dataset is mounted without a remount"
         fi
       '';
       setNone = action: ''
@@ -305,6 +327,7 @@ in
       configuration from `fileSystems` items.
     '';
   };
+  # TODO replace with system.build usage?
   options.disk.fileSystems.zfs.reify-datasets = mkOption {
     type = types.path;
     readOnly = true; internal = true; visible = false;
@@ -414,24 +437,50 @@ in
           datasets[$dataset]=1
         done < <(zfs list -H -o name)
 
+        declare -A new_datasets
+
         # Ensure any missing, specified datasets are created
-        for dataset in ${escapeShellArgs datasetList}; do
-          debug_log "Checking for dataset $dataset"
-          pool="''${dataset%%/*}"
-          if ! [ ''${pools[$pool]+_} ]; then
-            echo "Pool '$pool' has not been imported / not found!"
-            exit 1
-          fi
-          if ! [ ''${datasets[$dataset]+_} ]; then
-            # TODO Should set creation-time-only properties here, too
-            echo "Creating dataset $dataset"
-            $DRY_RUN_CMD zfs create "$dataset"
-            changed=1
-          fi
-        done
+        ${flip concatMapStrings sortedDatasets ({dataset, pool, path}: ''
+        debug_log "Checking for dataset ${path}"
+        pool="${pool.name}"
+        if ! [ ''${pools[$pool]+_} ]; then
+          echo "Pool '$pool' has not been imported / not found!"
+          exit 1
+        fi
+        if ! [ ''${datasets[${path}]+_} ]; then
+          # TODO Should set other creation-time-only properties here, too
+          echo "Creating dataset ${path}"
+          dataset=${escapeShellArg path}
+          ${if dataset.properties.mountpoint != null then ''
+          $DRY_RUN_CMD zfs create -u -o mountpoint=${escapeShellArg dataset.properties.mountpoint} "$dataset"
+          ''
+          else ''
+          $DRY_RUN_CMD zfs create -u "$dataset"
+          ''}
+          ${optionalString (dataset.postCreationHook != null) ''
+          echo "Running post-creation hook for dataset $dataset"
+          ${dataset.postCreationHook}
+          ''}
+          new_datasets[$dataset]=1
+          changed=1
+        fi
+        '')}
 
         if [[ $changed == 0 ]]; then
           echo "All specified datasets already exist, no changes made"
+        else
+          echo "Mounting datasets"
+          zfs mount -av
+
+          ${flip concatMapStrings sortedDatasets ({dataset, pool, path}: optionalString (dataset.postCreationMountHook != null)''
+          dataset=${escapeShellArg path}
+          if [ ''${new_datasets[$dataset]+_} ]; then
+            dataset=${escapeShellArg path}
+            mountpoint="$(zfs get -H -o value mountpoint "$dataset")"
+            echo "Running post-creation-and-mount hook for dataset $dataset"
+            ${dataset.postCreationMountHook}
+          fi
+          '')}
         fi
       '';
 
@@ -472,6 +521,8 @@ in
           fi
         }
 
+        echo "Setting properties for ZFS dataset ${dataset}"
+
         ${optionalString (inheritPropsList != []) ''
         # Default/un-set/inherit propreties that have a 'null'
         # declaratively-specified value, if not already done
@@ -490,12 +541,17 @@ in
 
         ${optionalString (setPropsList != []) ''
         # Set properties that have a non-null declaratively-specified value
+        dataset=${escapeShellArg dataset}
+        pool="''${dataset%%/*}"
+        altroot=$(zpool get -H -o value altroot "$pool")
         ${flip concatMapStrings setPropsAttrsList ({name, value}: ''
         debug_log "Checking if property ${escapeShellArg name} is set to ${escapeShellArg value}..."
-        # TODO Account for zpool 'altroot' property's interaction with
-        # per-dataset mountpoint property value?
         source=$(zfs get -H -o source ${escapeShellArg name} ${escapeShellArg dataset})
         value=$(zfs get -H -o value ${escapeShellArg name} ${escapeShellArg dataset})
+        if [[ $altroot != "-" ]]; then
+          # Strip altroot prefix for comparison purposes
+          value=''${value#"$altroot"}
+        fi
         if [[ $source != "local" ]] || [[ $value != ${escapeShellArg value} ]]; then
           ${restrictionCheck dataset name ''
           echo "Setting property ${escapeShellArg name}=${escapeShellArg value}"
