@@ -32,6 +32,7 @@ with lib;
       build-cores = mkDefault 0;
     };
 
+    # TODO: Figure out HM equivalent for darwin only
     registry.nixpkgs = {
       exact = true;
       flake = inputs.nixpkgs;

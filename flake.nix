@@ -25,13 +25,16 @@
     sops-nix.inputs.nixpkgs.follows = "nixpkgs";
     sops-nix.inputs.nixpkgs-stable.follows = "nixpkgs"; # Only used by its checks attribute
     impermanence.url = github:nix-community/impermanence;
+    nix-index-database.url = github:nix-community/nix-index-database;
+    nix-index-database.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs = { self, ... } @ inputs: {
     nixosModules.default = { ... }: {
       imports = [
-        inputs.impermanence.nixosModules.impermanence
         inputs.sops-nix.nixosModules.sops
+        inputs.impermanence.nixosModules.impermanence
+        inputs.nix-index-database.nixosModules.nix-index
         ./nixos/module.nix
       ];
     };

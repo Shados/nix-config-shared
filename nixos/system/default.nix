@@ -48,6 +48,14 @@ in
         # Storage=none
         ExternalSizeMax=10M
       '';
+      # TODO: hm equivalent config, for darwin only
+      programs.command-not-found.enable = false;
+      programs.nix-index = {
+        enable = true;
+        enableBashIntegration = true;
+        enableFishIntegration = true;
+      };
+      programs.nix-index-database.comma.enable = true;
     }
     (mkIf config.documentation.nixos.enable {
       environment.systemPackages = with pkgs; [
