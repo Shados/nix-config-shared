@@ -73,7 +73,7 @@ in
     };
 
     nix = {
-      maxJobs = mkDefault 8;
+      settings.max-jobs = mkDefault 8;
     };
   };
 }

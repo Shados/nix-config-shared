@@ -9,6 +9,7 @@ in
 {
   options = {
     services.openssh = {
+      # FIXME: Remove now that we have .settings?
       allowed_users = mkOption {
         description = ''
           A list of the users allowed to log in via SSH.
