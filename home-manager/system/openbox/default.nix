@@ -583,7 +583,7 @@ in
             (listOf actionType);
           default = {};
           # TODO example
-          example = literalExample ''
+          example = literalExpression ''
             {
               "C-A-Left" = [
                 { action = "GoToDesktop";

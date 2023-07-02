@@ -1,6 +1,6 @@
 { config, lib, pkgs, ... }:
 let
-  inherit (lib) concatMapStringsSep concatStringsSep escapeShellArg generators isList isString listToAttrs literalExample mkEnableOption mkIf mkOption nameValuePair optionalString types;
+  inherit (lib) concatMapStringsSep concatStringsSep escapeShellArg generators isList isString listToAttrs literalExpression mkEnableOption mkIf mkOption nameValuePair optionalString types;
   cfg = config.sn.programs.pqiv;
 
   toOptionsIni = attrs: generators.toINI {
@@ -54,7 +54,7 @@ in
           pqiv configuration options. All long-form parameters to pqiv are
           valid settings keys.
         '';
-        example = literalExample {
+        example = literalExpression {
           fullscreen = true;
           hide-info-box = true;
           scale-images-up = true;
@@ -67,7 +67,7 @@ in
       # TODO recursively-defined keybind value type?
       keyBindings = mkOption {
         default = {};
-        example = literalExample {
+        example = literalExpression {
           z = "goto_file_relative(-1)";
           x = "goto_file_relative(1)";
           q = "send_keys(#1)";
@@ -90,7 +90,7 @@ in
       };
       actions = mkOption {
         default = [];
-        example = literalExample [
+        example = literalExpression [
           "flip_vertically()"
         ];
         description = ''
