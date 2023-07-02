@@ -1,9 +1,8 @@
-{ config, lib, pkgs, ... }:
+{ config, inputs, lib, pkgs, ... }:
 with lib;
 let
   nvimCfg = config.sn.programs.neovim;
   plugCfg = nvimCfg.pluginRegistry;
-  pins = import ../../../pins;
   # TODO migrate plugins to non-upstream packages where possible, for more control over updates
 in
 {
@@ -13,7 +12,7 @@ in
     ./oceanicnext.nix
   ];
   nixpkgs.overlays = [
-    (import pins.neovim-nightly-overlay)
+    (inputs.neovim-nightly-overlay.overlay)
   ];
 
 

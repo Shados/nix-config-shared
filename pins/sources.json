@@ -35,18 +35,6 @@
         "url": "https://github.com/justmiles/go-markdown2confluence/archive/v3.3.1.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
-    "neovim-nightly-overlay": {
-        "branch": "master",
-        "description": "[maintainer=@mjlbach] ",
-        "homepage": "",
-        "owner": "nix-community",
-        "repo": "neovim-nightly-overlay",
-        "rev": "95aa3665a667a913d7082859290654c586136a31",
-        "sha256": "0fkjmsyb7smlhf0fwrbxhmhp4vhq7dc5zg15h0407v795aa1754p",
-        "type": "tarball",
-        "url": "https://github.com/nix-community/neovim-nightly-overlay/archive/95aa3665a667a913d7082859290654c586136a31.tar.gz",
-        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
-    },
     "telescope-fzy-native.nvim": {
         "branch": "master",
         "description": "FZY style sorter that is compiled",
