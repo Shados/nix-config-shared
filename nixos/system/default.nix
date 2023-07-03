@@ -8,7 +8,6 @@ in
   imports = [
     ./backup.nix
     ./builders.nix
-    ./config-snapshot.nix
     ./disk
     ./do-init
     ./fish
