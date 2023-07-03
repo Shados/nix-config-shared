@@ -40,8 +40,14 @@
         inputs.impermanence.nixosModules.impermanence
         inputs.nix-index-database.nixosModules.nix-index
         ./nixos/module.nix
+        ./shared/overlays.nix
       ];
     };
-    homeModules.default = import ./home-manager/module.nix;
+    homeModules.default = { ... }: {
+      imports = [
+        ./home-manager/module.nix
+        ./shared/overlays.nix
+      ];
+    };
   };
 }
