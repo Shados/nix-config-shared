@@ -34,7 +34,7 @@ in
     vim-buffet.extraConfig = mkIfGruvbox ''
       -- Customize vim-workspace colours based on gruvbox colours
       cmd [[
-        function g:WorkspaceSetCustomColors()
+        function! g:WorkspaceSetCustomColors()
           highlight WorkspaceBufferCurrentDefault guibg=#a89984 guifg=#282828
           highlight WorkspaceBufferActiveDefault guibg=#504945 guifg=#a89984
           highlight WorkspaceBufferHiddenDefault guibg=#3c3836 guifg=#a89984

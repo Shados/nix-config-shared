@@ -80,7 +80,7 @@ in
     vim-buffet.extraConfig = mkIfOceanic ''
       -- Customize vim-workspace colours based on oceanic-next colours
       cmd [[
-        function g:WorkspaceSetCustomColors()
+        function! g:WorkspaceSetCustomColors()
           highlight WorkspaceBufferCurrentDefault guibg=#65737e guifg=#cdd3de
           highlight WorkspaceBufferActiveDefault guibg=#4f5b66 guifg=#a7adba
           highlight WorkspaceBufferHiddenDefault guibg=#343d46 guifg=#a7adba
