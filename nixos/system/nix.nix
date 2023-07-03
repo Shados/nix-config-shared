@@ -33,9 +33,13 @@ with lib;
     };
 
     # TODO: Figure out HM equivalent for darwin only
+    # Pin nixpkgs flake registry to the current-system nixpkgs flake input
     registry.nixpkgs = {
       exact = true;
       flake = inputs.nixpkgs;
     };
+
+    # Pin nixpkgs channel to the flake
+    nixPath = mkBefore (singleton "nixpkgs=flake:nixpkgs");
   };
 }
