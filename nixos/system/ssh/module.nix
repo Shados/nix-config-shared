@@ -1,22 +1,47 @@
 { config, lib, pkgs, ... }:
 let
-  inherit (lib) attrNames concatMapStrings flip getAttr mkIf mkMerge mkOption optionalString types;
+  inherit (lib) attrNames concatMapStrings concatStringsSep filterAttrs flip getAttr mkForce mkIf mkMerge mkOption optionalString types;
   cfg = config.services.openssh;
-  clcfg = config.programs.ssh;
+  cfgc = config.programs.ssh;
 
-  globalHosts = map (h: getAttr h clcfg.globalHosts) (attrNames clcfg.globalHosts);
+  globalHosts = map (h: getAttr h cfgc.globalHosts) (attrNames cfgc.globalHosts);
+
+  # FIXME: Remove once nixpkgs PR 227442 is merged {{{
+  # The splicing information needed for nativeBuildInputs isn't available
+  # on the derivations likely to be used as `cfgc.package`.
+  # This middle-ground solution ensures *an* sshd can do their basic validation
+  # on the configuration.
+  validationPackage = if pkgs.stdenv.buildPlatform == pkgs.stdenv.hostPlatform
+    then cfgc.package
+    else pkgs.buildPackages.openssh;
+
+  # reports boolean as yes / no
+  mkValueStringSshd = with lib; v:
+        if isInt           v then toString v
+        else if isString   v then v
+        else if true  ==   v then "yes"
+        else if false ==   v then "no"
+        else if isList     v then concatStringsSep "," v
+        else throw "unsupported type ${builtins.typeOf v}: ${(lib.generators.toPretty {}) v}";
+  # dont use the "=" operator
+  settingsFormat = (pkgs.formats.keyValue {
+      mkKeyValue = lib.generators.mkKeyValueDefault {
+      mkValueString = mkValueStringSshd;
+    } " ";});
+  configFile = settingsFormat.generate "config" (filterAttrs (n: v: v != null) cfg.settings);
+  sshconf = pkgs.runCommand "sshd.conf-validated" { nativeBuildInputs = [ validationPackage ]; } ''
+    cat ${configFile} - >$out <<EOL
+    ${cfg.extraConfig}
+    EOL
+
+    ssh-keygen -q -f mock-hostkey -N ""
+    sshd -t -f $out -h mock-hostkey
+  '';
+  # }}}
 in
 {
   options = {
     services.openssh = {
-      # FIXME: Remove now that we have .settings?
-      allowed_users = mkOption {
-        description = ''
-          A list of the users allowed to log in via SSH.
-        '';
-        default = [];
-        type = types.nullOr (types.listOf types.str);
-      };
       enableMosh = mkOption {
         type = with types; bool;
         default = true;
@@ -24,6 +49,54 @@ in
           Whether or not to enable Mosh connectivity.
         '';
       };
+      # FIXME: Remove once nixpkgs PR 227442 is merged {{{
+      settings = mkOption {
+        type = types.submodule {
+          options = {
+            AllowUsers = mkOption {
+              type = with types; nullOr (listOf str);
+              apply = v: if v == null then v else concatStringsSep " " v;
+              default = null;
+              description = lib.mdDoc ''
+                If specified, login is allowed only for the listed users.
+                See {manpage}`sshd_config(5)` for details.
+              '';
+            };
+            DenyUsers = mkOption {
+              type = with types; nullOr (listOf str);
+              apply = v: if v == null then v else concatStringsSep " " v;
+              default = null;
+              description = lib.mdDoc ''
+                If specified, login is denied for all listed users. Takes
+                precedence over [](#opt-services.openssh.settings.AllowUsers).
+                See {manpage}`sshd_config(5)` for details.
+              '';
+            };
+            AllowGroups = mkOption {
+              type = with types; nullOr (listOf str);
+              apply = v: if v == null then v else concatStringsSep " " v;
+              default = null;
+              description = lib.mdDoc ''
+                If specified, login is allowed only for users part of the
+                listed groups.
+                See {manpage}`sshd_config(5)` for details.
+              '';
+            };
+            DenyGroups = mkOption {
+              type = with types; nullOr (listOf str);
+              apply = v: if v == null then v else concatStringsSep " " v;
+              default = null;
+              description = lib.mdDoc ''
+                If specified, login is denied for all users part of the listed
+                groups. Takes precedence over
+                [](#opt-services.openssh.settings.AllowGroups). See
+                {manpage}`sshd_config(5)` for details.
+              '';
+            };
+          };
+        };
+      };
+      # }}}
     };
     programs.ssh = {
       globalHosts = mkOption {
@@ -89,12 +162,12 @@ in
     };
   };
   config = mkMerge [
+    # FIXME: Remove once nixpkgs PR 227442 is merged {{{
     {
-      services.openssh = {
-        extraConfig = ''
-          AllowUsers ${concatMapStrings (user: ''${user} '') cfg.allowed_users}
-        '';
-      };
+      environment.etc."ssh/sshd_config".source = mkForce sshconf;
+    }
+    # }}}
+    {
       programs.ssh.extraConfig = ''
         # Per-host matches
         ${flip concatMapStrings globalHosts (host: ''
@@ -106,7 +179,7 @@ in
             ${optionalString (host.extraConfig != null) host.extraConfig}
         '')}
         Match all
-          Port ${toString clcfg.defaultPort}
+          Port ${toString cfgc.defaultPort}
       '';
     }
     (mkIf cfg.enableMosh {

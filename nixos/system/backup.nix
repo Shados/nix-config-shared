@@ -41,7 +41,7 @@ in
 
     # Allow backup account login over ssh
     services.openssh = {
-      allowed_users = [ "backup" ];
+      settings.AllowUsers = [ "backup" ];
     };
 
     # Create backup user
