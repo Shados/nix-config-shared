@@ -6,7 +6,6 @@ let
 in
 {
   imports = [
-    ./backup.nix
     ./builders.nix
     ./disk
     ./do-init

@@ -59,7 +59,7 @@ in
         example = {
           hephaestus = {
             address = "192.168.16.3";
-            sshKeyFile = "/etc/nixos/private-keys/nix-builder.id_ed25519";
+            sshKeyFile = "/run/secrets/nix-builder.id_ed25519";
             machineSpec = {
               system = "x86_64-linux";
               maxJobs = 8;
