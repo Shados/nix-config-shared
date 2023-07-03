@@ -18,11 +18,6 @@ in
     ] ++ optional config.fragments.sound.enable "audio";
     uid = 1000;
     shell = pkgs.fish;
-    openssh.authorizedKeys.keyFiles = [
-      # FIXME: Update
-      (../../keys + "/shados@nhnt.shados.net.id_ecdsa.pub")
-      (../../keys + "/shados@sn-u1-malkieri.id_ecdsa.pub")
-    ];
     openssh.authorizedKeys.keys = [
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIINIKAv4lnPlhX68cMsoAxpD1bnkU2i6owlQ6Xx6Cx9E shados@dreamlogic"
     ];
