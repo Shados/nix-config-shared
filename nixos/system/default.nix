@@ -8,7 +8,6 @@ in
   imports = [
     ./builders.nix
     ./disk
-    ./do-init
     ./fish
     ./fonts.nix
     ./graphical.nix
