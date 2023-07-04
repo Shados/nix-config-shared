@@ -38,7 +38,7 @@ in
           end
 
           source ${./env.fish}
-          set -g NIX_SYSTEM_FISH_DIR "${toString ./.}"
+          set -g NIX_SYSTEM_FISH_DIR "${./.}"
           safe_source "$NIX_SYSTEM_FISH_DIR/$USER.env.fish"
           safe_source "$NIX_SYSTEM_FISH_DIR/$USER.functions.fish"
         '';
