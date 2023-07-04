@@ -11,6 +11,7 @@
     config = {
       stream-buffer-size = "4MiB";
       hwdec = "auto-safe";
+      replaygain = "track";
     };
   };
 }
