@@ -11,7 +11,7 @@
 { config, lib, pkgs, ... }:
 let
   cfg = config.boot.initrd;
-  inherit (lib) attrValues concatMapStringsSep escapeShellArg hasPrefix mkIf mkOption types;
+  inherit (lib) attrValues concatMapStringsSep escapeShellArg hasPrefix mkIf mkOption optional types;
   # NOTE: This is *not* equivalent to nixpkgs.lib.isStorePath, because that
   # only returns true for top-level store paths, not files contained *within*
   # store paths.
@@ -23,15 +23,36 @@ let
     description = "A *string* representation of a path contained within the Nix store";
   };
 
+  sopsSecretType = (types.addCheck types.path (v: hasPrefix "/run/secrets" v)) // {
+    description = "A sops-nix secret path";
+  };
+
+  sha256HashType = (types.addCheck types.str (v: builtins.match "[[:xdigit:]]{64}" v != null)) // {
+    description = "A base-16 representation of a sha256 hash";
+  };
+
   secretsDir = "/etc/nixos/initrd-secrets";
 
   storeSecretType = types.submodule ({ config, ... }: {
     options = {
       source = mkOption {
-        type = storePathType;
+        type = types.either sopsSecretType storePathType;
         description = ''
-          Path or string coercible to path, for a file contained within the Nix store.
+          Path or string coercible to path, for a file contained within the Nix
+          store, or for a sops-nix secret file.
         '';
+      };
+      hash = mkOption {
+        type = sha256HashType;
+        description = ''
+          The sha256 hash of the source file. Will be calculated on the fly if
+          the source is a Nix store path, otherwise must be supplied manually.
+
+          Can be calculated using `sha256sum`.
+        '';
+        default = if storePathType.check config.source
+          then builtins.hashFile "sha256" config.source
+          else null;
       };
       path = mkOption {
         type = types.path;
@@ -40,7 +61,7 @@ let
           Cannot be set manually, this attribute is used to reference the path
           that will be used.
         '';
-        default = "${secretsDir}/${builtins.hashFile "sha256" config.source}";
+        default = "${secretsDir}/${config.hash}";
         readOnly = true;
       };
     };
@@ -55,7 +76,7 @@ in
   };
 
   config = mkIf (cfg.storeSecrets != {}) {
-    system.activationScripts.initrdStoreSecrets = ''
+    system.activationScripts.initrdStoreSecrets.text = ''
       function populateInitrdStoreSecretsDir {
         echo "Ensuring initrd store-secrets directory is populated"
         local initrdSecretsDir=${escapeShellArg secretsDir}
@@ -63,10 +84,15 @@ in
         chmod 0700 "$initrdSecretsDir"
         local source
         local dest
-    '' + (concatMapStringsSep "\n" ({source, path}: ''
+    '' + (concatMapStringsSep "\n" ({source, path, hash}: ''
         source="$(${pkgs.coreutils}/bin/realpath ${escapeShellArg source})"
         dest=${escapeShellArg path}
         if [[ ! -e "$dest" ]]; then
+          local hash=$(sha256sum "$source" | cut -c -64)
+          if [[ $hash != ${hash} ]]; then
+            printf "Calculated hash of secret source file '%s' does not equal the supplied hash!\n\t%s != %s\n" "$source" "$hash" "${hash}"
+            exit 1
+          fi
           cp -vf "$source" "$dest"
         else
           printf "%s already exists\n" "$dest"
@@ -75,5 +101,8 @@ in
       }
       populateInitrdStoreSecretsDir
     '';
+    system.activationScripts.initrdStoreSecrets.deps = []
+      ++ optional (config.system.activationScripts ? setupSecrets) "setupSecrets"
+      ;
   };
 }
