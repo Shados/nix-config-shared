@@ -38,19 +38,6 @@ in
       pidgin-wrapped = super.pidgin.override {
         plugins = with super; [ pidgin-opensteamworks ];
       };
-
-      transgui = super.transgui.overrideAttrs(oa: rec {
-        name = "${pname}-${version}";
-        pname = "transgui";
-        version = "unstable-2021-01-04";
-        src = pins.transgui;
-        patches = [
-          (pkgs.fetchurl {
-            url = "https://github.com/transmission-remote-gui/transgui/pull/1329.patch";
-            sha256 = "1453k1901fs1yay8i53cmj5rd5j1m0irkidq4axj214mhfkmf27m";
-          })
-        ];
-      });
     })
   ];
   programs.git = {
