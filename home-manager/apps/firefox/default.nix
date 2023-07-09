@@ -304,6 +304,9 @@ let
 
         // Allow desktop notifications to remain until clicked/manually acknowledged, if the source site requests it
         pref("dom.webnotifications.requireinteraction.enabled", true);
+
+        // *Always* present the Reader Mode button in the toolbar, even if the automated parsing thinks it won't work
+        pref("reader.parse-on-load.force-enable", true);
         // }}}
     '';
   } (pkgs.runCommand "${base.name}-custom" {
