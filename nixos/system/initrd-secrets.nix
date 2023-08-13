@@ -31,8 +31,6 @@ let
     description = "A base-16 representation of a sha256 hash";
   };
 
-  secretsDir = "/etc/nixos/initrd-secrets";
-
   storeSecretType = types.submodule ({ config, ... }: {
     options = {
       source = mkOption {
@@ -61,7 +59,7 @@ let
           Cannot be set manually, this attribute is used to reference the path
           that will be used.
         '';
-        default = "${secretsDir}/${config.hash}";
+        default = "${cfg.secretsDir}/${config.hash}";
         readOnly = true;
       };
     };
@@ -73,13 +71,22 @@ in
       type = types.attrsOf storeSecretType;
       default = {};
     };
+    boot.initrd.secretsDir = mkOption {
+      type = types.path;
+      default = "/etc/nixos/initrd-secrets";
+
+      description = ''
+        The path to store initrd secrets in, where they will be copied into
+        the initrd from on every rebuild of the initrd-secrets files..
+      '';
+    };
   };
 
   config = mkIf (cfg.storeSecrets != {}) {
     system.activationScripts.initrdStoreSecrets.text = ''
       function populateInitrdStoreSecretsDir {
         echo "Ensuring initrd store-secrets directory is populated"
-        local initrdSecretsDir=${escapeShellArg secretsDir}
+        local initrdSecretsDir=${escapeShellArg cfg.secretsDir}
         mkdir -p "$initrdSecretsDir"
         chmod 0700 "$initrdSecretsDir"
         local source
