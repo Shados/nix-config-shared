@@ -4,6 +4,7 @@ with lib;
 let
   pins = import ../../pins;
   inherit (pins) envy;
+  # envy = /home/shados/technotheca/artifacts/media/software/nix/envy;
 in
 {
   imports = [
