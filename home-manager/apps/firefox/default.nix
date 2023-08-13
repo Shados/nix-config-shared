@@ -21,6 +21,11 @@ let
   #   preferLocalBuild = true;
   #   DESTDIR="$(out)";
   # };
+  # FIXME: This is mostly just a local copy of legacyFox, but I no longer
+  # recall *why* I needed a local version. I *think* there's some tweaks I
+  # needed for... something? Will need to diff it against current stuff and
+  # find out what, if anything, is different, then probably move to just
+  # maintaining a fork or a patch rather than this clusterfuck.
   legacyFox = pkgs.runCommand "legacyFox" {
     src = ./legacyFox;
     preferLocalBuild = true;
