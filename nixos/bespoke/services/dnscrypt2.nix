@@ -4,8 +4,9 @@ with lib;
 let
   cfg = config.services.dnscrypt-proxy2;
 
+  # TODO: genericise and move to lib?
   jsonCfgFile = pkgs.writeText "dnscrypt-proxy2.json" (builtins.toJSON cfg.settings);
-  tomlCfgFile = pkgs.runCommand "dnscrypt-proxy2.toml" {preferLocalBuild = true;} ''
+  tomlCfgFile = pkgs.runCommandNoCCLocal "dnscrypt-proxy2.toml" ''
     ${pkgs.remarshal}/bin/json2toml < ${jsonCfgFile} > $out
   '';
 
