@@ -12,6 +12,7 @@ in
     ./fonts.nix
     ./graphical.nix
     ./haveged.nix
+    ./impermanence.nix
     ./initrd-secrets.nix
     ./memory.nix
     ./networking.nix
