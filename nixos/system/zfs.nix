@@ -25,8 +25,7 @@ in
     {
       services.zfs.trim.interval = "Mon *-*-* 03:30:00";
     }
-    # TODO Only enable if zfs is in use; NixOS has a way of determining this in the zfs module
-    (mkIf (cfg.scheduler != null) {
+    (mkIf (config.boot.zfs.enabled && cfg.scheduler != null) {
       # TODO use libzutil's `zfs_dev_is_whole_disk` and only apply scheduler to
       # disks that don't have it set by ZoL directly?
       services.udev.extraRules = ''
