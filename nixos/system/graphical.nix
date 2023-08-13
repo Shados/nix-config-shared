@@ -84,12 +84,7 @@ in
         menus.enable = true;
         mime.enable = true;
         sounds.enable = true;
-        portal = {
-          enable = true;
-          extraPortals = with pkgs; [
-            xdg-desktop-portal-gtk
-          ];
-        };
+        portal.enable = true;
       };
       environment.systemPackages = with pkgs; with pkgs.xorg; [
         xmodmap
