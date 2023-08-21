@@ -12,30 +12,6 @@ in
           default = null;
           selection-to-clipboard = null;
           config-reload = pkgs.nur.repos.shados.urxvt-config-reload;
-          pasta = pkgs.writeTextFile rec {
-            name = "pasta";
-            destination = "/lib/urxvt/perl/${name}";
-            text = ''
-              #! /usr/bin/env perl -w
-              # Author:   Aaron Caffrey
-              # Website:  https://github.com/wifiextender/urxvt-pasta
-              # License:  GPLv3
-
-              # Usage: put the following lines in your .Xdefaults/.Xresources:
-              # URxvt.perl-ext-common           : selection-to-clipboard,pasta
-              # URxvt.keysym.Control-Shift-V    : perl:pasta:paste
-
-              use strict;
-
-              sub on_user_command {
-                my ($self, $cmd) = @_;
-                if ($cmd eq "pasta:paste") {
-                  $self->selection_request (urxvt::CurrentTime, 3);
-                }
-                ()
-              }
-            '';
-          };
         };
         description = ''
           Attribute set mapping perl-ext-common extension names to
