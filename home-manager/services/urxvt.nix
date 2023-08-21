@@ -96,19 +96,20 @@ in
       });
     });
     programs.urxvt = {
-      package = pkgs.callPackage ../pkgs/urxvt/wrapper.nix {
-        inherit (pkgs.perlPackages) makePerlPath;
-        rxvt_unicode = pkgs.rxvt-unicode-unwrapped-truecolor-emoji;
-        plugins = [
-          pkgs.urxvt_autocomplete_all_the_things
-          pkgs.urxvt_perl
-          pkgs.urxvt_perls
-          pkgs.urxvt_tabbedex
-          pkgs.urxvt_font_size
-          pkgs.urxvt_theme_switch
-          pkgs.urxvt_vtwheel
-        ] ++ attrValues (filterAttrs (n: v: v != null) cfg.plugins);
-      };
+      package = pkgs.rxvt-unicode.override(oa: {
+        rxvt-unicode-unwrapped = pkgs.rxvt-unicode-unwrapped-truecolor-emoji;
+        configure = { availablePlugins, ... }: {
+          plugins = with availablePlugins; [
+            autocomplete-all-the-things
+            perl
+            perls
+            tabbedex
+            font-size
+            theme-switch
+            vtwheel
+          ] ++ attrValues (filterAttrs (n: v: v != null) cfg.plugins);
+        };
+      });
       fonts = [
         "xft:${cfg.font}:size=${toString cfg.fontSize}:antialias=true"
       ];
