@@ -71,10 +71,34 @@ in
     };
   };
   config = mkIf cfg.enable {
+    nixpkgs.overlays = singleton (self: super: {
+      rxvt-unicode-unwrapped-truecolor-emoji = super.rxvt-unicode-unwrapped-emoji.overrideAttrs(oa: rec {
+        name = "${pname}-${oa.version}";
+        pname = "rxvt-unicode-unwrapped-truecolor";
+        patches = oa.patches or [] ++ [
+          (super.fetchpatch {
+            name = "24-bit-color.patch";
+            url = "https://aur.archlinux.org/cgit/aur.git/plain/24-bit-color.patch?h=rxvt-unicode-truecolor-wide-glyphs";
+            sha256 = "sha256-gVPT27G6vVA9SiKuiYt4JLYikShvexCqlzptU7Rvumc=";
+            extraPrefix = "";
+          })
+          # FIXME: remove this once I'm on nixpkgs including PR #249166
+          (super.fetchpatch {
+            name = "perl538-locale-c.patch";
+            url = "https://github.com/exg/rxvt-unicode/commit/16634bc8dd5fc4af62faf899687dfa8f27768d15.patch";
+            excludes = [ "Changes" ];
+            sha256 = "sha256-JVqzYi3tcWIN2j5JByZSztImKqbbbB3lnfAwUXrumHM=";
+          })
+        ];
+        configureFlags = oa.configureFlags or [] ++ [
+          "--enable-24-bit-color"
+        ];
+      });
+    });
     programs.urxvt = {
       package = pkgs.callPackage ../pkgs/urxvt/wrapper.nix {
         inherit (pkgs.perlPackages) makePerlPath;
-        rxvt_unicode = pkgs.rxvt-unicode-unwrapped-emoji;
+        rxvt_unicode = pkgs.rxvt-unicode-unwrapped-truecolor-emoji;
         plugins = [
           pkgs.urxvt_autocomplete_all_the_things
           pkgs.urxvt_perl
