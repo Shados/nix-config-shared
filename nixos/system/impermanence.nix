@@ -1,6 +1,6 @@
 { config, lib, inputs, pkgs, ... }:
 let
-  inherit (lib) mkIf mkMerge mkOption singleton types;
+  inherit (lib) escapeShellArg mkAfter mkIf mkForce mkMerge mkOption singleton types;
   inherit (inputs.lib.fs) dsToBootFs dsToFs pristineSnapshot;
 in
 {
@@ -12,40 +12,6 @@ in
         Whether or not to use the impermanence flake to enforce a stateless root filesystem.
       '';
     };
-    sn.statelessRootPool = mkOption {
-      type = with types; nullOr str;
-      default = null;
-      description = ''
-        If root is hosted on a ZFS pool, this must be set to the name of the
-        pool.
-      '';
-    };
-    sn.statelessRootDataset = mkOption {
-      type = with types; str;
-      default = "ROOTS/nixos";
-      description = ''
-        If root is hosted on a ZFS pool, this must be set to the path to the
-        dataset which should contain this NixOS installation, which I'll call
-        the 'abstract root'. You must also set `sn.statelessRootPool` in order
-        for this to function.
-
-        Preconditions on the abstract root:
-        - `mountpoint` property must be `none`; the abstract root dataset is
-          not the *actual* root and is instead used as a container for a single
-          NixOS system's system-level datasets
-        - The `/root` sub-dataset must exist, have `mountpoint=/`, and have a
-          snapshot called `${pristineSnapshot}` with absolutely no
-          contents, to facilitate fast reset to that blank state on each boot.
-        - The `/tmp` sub-dataset must exist, have `mountpoint=/tmp`, and have a
-          snapshot called `${pristineSnapshot}` with absolutely no
-          contents, to facilitate fast reset to that blank state on each boot.
-        - The `/nix` sub-dataset must exist and have `mountpoint=/nix`, to
-          contain the Nix store
-
-        Note that this module does not persist `/home`, so unless user home(s)
-        are on a separate dataset or filesystem, they will be ephemeral.
-      '';
-    };
   };
   config = mkIf config.sn.statelessRoot (mkMerge [
     # Default, baseline config
@@ -53,6 +19,7 @@ in
       environment.persistence."/nix/persist" = {
         hideMounts = true;
         directories = [
+          "/srv"
           "/var/cron"
           "/var/lib"
           "/var/log"
@@ -70,17 +37,56 @@ in
       '';
     }
     # ZFS-backed setup
-    (mkIf (config.sn.statelessRootPool != null) (let
-      rpool = config.sn.statelessRootPool;
-      abstractRoot = "${rpool}/${config.sn.statelessRootDataset}";
+    (mkIf (config.boot.zfs.rootPool != null) (let
+      inherit (config.boot.zfs) rootPool rootDataset;
+      abstractRoot = "${rootPool}/${config.boot.zfs.rootDataset}";
     in {
       fileSystems = {
         "/nix/persist" = dsToBootFs "${abstractRoot}/nix/persist";
         "/nix/persist/etc" = dsToBootFs "${abstractRoot}/nix/persist/etc";
+        "/nix/persist/srv" = dsToBootFs "${abstractRoot}/nix/persist/srv";
         "/nix/persist/var" = dsToBootFs "${abstractRoot}/nix/persist/var";
         "/nix/persist/var/lib" = dsToBootFs "${abstractRoot}/nix/persist/var/lib";
         "/nix/persist/var/log" = dsToBootFs "${abstractRoot}/nix/persist/var/log";
       };
+      boot.initrd.postDeviceCommands = mkAfter ''
+        echo "Rolling back root to pristine state"
+        zfs rollback -r ${escapeShellArg config.fileSystems."/".device}@${escapeShellArg pristineSnapshot}
+        echo "Rolling back tmp to pristine state"
+        zfs rollback -r ${escapeShellArg config.fileSystems."/tmp".device}@${escapeShellArg pristineSnapshot}
+      '';
+      disk.fileSystems.zfs.pools.${rootPool}.datasets = {
+        "HOMES/shados".postCreationMountHook = ''
+          chown -R ${toString config.users.users.shados.uid}:${toString config.ids.gids.users} "$mountpoint"
+        '';
+        "${rootDataset}/tmp".postCreationHook = ''
+          zfs snapshot "$dataset"@${escapeShellArg pristineSnapshot}
+        '';
+        "${rootDataset}/root" = {
+          postCreationHook = ''
+            zfs snapshot "$dataset"@${escapeShellArg pristineSnapshot}
+          '';
+          properties = {
+            checksum = "skein";
+            compression = "zle";
+            sync = "disabled";
+            "com.sun:auto-snapshot" = "false";
+          };
+        };
+      };
+      boot.tmp.cleanOnBoot = mkForce false;
+
+      # Integrate with zfs-mount-generator
+      environment.persistence."/nix/persist".directories = [
+        "/etc/zfs/zfs-list.cache"
+      ];
+      # `postBootCommands` run prior to systemd starting, allowing us to ensure
+      # the zfs-list.cache file for the root pool is in place prior to
+      # zfs-mount-generator being invoked by systemd
+      boot.postBootCommands = ''
+        mkdir -p /etc/zfs/zfs-list.cache
+        cp /nix/persist/etc/zfs/zfs-list.cache/* /etc/zfs/zfs-list.cache/
+      '';
     }))
     # Integrations with various other modules
     (mkIf (config.boot.initrd.storeSecrets != {}) {
