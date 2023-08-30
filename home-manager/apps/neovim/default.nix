@@ -333,40 +333,40 @@ in
         ];
       };
       rust-vim.enable = true;
-      # vimtex = {
-      "lervag/vimtex" = {
-        enable = true;
-        for = "tex";
-        binDeps = with pkgs; [
-          neovim-remote
-          zathura
-        ];
-        extraConfig = ''
-          g.vimtex_compiler_progname = "${pkgs.neovim-remote}/bin/nvr"
-          g.vimtex_compiler_method = "latexmk"
-          g.vimtex_compiler_latexmk = {
-            build_dir: "build"
-          }
-          g.vimtex_view_method = "zathura"
-          g.vimtex_view_use_temp_files = 1
-          g.vimtex_disable_recursive_main_file_detection = 1
-          -- Just to prevent vim occasionally deciding we're using 'plaintex' for no
-          -- apparent reason
-          g.tex_flavor = "latex"
-          -- Turn auto-writing on so we get more of a 'live' PDF preview
-          cmd 'autocmd vimrc FileType tex silent! AutoSaveToggle'
-          -- Turn off the horrific 'conceal' anti-feature; VIM is not a WYSIWYG editor FFS
-          g.vimtex_syntax_conceal = {
-            accents: 0
-            greek: 0
-            math_bounds: 0
-            math_delimiters: 0
-            math_super_sub: 0
-            math_symbols: 0
-            styles: 0
-          }
-          '';
-      };
+      # TODO re-enable and test
+      # "lervag/vimtex" = {
+      #   enable = true;
+      #   for = "tex";
+      #   binDeps = with pkgs; [
+      #     neovim-remote
+      #     zathura
+      #   ];
+      #   extraConfig = ''
+      #     g.vimtex_compiler_progname = "${pkgs.neovim-remote}/bin/nvr"
+      #     g.vimtex_compiler_method = "latexmk"
+      #     g.vimtex_compiler_latexmk = {
+      #       build_dir: "build"
+      #     }
+      #     g.vimtex_view_method = "zathura"
+      #     g.vimtex_view_use_temp_files = 1
+      #     g.vimtex_disable_recursive_main_file_detection = 1
+      #     -- Just to prevent vim occasionally deciding we're using 'plaintex' for no
+      #     -- apparent reason
+      #     g.tex_flavor = "latex"
+      #     -- Turn auto-writing on so we get more of a 'live' PDF preview
+      #     cmd 'autocmd vimrc FileType tex silent! AutoSaveToggle'
+      #     -- Turn off the horrific 'conceal' anti-feature; VIM is not a WYSIWYG editor FFS
+      #     g.vimtex_syntax_conceal = {
+      #       accents: 0
+      #       greek: 0
+      #       math_bounds: 0
+      #       math_delimiters: 0
+      #       math_super_sub: 0
+      #       math_symbols: 0
+      #       styles: 0
+      #     }
+      #     '';
+      # };
       elm-vim = {
         enable = true;
         extraConfig = ''
