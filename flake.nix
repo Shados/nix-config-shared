@@ -49,5 +49,11 @@
         ./shared/overlays.nix
       ];
     };
+    openWRTModules.default = { ... }: {
+      imports = [
+        # ./openwrt/default.nix
+        ./openwrt/modules.nix
+      ];
+    };
   };
 }
