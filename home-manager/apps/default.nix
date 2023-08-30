@@ -1,5 +1,6 @@
 { config, lib, pkgs, inputs, ... }:
 let
+  inherit (lib) optionals;
   pins = import ../../pins;
   inherit (pins) envy;
   # envy = /home/shados/technotheca/artifacts/media/software/nix/envy;
@@ -127,5 +128,10 @@ in
       else:
           print(quote(sys.stdin.read()))
     '')
+  ]
+  # TODO More precise "graphical-only" check would be nice, so as to not
+  # presume X11/xorg usage
+  ++ optionals config.xsession.enable [
+    libsecret
   ];
 }
