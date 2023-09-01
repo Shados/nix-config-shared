@@ -11,7 +11,7 @@
 { config, lib, pkgs, ... }:
 let
   cfg = config.boot.initrd;
-  inherit (lib) attrValues concatMapStringsSep escapeShellArg hasPrefix mkIf mkOption optional types;
+  inherit (lib) all attrValues concatMapStringsSep escapeShellArg hasPrefix mkIf mkOption optional types;
   # NOTE: This is *not* equivalent to nixpkgs.lib.isStorePath, because that
   # only returns true for top-level store paths, not files contained *within*
   # store paths.
@@ -34,14 +34,15 @@ let
   storeSecretType = types.submodule ({ config, ... }: {
     options = {
       source = mkOption {
-        type = types.either sopsSecretType storePathType;
+        type = with types; nullOr (either sopsSecretType storePathType);
+        default = null;
         description = ''
           Path or string coercible to path, for a file contained within the Nix
           store, or for a sops-nix secret file.
         '';
       };
       hash = mkOption {
-        type = sha256HashType;
+        type = types.nullOr sha256HashType;
         description = ''
           The sha256 hash of the source file. Will be calculated on the fly if
           the source is a Nix store path, otherwise must be supplied manually.
@@ -53,13 +54,13 @@ let
           else null;
       };
       path = mkOption {
-        type = types.path;
+        type = with types; nullOr path;
         description = ''
           The non-store path the file will be copied to during activation.
           Cannot be set manually, this attribute is used to reference the path
           that will be used.
         '';
-        default = "${cfg.secretsDir}/${config.hash}";
+        default = if config.hash != null then "${cfg.secretsDir}/${config.hash}" else null;
         readOnly = true;
       };
     };
@@ -70,6 +71,9 @@ in
     boot.initrd.storeSecrets = mkOption {
       type = types.attrsOf storeSecretType;
       default = {};
+      description = ''
+        Secrets to be copied to a persistent content-addressed location.
+      '';
     };
     boot.initrd.secretsDir = mkOption {
       type = types.path;
@@ -77,12 +81,21 @@ in
 
       description = ''
         The path to store initrd secrets in, where they will be copied into
-        the initrd from on every rebuild of the initrd-secrets files..
+        the initrd from on every rebuild of the initrd-secrets files.
       '';
     };
   };
 
   config = mkIf (cfg.storeSecrets != {}) {
+    assertions = [
+      { assertion = all (secret: secret.source != null) (attrValues cfg.storeSecrets);
+        message = "boot.initrd.storeSecrets.<name>.source cannot be null";
+      }
+      { assertion = all (secret: secret.hash != null) (attrValues cfg.storeSecrets);
+        message = "boot.initrd.storeSecrets.<name>.hash cannot be null";
+      }
+    ];
+
     system.activationScripts.initrdStoreSecrets.text = ''
       function populateInitrdStoreSecretsDir {
         echo "Ensuring initrd store-secrets directory is populated"
