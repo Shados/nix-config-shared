@@ -98,6 +98,10 @@ let
     (types.enum (enumList ++ [ "on" "off" ]));
   mkNullDefaultProp = attrs: mkOption (attrs // { default = null; type = types.nullOr attrs.type; });
 
+  propDescription = ''
+    See `man zfsprops`.
+  '';
+
   zfsPoolType = types.submodule ({ config, name, ... }: {
     options.name = mkOption {
       type = with types; str;
@@ -170,14 +174,17 @@ let
         freeformType = with types; attrsOf (nullOr str);
         options.acltype = mkNullDefaultProp {
           type = with types; enum [ "off" "nfsv4" "posix" "noacl" "posixacl" ];
+          description = propDescription;
         };
         options.atime = mkNullDefaultProp {
           type = boolStrType;
+          description = propDescription;
         };
         options.checksum = mkNullDefaultProp {
           type = boolEnumType [
             "fletcher2" "fletcher4" "sha256" "noparity" "sha512" "skein" "edonr"
           ];
+          description = propDescription;
         };
         options.compression = mkNullDefaultProp {
           type = boolMatchingStrType
@@ -188,17 +195,21 @@ let
             +"(zstd(-([1-9])|(1[0-9]))?)|" # TODO verify/sanitise these last two
             +"(zstd-fast(-(1000|[1-9][0-9]?[0-9]?))?)")
           ;
+          description = propDescription;
         };
         options.copies = mkNullDefaultProp {
           type = with types; ints.between 1 3;
+          description = propDescription;
         };
         options.devices = mkNullDefaultProp {
           type = boolStrType;
+          description = propDescription;
         };
         options.dedup = mkNullDefaultProp {
           type = boolEnumType [
             "verify" "sha256" "sha256,verify" "sha512" "sha512,verify" "skein" "skein,verify" "edonr,verify"
           ];
+          description = propDescription;
         };
         # TODO: encryption is pretty much the only creation-time dataset
         # property I'm interested in
@@ -217,39 +228,51 @@ let
         # };
         options.exec = mkNullDefaultProp {
           type = boolStrType;
+          description = propDescription;
         };
         options.logbias = mkNullDefaultProp {
           type = with types; enum [ "latency" "throughput" ];
+          description = propDescription;
         };
         options.mountpoint = mkNullDefaultProp {
           type = with types; either (enum [ "none" "legacy" ]) path;
+          description = propDescription;
         };
         options.primarycache = mkNullDefaultProp {
           type = with types; enum [ "all" "none" "metadata" ];
+          description = propDescription;
         };
         options.quota = mkNullDefaultProp {
           type = with types; either (enum [ "none" ]) str;
+          description = propDescription;
         };
         options.recordsize = mkNullDefaultProp {
           type = with types; str;
+          description = propDescription;
         };
         options.refreservation = mkNullDefaultProp {
           type = with types; either (enum [ "none" "auto" ]) str;
+          description = propDescription;
         };
         options.relatime = mkNullDefaultProp {
           type = boolStrType;
+          description = propDescription;
         };
         options.reservation = mkNullDefaultProp {
           type = with types; either (enum [ "none" ]) str;
+          description = propDescription;
         };
         options.secondarycache = mkNullDefaultProp {
           type = with types; enum [ "all" "none" "metadata" ];
+          description = propDescription;
         };
         options.setuid = mkNullDefaultProp {
           type = boolStrType;
+          description = propDescription;
         };
         options.sync = mkNullDefaultProp {
           type = with types; enum [ "standard" "always" "disabled" ];
+          description = propDescription;
         };
         # TODO should only be configured for volume datasets, and can't be unset
         # options.volsize = mkNullDefaultProp {
@@ -257,6 +280,7 @@ let
         # };
         options.xattr = mkNullDefaultProp {
           type = boolEnumType [ "sa" ];
+          description = propDescription;
         };
       };
     };
