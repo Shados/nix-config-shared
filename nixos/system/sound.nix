@@ -1,7 +1,7 @@
 { config, pkgs, lib, ... }:
 
-with lib;
 let
+  inherit (lib) mkDefault mkIf mkOption types;
   cfg = config.fragments.sound;
 in
 {
@@ -19,8 +19,8 @@ in
 
   config = mkIf (! cfg.enable) {
     sound = {
-      enable = false;
-      enableOSSEmulation = false;
+      enable = mkDefault false;
+      enableOSSEmulation = mkDefault false;
     };
   };
 }
