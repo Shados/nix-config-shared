@@ -1,12 +1,12 @@
 { config, lib, pkgs, ... }:
-
-with lib;
 let
+  inherit (lib) concatMapStringsSep concatStringsSep length listToAttrs literalExpression mapAttrs mkEnableOption mkIf mkOption optional optionalAttrs types;
+
   cfg = config.services.dnscrypt-proxy2;
 
   # TODO: genericise and move to lib?
   jsonCfgFile = pkgs.writeText "dnscrypt-proxy2.json" (builtins.toJSON cfg.settings);
-  tomlCfgFile = pkgs.runCommandNoCCLocal "dnscrypt-proxy2.toml" ''
+  tomlCfgFile = pkgs.runCommandNoCCLocal "dnscrypt-proxy2.toml" { } ''
     ${pkgs.remarshal}/bin/json2toml < ${jsonCfgFile} > $out
   '';
 
@@ -176,7 +176,7 @@ let
 in
 {
   meta = {
-    maintainers = with maintainers; [ arobyn ];
+    maintainers = with lib.maintainers; [ arobyn ];
   };
 
   # TODO options:
