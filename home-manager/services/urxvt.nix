@@ -99,7 +99,7 @@ in
       };
     };
     home.file.${config.xresources.path}.onChange = optionalString cfg.daemon ''
-      if systemctl --user is-active urxvtd.service; then
+      if systemctl --user is-active urxvtd.service 2>/dev/null; then
         systemctl --user reload urxvtd.service
       fi
     '';
