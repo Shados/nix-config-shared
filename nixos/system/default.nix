@@ -87,8 +87,7 @@ in
 
       documentation.nixos = {
         enable = mkDefault true;
-        # Disabled until nixpkgs issue #90124 is resolved
-        # includeAllModules = true;
+        includeAllModules = true;
       };
     }
     { # Workaround for openzfs/zfs issue #9810
