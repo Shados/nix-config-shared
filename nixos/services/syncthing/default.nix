@@ -6,6 +6,5 @@ with lib;
   ];
   imports = [
     ./module.nix
-    ./data.nix
   ];
 }
