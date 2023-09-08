@@ -25,8 +25,9 @@ in
     explorer.pkg runner.pkg music.pkg
 
     xorg.xset xorg.xrdb nitrogen tint2 networkmanagerapplet pidgin-wrapped
-    dunst libnotify
+    libnotify
   ];
+  services.wired.enable = true;
   xsession.windowManager.openbox = {
     prependPaths = [
       "${config.home.homeDirectory}/technotheca/artifacts/packages/bin"
