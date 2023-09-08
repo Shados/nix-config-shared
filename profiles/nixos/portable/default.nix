@@ -62,11 +62,10 @@ in
         grub = {
           enable = true;
           efiSupport = mkDefault true;
-          zfsSupport = true;
           efiInstallAsRemovable = true;
         };
         efi = {
-          canTouchEfiVariables = false;
+          canTouchEfiVariables = mkForce false;
           efiSysMountPoint = "/boot";
         };
       };
