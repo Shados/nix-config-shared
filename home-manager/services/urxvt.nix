@@ -58,13 +58,6 @@ in
             sha256 = "sha256-gVPT27G6vVA9SiKuiYt4JLYikShvexCqlzptU7Rvumc=";
             extraPrefix = "";
           })
-          # FIXME: remove this once I'm on nixpkgs including PR #249166
-          (super.fetchpatch {
-            name = "perl538-locale-c.patch";
-            url = "https://github.com/exg/rxvt-unicode/commit/16634bc8dd5fc4af62faf899687dfa8f27768d15.patch";
-            excludes = [ "Changes" ];
-            sha256 = "sha256-JVqzYi3tcWIN2j5JByZSztImKqbbbB3lnfAwUXrumHM=";
-          })
         ];
         configureFlags = oa.configureFlags or [] ++ [
           "--enable-24-bit-color"
