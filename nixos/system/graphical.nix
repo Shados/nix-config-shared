@@ -85,6 +85,13 @@ in
         mime.enable = true;
         sounds.enable = true;
         portal.enable = true;
+        portal.extraPortals = [
+          pkgs.xdg-desktop-portal-xapp
+          (pkgs.xdg-desktop-portal-gtk.override {
+            # Do not build portals that we already have.
+            buildPortalsInGnome = false;
+          })
+        ];
       };
       environment.systemPackages = with pkgs; with pkgs.xorg; [
         xmodmap
@@ -151,7 +158,6 @@ in
         gnome.glib-networking.enable = false;
       };
       systemd.packages = with pkgs.gnome3; [ gnome-session ];
-      xdg.portal.extraPortals = [ pkgs.gnome3.gnome-shell ];
       fonts.fonts = with pkgs; [
         cantarell-fonts
         dejavu_fonts
