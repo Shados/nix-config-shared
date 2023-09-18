@@ -129,6 +129,17 @@ let
          * [SETUP-WEB] Known to cause issues with older modems/routers and some sites e.g vimeo, icloud, instagram ***/
         unlockPref("network.http.referer.XOriginPolicy"); pref("network.http.referer.XOriginPolicy", 1);
 
+        // WebRTC santization
+        /* 2002: force WebRTC inside the proxy [FF70+] ***/
+        unlockPref("media.peerconnection.ice.proxy_only_if_behind_proxy"); pref("media.peerconnection.ice.proxy_only_if_behind_proxy", false);
+        // Force usage of proxy + no direct ICE candidates, TURN only
+        pref("media.peerconnection.ice.proxy_only", true);
+        pref("media.peerconnection.ice.relay_only", true);
+        // Use *my* server for TURN
+        pref("media.peerconnection.ice.use_document_iceservers", false);
+        // Example only, actual setting contains auth secret
+        // pref("media.peerconnection.ice.default_iceservers", [{"urls": "turn:turnserver", "username": "user", "credential": "password"}]);
+
         /* 2302: disable service workers [FF32, FF44-compat]
          * Service workers essentially act as proxy servers that sit between web apps, and the
          * browser and network, are event driven, and can control the web page/site they are associated
