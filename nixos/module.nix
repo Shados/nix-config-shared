@@ -9,6 +9,7 @@ in
     ./bespoke
     # Standard userspace tooling & applications
     ./apps
+    ./fixes
     # Meta modules related to Nix/OS configuration itself
     ./meta
     # Security-focused configuration
