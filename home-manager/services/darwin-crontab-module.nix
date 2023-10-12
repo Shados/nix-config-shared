@@ -55,7 +55,7 @@ in
       '' else ''
         echo "Installing the crontab from generated ${tabfile}"
       ''}
-      $DRY_RUN_CMD crontab "$TMP_CRON"
+      $DRY_RUN_CMD /usr/bin/crontab "$TMP_CRON"
       rm -f "$TMP_CRON"
     '';
   };
