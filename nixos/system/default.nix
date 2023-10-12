@@ -20,7 +20,6 @@ in
     ./smtp.nix
     ./sound.nix
     ./ssh
-    ./systemd.nix
     ./tpm2.nix
     ./users.nix
     ./zfs.nix
