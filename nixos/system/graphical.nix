@@ -155,7 +155,6 @@ in
         # This is like 70% of what `services.gnome3.core-shell.enable = true;` does
         gvfs.enable = true;
         gnome.gnome-settings-daemon.enable = true;
-        gnome.glib-networking.enable = false;
       };
       systemd.packages = with pkgs.gnome3; [ gnome-session ];
       fonts.fonts = with pkgs; [
