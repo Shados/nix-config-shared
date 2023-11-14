@@ -277,32 +277,35 @@ in
       # Flexible word-variant tooling; mostly useful to me for 'coercing' between
       # different variable-naming styles (e.g. snake_case to camelCase via `crc`)
       vim-abolish.enable = true;
-      nvim-compe = {
+      nvim-cmp = {
         enable = true;
+        # TODO lspconfig stuff, snippets
         extraConfig = ''
           set "shortmess", "#{o["shortmess"]}c"
           set "completeopt", "menuone,noselect"
-          compe = require "compe"
+          cmp = require "cmp"
           -- TODO add treesitter source once I have ts set up?
-          compe.setup
-            enabled: true
-            autocomplete: true
-            min_length: 1
-            preselect: enable
-            source:
-              path: true
-              buffer: true
-              nvim_lsp: true
-              nvim_lua: true
-
-          -- Mappings
-          map "i", "<C-Space>", "compe#complete()", { noremap: true, silent: true, expr: true }
-          enter_map_keys = string.format '%c%c%cdelimitMateCR', 0x80, 253, 83 -- K_SPECIAL, KS_EXTRA, KE_PLUG == "\<Plug>"
-          map "i", "<CR>", "compe#confirm({'keys': '#{enter_map_keys}, 'mode': '''})", { noremap: true, silent: true, expr: true }
-          map "i", "<C-e>", "compe#close('<C-e')", { noremap: true, silent: true, expr: true }
-          map "i", "<C-f>", "compe#scroll({'delta': +4})", { noremap: true, silent: true, expr: true }
-          map "i", "<C-d>", "compe#scroll({'delta': -4})", { noremap: true, silent: true, expr: true }
+          cmp.setup
+            sources: cmp.config.sources {
+              { name: "path" },
+              { name: "buffer" },
+              { name: "nvim_lsp" },
+              { name: "nvim_lua" }
+            }
+            mapping:
+              ["<C-d>"]: cmp.mapping.scroll_docs(-4)
+              ["<C-f>"]: cmp.mapping.scroll_docs(4)
+              ["<C-Space>"]: cmp.mapping.complete()
+              ["<C-e>"]: cmp.mapping.abort()
+              ["<CR>"]: cmp.mapping.confirm({ select: true })
         '';
+          # cmp.setup
+          #   mapping: cmp.mapping.preset.insert({
+          #   })
+        # '';
+        dependencies = [
+          "cmp-buffer" "cmp-path" "cmp-nvim-lsp" "cmp-nvim-lua"
+        ];
       };
       # Completion sources
       # TODO
