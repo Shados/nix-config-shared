@@ -157,7 +157,7 @@ in
         gnome.gnome-settings-daemon.enable = true;
       };
       systemd.packages = with pkgs.gnome3; [ gnome-session ];
-      fonts.fonts = with pkgs; [
+      fonts.packages = with pkgs; [
         cantarell-fonts
         dejavu_fonts
         source-code-pro # Default monospace font in 3.32
