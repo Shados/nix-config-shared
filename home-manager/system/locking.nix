@@ -42,6 +42,11 @@ in
         $locker &
         LOCKER_PID="$!"
 
+        # Get logind session D-Bus path
+        session_path="$(${busctl} call org.freedesktop.login1 /org/freedesktop/login1 org.freedesktop.login1.Manager ListSessions -j | ${jq} -r ".data[][] | select(.[0] == \"$XDG_SESSION_ID\") | .[4]")"
+        # Tell logind we're locked
+        ${busctl} call org.freedesktop.login1 "$session_path" org.freedesktop.login1.Session SetLockedHint b true
+
         # If we've been passed a XSS_SLEEP_LOCK_FD, we need to ensure we clean
         # it up; once both us and the locker have closed it, systemd will know
         # it is OK to proceed to sleep
@@ -52,10 +57,17 @@ in
         # Wait for the locker to exit
         wait
 
+
+        # Tell logind we're unlocked
+        ${busctl} call org.freedesktop.login1 "$session_path" org.freedesktop.login1.Session SetLockedHint b false &
+
         # Now that we're unlocked again, trigger a logind Unlock event; we can
         # hook this in dbus (or in systemd via systemd-lock-handler)
-        ${pkgs.systemd}/bin/loginctl unlock-session &
+        ${loginctl} unlock-session &
       '';
+      busctl = "${pkgs.systemd}/bin/busctl";
+      loginctl = "${pkgs.systemd}/bin/loginctl";
+      jq = "${pkgs.jq}/bin/jq";
     in {
       # FIXME: Find a way to just enable the existing, packaged user file?
       systemd.user.services.systemd-lock-handler = {
