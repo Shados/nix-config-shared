@@ -1,7 +1,9 @@
 { config, lib, inputs, pkgs, ... }:
 let
-  inherit (lib) escapeShellArg mkAfter mkIf mkForce mkMerge mkOption singleton types;
+  inherit (lib) escapeShellArg mkAfter mkIf mkForce mkMerge mkOption optionalAttrs optionals singleton types;
   inherit (inputs.lib.fs) dsToBootFs dsToFs pristineSnapshot;
+
+  usingZfs = config.boot.zfs.rootPool != null;
 in
 {
   options = {
@@ -19,10 +21,11 @@ in
       environment.persistence."/nix/persist" = {
         hideMounts = true;
         directories = [
-          "/srv"
           "/var/cron"
           "/var/lib"
           "/var/log"
+        ] ++ optionals (! usingZfs) [
+          "/srv"
         ];
         files = [
           "/etc/machine-id"
@@ -37,17 +40,17 @@ in
       '';
     }
     # ZFS-backed setup
-    (mkIf (config.boot.zfs.rootPool != null) (let
+    (mkIf usingZfs (let
       inherit (config.boot.zfs) rootPool rootDataset;
       abstractRoot = "${rootPool}/${config.boot.zfs.rootDataset}";
     in {
       fileSystems = {
         "/nix/persist" = dsToBootFs "${abstractRoot}/nix/persist";
         "/nix/persist/etc" = dsToBootFs "${abstractRoot}/nix/persist/etc";
-        "/nix/persist/srv" = dsToBootFs "${abstractRoot}/nix/persist/srv";
         "/nix/persist/var" = dsToBootFs "${abstractRoot}/nix/persist/var";
         "/nix/persist/var/lib" = dsToBootFs "${abstractRoot}/nix/persist/var/lib";
         "/nix/persist/var/log" = dsToBootFs "${abstractRoot}/nix/persist/var/log";
+        "/srv" = dsToFs "${abstractRoot}/srv";
       };
       boot.initrd.postDeviceCommands = mkAfter ''
         echo "Rolling back root to pristine state"
