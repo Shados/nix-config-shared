@@ -87,29 +87,35 @@ in
 {
   nixpkgs.overlays = [
     (self: super: {
-      # cataclysm-dda-git = (super.cataclysm-dda-git.A rec {
-      #   version = "2022-06-20-2312";
-      #   rev = "cdda-experimental-${version}";
-      #   sha256 = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
-      # }).withMods mods;
+      cdda = self.cataclysm-dda-git.withMods [];
       cataclysm-dda-git = let
-        inherit (super.cataclysmDDA) attachPkgs pkgs;
-      in (attachPkgs pkgs (super.cataclysm-dda-git.overrideAttrs (oa: rec {
-        pname = oa.pname + "-git";
-        version = "local";
+        basePkg = (super.cataclysm-dda-git.override(oa: rec {
+          version = "2023-12-01-0145";
+          rev = "cdda-experimental-${version}";
+          sha256 = "sha256-8PnBrkKJKFp0Tb63J1fo2NGebY+PlymZ+xNhauT0S3s=";
+        }));
+        overriddenPkg = basePkg.overrideAttrs(oa: {
+          patches = [];
+        });
+      in super.cataclysmDDA.attachPkgs super.cataclysmDDA.pkgs overriddenPkg;
+      # cataclysm-dda-git = let
+      #   inherit (super.cataclysmDDA) attachPkgs pkgs;
+      # in (attachPkgs pkgs (super.cataclysm-dda-git.overrideAttrs (oa: rec {
+      #   pname = oa.pname + "-git";
+      #   version = "local";
 
-        patches = [];
+      #   patches = [];
 
-        src = /mnt/thedreamscape/home/shados/technotheca/media/software/source/Cataclysm-DDA;
+      #   src = /mnt/thedreamscape/home/shados/technotheca/media/software/source/Cataclysm-DDA;
 
-        dontStrip = true;
-        makeFlags = oa.makeFlags ++ [
-          "VERSION=git-${version}"
-          # "BACKTRACE=1"
-          "DEBUG_SYMBOLS=1"
-          "STRING_ID_DEBUG=1"
-        ];
-      }))).withMods mods;
+      #   dontStrip = true;
+      #   makeFlags = oa.makeFlags ++ [
+      #     "VERSION=git-${version}"
+      #     # "BACKTRACE=1"
+      #     "DEBUG_SYMBOLS=1"
+      #     "STRING_ID_DEBUG=1"
+      #   ];
+      # }))).withMods mods;
     })
   ];
 }
