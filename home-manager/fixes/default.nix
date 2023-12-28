@@ -169,120 +169,129 @@ with lib;
     #     }
     #   );
     # })
-    # # OBS + WebRTC experimentation
-    # (self: super: let
-    #   inherit (super.lib) getVersion versionAtLeast;
-    # in {
-    #   obs-studio = if versionAtLeast (getVersion super.obs-studio) "30.0.0"
-    #     then super.obs-studio
-    #     else super.obs-studio.overrideAttrs(oa: rec {
-    #       version = "30.0.0-beta2";
+    # OBS + WebRTC experimentation
+    (self: super: let
+      inherit (super.lib) getVersion versionAtLeast;
+    in {
+      obs-studio = if versionAtLeast (getVersion super.obs-studio) "30.0.0"
+        then super.obs-studio
+        else super.obs-studio.overrideAttrs(oa: rec {
+          version = "30.0.2";
 
-    #       src = super.fetchFromGitHub {
-    #         owner = "obsproject"; repo = "obs-studio";
-    #         rev = version;
-    #         sha256 = "sha256-OhsPKLNzA88PecIduB8GsxvyzRwIrdxYQbJVJIspfuQ=";
-    #         fetchSubmodules = true;
-    #       };
+          src = super.fetchFromGitHub {
+            owner = "obsproject"; repo = "obs-studio";
+            rev = version;
+            sha256 = "sha256-8pX1kqibrtDIaE1+/Pey1A5bu6MwFTXLrBOah4rsF+4=";
+            fetchSubmodules = true;
+          };
 
-    #       # patches = oa.patches ++ [
-    #       #   # "${inputs.nixpkgs.outPath}/pkgs/applications/video/obs-studio/Enable-file-access-and-universal-access-for-file-URL.patch"
-    #       #   # "${inputs.nixpkgs.outPath}/pkgs/applications/video/obs-studio/fix-nix-plugin-path.patch"
-    #       #   (super.fetchpatch {
-    #       #     name = "webrtc-av1.patch";
-    #       #     sha256 = "sha256-TbzRddx9e9Kc4zBR69CRN/lpr4sy7rSxX8qxMG4RxHk=";
-    #       #     url = "https://github.com/obsproject/obs-studio/pull/9331.patch";
-    #       #   })
-    #       #   # (super.fetchpatch {
-    #       #   #   name = "libdatachannel-cpp.patch";
-    #       #   #   sha256 = "sha256-froBZRUA/LwKM/XoDOzXl0BW6nic4UP4LRad0Gyj9xQ=";
-    #       #   #   url = "https://github.com/obsproject/obs-studio/pull/9286.patch";
-    #       #   # })
-    #       # #   # NOTE: conflicts with av1 patch in ways that aren't entirely trivial to fix
-    #       # #   # (super.fetchpatch {
-    #       # #   #   name = "webrtc-aac.patch";
-    #       # #   #   sha256 = "sha256-X+4qlg0RcuhYDCtm+xMrNWGIB90RGVGljXqFMpZ72L8=";
-    #       # #   #   url = "https://github.com/obsproject/obs-studio/pull/9567.patch";
-    #       # #   # })
-    #       # ];
+          # patches = oa.patches ++ [
+          #   # "${inputs.nixpkgs.outPath}/pkgs/applications/video/obs-studio/Enable-file-access-and-universal-access-for-file-URL.patch"
+          #   # "${inputs.nixpkgs.outPath}/pkgs/applications/video/obs-studio/fix-nix-plugin-path.patch"
+          #   (super.fetchpatch {
+          #     name = "webrtc-av1.patch";
+          #     sha256 = "sha256-TbzRddx9e9Kc4zBR69CRN/lpr4sy7rSxX8qxMG4RxHk=";
+          #     url = "https://github.com/obsproject/obs-studio/pull/9331.patch";
+          #   })
+          #   # (super.fetchpatch {
+          #   #   name = "libdatachannel-cpp.patch";
+          #   #   sha256 = "sha256-froBZRUA/LwKM/XoDOzXl0BW6nic4UP4LRad0Gyj9xQ=";
+          #   #   url = "https://github.com/obsproject/obs-studio/pull/9286.patch";
+          #   # })
+          # #   # NOTE: conflicts with av1 patch in ways that aren't entirely trivial to fix
+          # #   # (super.fetchpatch {
+          # #   #   name = "webrtc-aac.patch";
+          # #   #   sha256 = "sha256-X+4qlg0RcuhYDCtm+xMrNWGIB90RGVGljXqFMpZ72L8=";
+          # #   #   url = "https://github.com/obsproject/obs-studio/pull/9567.patch";
+          # #   # })
+          # ];
 
-    #       cmakeFlags = oa.cmakeFlags ++ [
-    #         "-DENABLE_QSV11=OFF"
-    #         "-DOBS_VERSION_OVERRIDE=${version}"
-    #       ];
+          cmakeFlags = oa.cmakeFlags ++ [
+            "-DENABLE_QSV11=OFF"
+            "-DOBS_VERSION_OVERRIDE=${version}"
+          ];
 
-    #       buildInputs = oa.buildInputs ++ [
-    #         self.qrcodegencpp
-    #         self.libdatachannel-obs
-    #       ];
-    #     });
-    #   libdatachannel-obs = super.libdatachannel.overrideAttrs(oa: rec {
-    #     version = "0.19.0-alpha.4";
-    #     src = super.fetchFromGitHub {
-    #       owner = "paullouisageneau"; repo = "libdatachannel";
-    #       rev = "v${version}";
-    #       sha256 = "sha256-PRH0XfO+nr6KQfWmeV5S7VsWF6HxFB44DSrO1I9CI6g=";
-    #     };
+          buildInputs = oa.buildInputs ++ [
+            self.qrcodegencpp
+            self.libdatachannel-obs
+          ];
 
-    #     buildInputs = oa.buildInputs or [] ++ [
-    #       self.mbedtls
-    #       super.plog
-    #       super.usrsctp
-    #     ];
+          postFixup = ''
+            addOpenGLRunpath $out/lib/lib*.so
+            addOpenGLRunpath $out/lib/obs-plugins/*.so
 
-    #     cmakeFlags = oa.cmakeFlags ++ [
-    #       "-DUSE_SYSTEM_PLOG=ON"
-    #       "-DUSE_MBEDTLS=1"
-    #     ];
+            # Link libcef again after patchelfing other libs
+            rm $out/lib/obs-plugins/libcef.so
+            ln -s ${super.libcef}/lib/* $out/lib/obs-plugins/
+          '';
+        });
+      libdatachannel-obs = super.libdatachannel.overrideAttrs(oa: rec {
+        version = "0.19.0-alpha.4";
+        src = super.fetchFromGitHub {
+          owner = "paullouisageneau"; repo = "libdatachannel";
+          rev = "v${version}";
+          sha256 = "sha256-PRH0XfO+nr6KQfWmeV5S7VsWF6HxFB44DSrO1I9CI6g=";
+        };
 
-    #     postPatch = let
-    #       customUsrsctp = super.usrsctp.overrideAttrs (finalAttrs: previousAttrs: {
-    #         version = "unstable-2023-08-14";
-    #         src = super.fetchFromGitHub {
-    #           owner = "sctplab";
-    #           repo = "usrsctp";
-    #           rev = "5ca29ac7d8055802c7657191325c06386640ac24";
-    #           hash = "sha256-QjRis6c3WfTIfhkRmysQtJEuC599cGluAbb9i4p1cK0=";
-    #         };
-    #       });
-    #     in ''
-    #       mkdir -p deps/usrsctp
-    #       cp -r --no-preserve=mode ${pkgs.srcOnly customUsrsctp}/. deps/usrsctp
-    #     '';
-    #   });
-    #   mbedtls = super.mbedtls.overrideAttrs(oa: rec {
-    #     postConfigure = oa.postConfigure + ''
-    #       perl scripts/config.pl set MBEDTLS_SSL_DTLS_SRTP
-    #     '';
-    #   });
-    #   obs-studio-plugins = super.obs-studio-plugins // {
-    #     obs-pipewire-audio-capture = if versionAtLeast (getVersion super.obs-studio-plugins.obs-pipewire-audio-capture) "1.1.1"
-    #       then super.obs-studio-plugins.obs-pipewire-audio-capture
-    #       else super.obs-studio-plugins.obs-pipewire-audio-capture.overrideAttrs(oa: rec {
-    #         version = "1.1.1";
-    #         src = super.fetchFromGitHub {
-    #           owner = "dimtpap";
-    #           repo = "obs-pipewire-audio-capture";
-    #           rev = version;
-    #           sha256 = "sha256-D4ONz/4S5Kt23Tmfa6jvw0X7680R9YDqG8/N6HhIQLE=";
-    #         };
-    #         preConfigure = ":";
-    #       });
-    #   };
-    #   qrcodegencpp = super.qrcodegen.overrideAttrs(oa: {
-    #     pname = "qrcodegencpp";
-    #     sourceRoot = "${oa.src.name}/cpp";
-    #     doCheck = false;
-    #     installPhase = ''
-    #       runHook preInstall
+        buildInputs = oa.buildInputs or [] ++ [
+          self.mbedtls
+          super.plog
+          super.usrsctp
+        ];
 
-    #       install -Dt $out/lib/ libqrcodegencpp.a
-    #       install -Dt $out/include/qrcodegencpp/ qrcodegen.hpp
+        cmakeFlags = oa.cmakeFlags ++ [
+          "-DUSE_SYSTEM_PLOG=ON"
+          "-DUSE_MBEDTLS=1"
+        ];
 
-    #       runHook postInstall
-    #     '';
-    #   });
-    # })
+        postPatch = let
+          customUsrsctp = super.usrsctp.overrideAttrs (finalAttrs: previousAttrs: {
+            version = "unstable-2023-08-14";
+            src = super.fetchFromGitHub {
+              owner = "sctplab";
+              repo = "usrsctp";
+              rev = "5ca29ac7d8055802c7657191325c06386640ac24";
+              hash = "sha256-QjRis6c3WfTIfhkRmysQtJEuC599cGluAbb9i4p1cK0=";
+            };
+          });
+        in ''
+          mkdir -p deps/usrsctp
+          cp -r --no-preserve=mode ${pkgs.srcOnly customUsrsctp}/. deps/usrsctp
+        '';
+      });
+      mbedtls = super.mbedtls.overrideAttrs(oa: rec {
+        postConfigure = oa.postConfigure + ''
+          perl scripts/config.pl set MBEDTLS_SSL_DTLS_SRTP
+        '';
+      });
+      obs-studio-plugins = super.obs-studio-plugins // {
+        obs-pipewire-audio-capture = if versionAtLeast (getVersion super.obs-studio-plugins.obs-pipewire-audio-capture) "1.1.2"
+          then super.obs-studio-plugins.obs-pipewire-audio-capture
+          else super.obs-studio-plugins.obs-pipewire-audio-capture.overrideAttrs(oa: rec {
+            version = "1.1.2";
+            src = super.fetchFromGitHub {
+              owner = "dimtpap";
+              repo = "obs-pipewire-audio-capture";
+              rev = version;
+              sha256 = "sha256-9HPQ17swMlsCnKkYQXIUzEbx2vKuBUfGf58Up2hHVGI=";
+            };
+            preConfigure = ":";
+          });
+      };
+      qrcodegencpp = super.qrcodegen.overrideAttrs(oa: {
+        pname = "qrcodegencpp";
+        sourceRoot = "${oa.src.name}/cpp";
+        doCheck = false;
+        installPhase = ''
+          runHook preInstall
+
+          install -Dt $out/lib/ libqrcodegencpp.a
+          install -Dt $out/include/qrcodegencpp/ qrcodegen.hpp
+
+          runHook postInstall
+        '';
+      });
+    })
   ];
   # Fix for home-manager issues #730 and #909 is using the non-"legacy" systemd
   # script, which for some reason isn't enabled by default
