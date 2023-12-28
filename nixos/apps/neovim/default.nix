@@ -361,7 +361,7 @@ in
         extraConfig = let
         in ''
           g.session_autoload = "no"
-          g.session_autosave = "prompt"
+          -- g.session_autosave = "prompt"
           g.session_autosave_only_with_explicit_session = 1
           -- Session-prefixed command aliases, e.g. OpenSession -> SessionOpen
           g.session_command_aliases = 1
@@ -468,7 +468,6 @@ in
             { header: {'  Bookmarks'}, type: 'bookmarks' },
             { header: {'  Sessions'}, type: 'sessions' },
             { header: {'  Commands'}, type: 'commands' },
-            { header: {'  MRU Current Tree Files by Modification Time'}, type: 'dir' },
           }
           g.startify_skiplist = {
             "^/home/shados/technotheca/cdata"
