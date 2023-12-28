@@ -179,6 +179,8 @@ with lib;
       set-option -ga update-environment " XDG_SESSION_ID"
       # Ease a HM post-installation issue
       set-option -ga update-environment " NIX_PATH"
+      # To ensure graphical shit can be launched across X session restarts
+      set-option -ga update-environment " XAUTHORITY"
     '';
   };
 }
