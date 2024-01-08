@@ -29,10 +29,10 @@
         "homepage": null,
         "owner": "justmiles",
         "repo": "go-markdown2confluence",
-        "rev": "v3.3.1",
-        "sha256": "1j4f9jxxi995hyqqi1895l9daxzar7b4m2c07przxl6b1anr3pn8",
+        "rev": "624f39cc0532134fe5f88f4c7c84f0c257f66af1",
+        "sha256": "1vl4n12l2ylq0i56lrg1skdgfnzqambrfc77b15bb4vl59cq02q6",
         "type": "tarball",
-        "url": "https://github.com/justmiles/go-markdown2confluence/archive/v3.3.1.tar.gz",
+        "url": "https://github.com/justmiles/go-markdown2confluence/archive/624f39cc0532134fe5f88f4c7c84f0c257f66af1.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "telescope-fzy-native.nvim": {
@@ -41,10 +41,10 @@
         "homepage": null,
         "owner": "nvim-telescope",
         "repo": "telescope-fzy-native.nvim",
-        "rev": "7b3d2528102f858036627a68821ccf5fc1d78ce4",
+        "rev": "282f069504515eec762ab6d6c89903377252bf5b",
         "sha256": "13jxrvf7cgzhw5zbf69hcnjf1la3prll780lq07h06wakpyrrm4y",
         "type": "tarball",
-        "url": "https://github.com/nvim-telescope/telescope-fzy-native.nvim/archive/7b3d2528102f858036627a68821ccf5fc1d78ce4.tar.gz",
+        "url": "https://github.com/nvim-telescope/telescope-fzy-native.nvim/archive/282f069504515eec762ab6d6c89903377252bf5b.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "transgui": {
@@ -53,10 +53,10 @@
         "homepage": "",
         "owner": "transmission-remote-gui",
         "repo": "transgui",
-        "rev": "26a1e99d586c82d01a3816f465976db843992205",
-        "sha256": "16wm4f2xzrkrr3gvyn9p4siqv13v99m1jwfb16c4w68gh339sxic",
+        "rev": "b1f5c2334edb6659c04863ef4a534ba1e57284f0",
+        "sha256": "1w8azgjzfdlg5i578d4rbrmv0ackwd5q7c7a0yyx08351rq28ajw",
         "type": "tarball",
-        "url": "https://github.com/transmission-remote-gui/transgui/archive/26a1e99d586c82d01a3816f465976db843992205.tar.gz",
+        "url": "https://github.com/transmission-remote-gui/transgui/archive/b1f5c2334edb6659c04863ef4a534ba1e57284f0.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     }
 }

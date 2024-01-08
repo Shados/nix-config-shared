@@ -86,12 +86,9 @@ in
         sounds.enable = true;
         portal.enable = true;
         portal.extraPortals = [
-          pkgs.xdg-desktop-portal-xapp
-          (pkgs.xdg-desktop-portal-gtk.override {
-            # Do not build portals that we already have.
-            buildPortalsInGnome = false;
-          })
+          pkgs.xdg-desktop-portal-gtk
         ];
+        portal.config.common.default = "gtk";
       };
       environment.systemPackages = with pkgs; with pkgs.xorg; [
         xmodmap
