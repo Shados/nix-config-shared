@@ -89,13 +89,18 @@ in
     (self: super: {
       cdda = self.cataclysm-dda-git.withMods [];
       cataclysm-dda-git = let
-        basePkg = (super.cataclysm-dda-git.override(oa: rec {
-          version = "2023-12-01-0145";
+        basePkg = super.cataclysm-dda-git.override(oa: rec {
+          version = "2024-01-05-0017";
           rev = "cdda-experimental-${version}";
-          sha256 = "sha256-8PnBrkKJKFp0Tb63J1fo2NGebY+PlymZ+xNhauT0S3s=";
-        }));
+          sha256 = "sha256-FfMFfsj28xUC7K8gy0hzEgVjLDQRl9gyTg68jK1cGFA=";
+        });
         overriddenPkg = basePkg.overrideAttrs(oa: {
-          patches = [];
+          patches = [
+            ./remove-crowd-suffocation.patch
+          ];
+          NIX_CFLAGS_COMPILE = oa.NIX_CFLAGS_COMPILE or [] ++ [
+            "-Wno-error=unused-parameter"
+          ];
         });
       in super.cataclysmDDA.attachPkgs super.cataclysmDDA.pkgs overriddenPkg;
       # cataclysm-dda-git = let
