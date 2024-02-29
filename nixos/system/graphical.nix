@@ -76,6 +76,12 @@ in
           # format without an external run-time dependency *is* somewhat
           # insane.
           gdk-pixbuf.modulePackages = [ pkgs.librsvg ];
+
+          inputClassSections = singleton ''
+            Identifier "Universally Configure Compose Key"
+            MatchIsKeyboard "on"
+            Option "XkbOptions" "compose:ralt"
+          '';
         };
       };
       xdg = {
