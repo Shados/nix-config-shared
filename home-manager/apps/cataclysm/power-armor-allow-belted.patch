@@ -1,0 +1,29 @@
+diff --git a/src/character_attire.cpp b/src/character_attire.cpp
+index c1ab16acfc..0efac6afc1 100644
+--- a/src/character_attire.cpp
++++ b/src/character_attire.cpp
+@@ -1205,7 +1205,8 @@ ret_val<void> outfit::power_armor_conflicts( const item &clothing ) const
+             // Allow power armor with compatible parts and integrated (Subdermal CBM and mutant skin armor)
+             if( elem.get_covered_body_parts().make_intersection( clothing.get_covered_body_parts() ).any() &&
+                 !elem.has_flag( flag_POWERARMOR_COMPATIBLE ) && !elem.has_flag( flag_INTEGRATED ) &&
+-                !elem.has_flag( flag_AURA ) ) {
++                !elem.has_flag( flag_AURA ) &&
++                !( elem.has_flag ( flag_BELTED ) && !elem.has_flag( flag_OUTER ) ) ) {
+                 return ret_val<void>::make_failure( _( "Can't wear power armor over other gear!" ) );
+             }
+         }
+@@ -1234,6 +1235,7 @@ ret_val<void> outfit::power_armor_conflicts( const item &clothing ) const
+         bool has_helmet = false;
+         if( !clothing.get_covered_body_parts().none() && !clothing.has_flag( flag_POWERARMOR_COMPATIBLE ) &&
+             !clothing.has_flag( flag_AURA ) &&
++            !( clothing.has_flag ( flag_BELTED ) && !clothing.has_flag( flag_OUTER ) ) &&
+             ( is_wearing_power_armor( &has_helmet ) &&
+               ( has_helmet || !( clothing.covers( body_part_head ) || clothing.covers( body_part_mouth ) ||
+                                  clothing.covers( body_part_eyes ) ) ) ) ) {
+@@ -2664,4 +2666,4 @@ void outfit::organize_items_menu()
+         to_organize.push_back( &i );
+     }
+     pocket_management_menu( _( "Inventory Organization" ), to_organize );
+-}
+\ No newline at end of file
++}

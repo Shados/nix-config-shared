@@ -97,6 +97,7 @@ in
         overriddenPkg = basePkg.overrideAttrs(oa: {
           patches = [
             ./remove-crowd-suffocation.patch
+            ./power-armor-allow-belted.patch
           ];
           NIX_CFLAGS_COMPILE = oa.NIX_CFLAGS_COMPILE or [] ++ [
             "-Wno-error=unused-parameter"
