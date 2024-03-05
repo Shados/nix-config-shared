@@ -18,7 +18,6 @@ in
     ./networking.nix
     ./nix.nix
     ./smtp.nix
-    ./sound.nix
     ./ssh
     ./tpm2.nix
     ./users.nix
