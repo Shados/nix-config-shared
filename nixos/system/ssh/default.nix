@@ -33,5 +33,6 @@
     "git.shados.net".publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIO0oGzy9ylQHKEYaH4jJ38QM9nFxiQTF+flQUYbpqbF6";
   };
 
-  security.pam.enableSSHAgentAuth = true;
+  security.pam.sshAgentAuth.enable = true;
+  security.pam.sshAgentAuth.authorizedKeysFiles = [ "/etc/ssh/authorized_keys.d/%u" ]; # FIXME: remove once nixpkgs #277626 is merged
 }

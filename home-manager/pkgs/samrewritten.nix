@@ -4,11 +4,11 @@
 }:
 stdenv.mkDerivation rec {
   pname = "SamRewritten";
-  version = "unstable-2022-03-26";
+  version = "unstable-2023-05-23";
   src = fetchFromGitHub {
     owner = "PaulCombal"; repo = pname;
-    rev = "6bf70021d21dc9f52a8061682b69c346e0d8f1f2";
-    sha256 = "sha256-BEXhEfhizHMP3h6YJwPx60oOHwnnhuKwL9gmnpxawl0=";
+    rev = "39d524a72678a226bf9140db6b97641f554563c3";
+    sha256 = "sha256-sS/lVY5EWXdTOg7cDWPbi/n5TNt+pRAF1x7ZEaYG4wM=";
   };
   nativeBuildInputs = [
     pkg-config

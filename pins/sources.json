@@ -17,10 +17,10 @@
         "homepage": "",
         "owner": "arkenfox",
         "repo": "user.js",
-        "rev": "4a510a4b4ceda8a177831a77309f2faccf7e18d5",
-        "sha256": "1k8q8z1fjkv3i9nyxms8dxrx4rdhlc86ld71byyis6rj1ml4lv7j",
+        "rev": "33a84b608c8a1f871c6ce9c4d2b932dc57078fae",
+        "sha256": "14ibz8s0m0wfddwmd125qdx3lvsd8jpiip3c82bzfk9mxa50cvpb",
         "type": "tarball",
-        "url": "https://github.com/arkenfox/user.js/archive/4a510a4b4ceda8a177831a77309f2faccf7e18d5.tar.gz",
+        "url": "https://github.com/arkenfox/user.js/archive/33a84b608c8a1f871c6ce9c4d2b932dc57078fae.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "go-markdown2confluence": {
@@ -29,10 +29,10 @@
         "homepage": null,
         "owner": "justmiles",
         "repo": "go-markdown2confluence",
-        "rev": "624f39cc0532134fe5f88f4c7c84f0c257f66af1",
-        "sha256": "1vl4n12l2ylq0i56lrg1skdgfnzqambrfc77b15bb4vl59cq02q6",
+        "rev": "9290184d1ba1fda3d0af78a5755608f8d94227f2",
+        "sha256": "1s2byq2alkzisgyms30ksh3c44n73m9il2r4gc5n3i7navh04h7k",
         "type": "tarball",
-        "url": "https://github.com/justmiles/go-markdown2confluence/archive/624f39cc0532134fe5f88f4c7c84f0c257f66af1.tar.gz",
+        "url": "https://github.com/justmiles/go-markdown2confluence/archive/9290184d1ba1fda3d0af78a5755608f8d94227f2.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "telescope-fzy-native.nvim": {
@@ -53,10 +53,10 @@
         "homepage": "",
         "owner": "transmission-remote-gui",
         "repo": "transgui",
-        "rev": "b1f5c2334edb6659c04863ef4a534ba1e57284f0",
-        "sha256": "1w8azgjzfdlg5i578d4rbrmv0ackwd5q7c7a0yyx08351rq28ajw",
+        "rev": "25df397d92fbd53b970ef72a6ffd9f644458f935",
+        "sha256": "0jvnpxbzmg8d59zcrmwx7igamwqhc59nlyhrjqzr6y63ykd1w0ld",
         "type": "tarball",
-        "url": "https://github.com/transmission-remote-gui/transgui/archive/b1f5c2334edb6659c04863ef4a534ba1e57284f0.tar.gz",
+        "url": "https://github.com/transmission-remote-gui/transgui/archive/25df397d92fbd53b970ef72a6ffd9f644458f935.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     }
 }

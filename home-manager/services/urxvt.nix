@@ -55,7 +55,7 @@ in
           (super.fetchpatch {
             name = "24-bit-color.patch";
             url = "https://aur.archlinux.org/cgit/aur.git/plain/24-bit-color.patch?h=rxvt-unicode-truecolor-wide-glyphs";
-            sha256 = "sha256-gVPT27G6vVA9SiKuiYt4JLYikShvexCqlzptU7Rvumc=";
+            sha256 = "sha256-Y3KEeM/JcqPwp2cXJnmgcWxPJW+/zJjV+t5DXstf464=";
             extraPrefix = "";
           })
         ];
