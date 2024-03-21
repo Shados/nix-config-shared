@@ -1074,6 +1074,7 @@ in
         ${xdg-user-dirs}/bin/xdg-user-dirs-update
 
         ${openbox}/bin/openbox-session
+        ${pkgs.systemd}/bin/systemctl --user stop openbox-graphical-session.target
       '';
     in toString cmd;
 
