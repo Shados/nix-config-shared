@@ -537,7 +537,10 @@ in
       "tpope/vim-unimpaired".enable = true;
       "nvim-telescope/telescope.nvim" = {
         enable = true;
-        dependencies = [ "nvim-lua/plenary.nvim" "nvim-lua/popup.nvim" ];
+        dependencies = [ "nvim-lua/plenary.nvim" "nvim-lua/popup.nvim" "nvim-treesitter" ];
+        binDeps = [
+          pkgs.ripgrep pkgs.fd
+        ];
         extraConfig = ''
           -- Setup with defaults
           telescope = require "telescope"
