@@ -406,6 +406,20 @@ in
           map "n", "<leader>m", ":TagbarToggle<CR>", {}
         '';
       };
+      vim-addon-local-vimrc = {
+        enable = true;
+        extraConfig = ''
+          g.local_vimrc =
+            names: { ".vimrc.lua" }
+            -- LVRHashOfFile will try sha512sum, sha256sum, sha1sum, and md5sum from PATH, if none exist it'll use a crappy VimL hash
+            hash_fun: "LVRHashOfFile"
+            -- Despite being called a cache file, the session-state path feels more appropriate here
+            cache_file: "#{vim.fn.stdpath("state")}/vim_local_rc_cache"
+        '';
+        binDeps = [
+          pkgs.coreutils
+        ];
+      };
       # }}}
 
       # Textobjects {{{
