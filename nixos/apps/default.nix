@@ -65,6 +65,7 @@ in
     zip unzip unrar lzop p7zip lrzip pixz
     rename # perl-rename
     ripgrep
+    fd
     (moreutils.overrideAttrs (oa: { meta = oa.meta // { priority = 10; }; })) # sponge, but don't override ts or parallel
     ts # taskspooler
     parallel
