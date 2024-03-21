@@ -41,10 +41,7 @@ in
         enable = true;
         interval = "Mon 05:00";
       };
-      systemd.coredump.extraConfig = ''
-        # Storage=none
-        ExternalSizeMax=10M
-      '';
+      systemd.coredump.enable = false;
       # TODO: hm equivalent config, for darwin only
       programs.command-not-found.enable = false;
       programs.nix-index = {
