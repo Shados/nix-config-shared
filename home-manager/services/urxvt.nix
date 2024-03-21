@@ -58,6 +58,12 @@ in
             sha256 = "sha256-Y3KEeM/JcqPwp2cXJnmgcWxPJW+/zJjV+t5DXstf464=";
             extraPrefix = "";
           })
+          (super.fetchpatch {
+            name = "7-bit-queries.patch";
+            url = "https://aur.archlinux.org/cgit/aur.git/plain/7-bit-queries.patch?h=rxvt-unicode-truecolor-wide-glyphs";
+            sha256 = "sha256-hnRfQc4jPiBrm06nJ3I7PHdypUc3jwnIfQV3uMYz+/Y=";
+            extraPrefix = "";
+          })
         ];
         configureFlags = oa.configureFlags or [] ++ [
           "--enable-24-bit-color"
