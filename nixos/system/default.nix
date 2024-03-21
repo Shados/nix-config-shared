@@ -53,6 +53,13 @@ in
         enableFishIntegration = true;
       };
       programs.nix-index-database.comma.enable = true;
+      environment.shellInit = ''
+        for dir in $HOME/technotheca/artifacts/packages/bin $HOME/technotheca/packages/bin; do
+          if [[ -d $dir ]]; then
+            export PATH="$dir''${PATH:+:''${PATH}}"
+          fi
+        done
+      '';
     }
     (mkIf config.documentation.nixos.enable {
       environment.systemPackages = with pkgs; [

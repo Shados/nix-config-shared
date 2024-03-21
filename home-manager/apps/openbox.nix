@@ -30,11 +30,6 @@ in
     ];
     services.wired.enable = true;
     xsession.windowManager.openbox = {
-      prependPaths = [
-        "${config.home.homeDirectory}/technotheca/artifacts/packages/bin"
-        "${config.home.homeDirectory}/technotheca/packages/bin"
-      ];
-
       startupApps = with config.lib.openbox; listToAttrs [
         (launchCli "dpms" ''
           # Disable all DPMS timeouts, but ensure DPMS itself is enabled, so that

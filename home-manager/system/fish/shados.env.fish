@@ -5,8 +5,8 @@
 # Files will be created with permissions rw--- and directories with rwx--
 umask 022
 
-# PATH
-path_prepend $HOME/technotheca/artifacts/packages/bin $HOME/technotheca/packages/bin
+# This will only prepend them to PATH if they're not already present
+fish_add_path --path $HOME/technotheca/artifacts/packages/bin $HOME/technotheca/packages/bin
 
 # Nix's Include path
 begin

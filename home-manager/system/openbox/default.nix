@@ -93,15 +93,6 @@ in
   options = {
     xsession.windowManager.openbox = {
       enable = mkEnableOption "Openbox window manager";
-      prependPaths = mkOption {
-        type = with types; listOf str;
-        default = [];
-        description = ''
-          List of paths to prepend to $PATH for Openbox, if the paths exist.
-
-          Earlier items in the list will be earlier in the resulting PATH.
-        '';
-      };
       startupApps = mkOption {
         type = with types; attrs;
         default = {
@@ -1100,11 +1091,7 @@ in
         # We're not LXDE, but it defaults to using openbox, so this is the
         # closest oft-recognised match. TODO make this configurable?
         XDG_CURRENT_DESKTOP="lxde"
-      '' + concatMapStringsSep "\n" (path: ''
-        if [[ -d ${path} ]]; then
-          export PATH="${path}''${PATH:+:''${PATH}}"
-        fi
-      '') (reverseList cfg.prependPaths);
+      '';
 
       "openbox/autostart".text = ''
         #!${pkgs.bash}/bin/bash
@@ -1177,7 +1164,7 @@ in
         value;
       transformKeybind = _name: value: upperCaseActions value;
       strippedConfig = removeAttrs cfg [
-        "enable" "prependPaths" "startupApps"
+        "enable" "startupApps"
         "rawConfigFile" "finalConfigFile" "transformedConfig"
       ];
     in transformedConfig;
