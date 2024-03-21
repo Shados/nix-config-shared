@@ -284,6 +284,7 @@ in
           vim.opt.shortmess = "#{o["shortmess"]}c"
           vim.opt.completeopt = {"menu", "menuone", "noselect"}
           cmp = require "cmp"
+          lspkind = require "lspkind"
           -- TODO add treesitter source once I have ts set up?
           cmp.setup
             sources: cmp.config.sources {
@@ -301,11 +302,21 @@ in
               ["<C-e>"]: cmp.mapping.abort()
               ["<CR>"]: cmp.mapping.confirm({ select: false })
             }
+            formatting:
+              format: lspkind.cmp_format {
+                mode: "symbol_text"
+                menu:
+                  nvim_lsp: "[LSP]"
+                  nvim_lua: "[Lua]"
+                  buffer: "[Buffer]"
+                  path: "[Path]"
+              }
         '';
         # '';
         dependencies = [
+          "lspkind-nvim"
           # Completion sources
-          "cmp-buffer" "cmp-path" "cmp-nvim-lsp" "cmp-nvim-lua" "lspkind-nvim"
+          "cmp-buffer" "cmp-path" "cmp-nvim-lsp" "cmp-nvim-lua"
         ];
       };
       # }}}
