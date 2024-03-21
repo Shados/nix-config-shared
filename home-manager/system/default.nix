@@ -28,6 +28,25 @@ in
 
   config = {
     xdg.enable = true; # Explicitly sets the XDG base directory paths
+    xdg.portal = {
+      enable = true;
+      config.common.default = [ "gtk" ];
+      extraPortals = with pkgs; [
+        xdg-desktop-portal-gtk
+      ];
+      xdgOpenUsePortal = true;
+    };
+    # Part of fix for nixpkgs #189851; they also need XDG_DATA_DIRS, but we're
+    # doing that elsewhere via `systemctl --user import-environment`
+    xdg.dataFile."systemd/user/xdg-desktop-portal-gtk.service.d/path.conf".text = ''
+      [Service]
+      Environment="PATH=${config.home.profileDirectory}/bin:/run/current-system/sw/bin"
+    '';
+    xdg.dataFile."systemd/user/xdg-desktop-portal.service.d/path.conf".text = ''
+      [Service]
+      Environment="PATH=${config.home.profileDirectory}/bin:/run/current-system/sw/bin"
+    '';
+
     nixpkgs.config = {
       allowUnfree = true;
       android_sdk.accept_license = true;

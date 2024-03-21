@@ -1073,6 +1073,7 @@ in
         # Update user dirs as described in http://freedesktop.org/wiki/Software/xdg-user-dirs/
         ${xdg-user-dirs}/bin/xdg-user-dirs-update
 
+        ${pkgs.dbus}/bin/dbus-update-activation-environment --systemd DISPLAY XDG_SESSION_ID XDG_SESSION_TYPE XDG_CURRENT_DESKTOP XDG_DATA_DIRS
         ${openbox}/bin/openbox-session
         ${pkgs.systemd}/bin/systemctl --user stop openbox-graphical-session.target
       '';
@@ -1105,7 +1106,6 @@ in
         # The subshell should end while the launched stuff within it is still alive,
         # due to the double-forking from backgrounding.
 
-        ${pkgs.dbus}/bin/dbus-update-activation-environment --systemd DISPLAY XDG_SESSION_ID XDG_SESSION_TYPE XDG_CURRENT_DESKTOP
         ${pkgs.systemd}/bin/systemctl --user start openbox-graphical-session.target
       '' + concatMapStringsSep "\n"
         ({ data, name }: ''
