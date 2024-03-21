@@ -281,27 +281,27 @@ in
         enable = true;
         # TODO lspconfig stuff, snippets
         extraConfig = ''
-          set "shortmess", "#{o["shortmess"]}c"
-          set "completeopt", "menuone,noselect"
+          vim.opt.shortmess = "#{o["shortmess"]}c"
+          vim.opt.completeopt = {"menu", "menuone", "noselect"}
           cmp = require "cmp"
           -- TODO add treesitter source once I have ts set up?
           cmp.setup
             sources: cmp.config.sources {
-              { name: "path" },
-              { name: "buffer" },
               { name: "nvim_lsp" },
               { name: "nvim_lua" }
+              { name: "buffer" },
+              { name: "path" },
             }
-            mapping:
-              ["<C-d>"]: cmp.mapping.scroll_docs(-4)
+            mapping: cmp.mapping.preset.insert {
+              ["<C-j>"]: cmp.mapping.select_next_item()
+              ["<C-k>"]: cmp.mapping.select_prev_item()
               ["<C-f>"]: cmp.mapping.scroll_docs(4)
+              ["<C-d>"]: cmp.mapping.scroll_docs(-4)
               ["<C-Space>"]: cmp.mapping.complete()
               ["<C-e>"]: cmp.mapping.abort()
-              ["<CR>"]: cmp.mapping.confirm({ select: true })
+              ["<CR>"]: cmp.mapping.confirm({ select: false })
+            }
         '';
-          # cmp.setup
-          #   mapping: cmp.mapping.preset.insert({
-          #   })
         # '';
         dependencies = [
           "cmp-buffer" "cmp-path" "cmp-nvim-lsp" "cmp-nvim-lua"
