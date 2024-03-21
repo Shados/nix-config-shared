@@ -103,6 +103,10 @@ in
       # }}}
 
       # Language support and syntax highlighting {{{
+      nvim-treesitter = {
+        enable = true;
+        source = pkgs.vimPlugins.nvim-treesitter.withAllGrammars;
+      };
       # Async linting
       ale = with pkgs; mkMerge [
         # ALE config {{{
