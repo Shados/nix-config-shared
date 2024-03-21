@@ -304,11 +304,10 @@ in
         '';
         # '';
         dependencies = [
-          "cmp-buffer" "cmp-path" "cmp-nvim-lsp" "cmp-nvim-lua"
+          # Completion sources
+          "cmp-buffer" "cmp-path" "cmp-nvim-lsp" "cmp-nvim-lua" "lspkind-nvim"
         ];
       };
-      # Completion sources
-      # TODO
       # }}}
 
       # Project management {{{
