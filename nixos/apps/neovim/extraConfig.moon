@@ -71,6 +71,9 @@ set "signcolumn", "yes"
 -- Set netrwhist home location to prevent .netrwhist being made in
 -- .config/nvim/ -- it is data not config
 g["netrw_home"] = (stdpath "data")
+
+-- Exclude temporary directories and remote/detachable mount points from shada
+vim.opt.shada\append { "r/tmp", "r/run", "r/mnt", "r/home/shados/technotheca/mnt" }
 -- }}}
 
 -- Advanced configuration {{{
