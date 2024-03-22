@@ -11,8 +11,7 @@ in
     "oberblastmeister/neuron.nvim" = {
       enable = true;
       dependencies = [
-        "nvim-lua/plenary.nvim"
-        "nvim-telescope/telescope.nvim"
+        "telescope-nvim"
       ];
       binDeps = [
         neuronPkg # TODO this dep is huge, move this to hm config instead?

@@ -27,31 +27,6 @@ in
     # - gundo (only starts python host on use)
     pluginRegistry = {
       # Linting & LSP setup
-      # Completion {{{
-      # deoplete-nvim = {
-      #   enable = true;
-      #   remote.python3 = true;
-      #   extraConfig = ''
-      #     let g:deoplete#enable_at_startup = 1
-      #     let g:deoplete#enable_smart_case = 1
-      #   '';
-      # };
-      # deoplete-fish = {
-      #   enable = true;
-      #   after = [ "deoplete-nvim" ];
-      # };
-      # ncm2 = {
-      #   enable = true;
-      #   remote.python3 = true;
-      #   extraConfig = ''
-      #     au vimrc BufEnter * call ncm2#enable_for_buffer()
-      #     au vimrc User Ncm2PopupOpen set completeopt=noinsert,menuone,noselect
-      #     au vimrc User Ncm2PopupClose set completeopt=menu,preview
-      #   '';
-      # };
-      # ncm2-bufword = { enable = true; after = [ "ncm2" ]; };
-      # ncm2-path = { enable = true; after = [ "ncm2" ]; };
-      # }}}
       nvim-lspconfig = mkMerge [
         { enable = true;
           after = [
@@ -184,23 +159,6 @@ in
                 on_attach: lsp_on_attach
           '';
         }
-        # ReScript
-        { extraConfig = mkAfter ''
-            if (fn.executable "node") != 0
-              lspconfig.rescriptls.setup
-                on_attach: lsp_on_attach
-                cmd: { "node", "${config.sn.programs.neovim.debug.composedRegistry."rescript-lang/vim-rescript".src}/server/out/server.js", "--stdio" }
-              cmd [[
-                function! g:SetupFixHookForReScript() abort
-                  augroup ReScriptFixers
-                    autocmd!
-                    autocmd vimrc BufWritePre <buffer> :RescriptFormat
-                  augroup END
-                endfunction
-                autocmd vimrc Filetype rescript call g:SetupFixHookForReScript()
-              ]]
-          '';
-        }
       ];
 
       ale = with pkgs; mkMerge [
@@ -303,12 +261,6 @@ in
       ];
 
       # Language support and syntax highlighting {{{
-      # Only needed if doing Moonscript plugin dev, can just distribute them with the built .lua files
-      # TODO fix issue with read-only dirs
-      "Shados/nvim-moonmaker" = {
-        enable = false;
-        condition = "executable('moonc')";
-      };
       "othree/javascript-libraries-syntax.vim" = {
         enable = true;
         dependencies = [ "othree/yajs.vim" ];
@@ -319,10 +271,10 @@ in
       #     g.markdown_composer_autostart = 0
       #   '';
       # };
-      "vim-erlang/vim-erlang-runtime".enable = true;
-      "vim-erlang/vim-erlang-compiler".enable = true;
-      "vim-erlang/vim-erlang-omnicomplete".enable = true;
-      "vim-erlang/vim-erlang-tags".enable = true;
+      vim-erlang-runtime.enable = true;
+      vim-erlang-compiler.enable = true;
+      vim-erlang-omnicomplete.enable = true;
+      vim-erlang-tags.enable = true;
       vim-elixir.enable = true;
       "avdgaag/vim-phoenix".enable = true;
       # Ocaml
@@ -375,16 +327,14 @@ in
           cmd 'autocmd vimrc FileType elm setlocal shiftwidth=4 softtabstop=4 tabstop=4'
         '';
       };
-      "saltstack/salt-vim".enable = true;
-      "leafo/moonscript-vim".enable = true;
-      "chikamichi/mediawiki.vim".enable = true;
+      salt-vim.enable = true;
+      moonscript-vim.enable = true;
+      mediawiki-vim.enable = true;
       vim-qml.enable = true;
-      "spamwax/tup-syntax.vim".enable = true;
       vim-ps1 = {
         enable = true;
         for = "ps1";
       };
-      "rescript-lang/vim-rescript".enable = true;
       # }}}
 
       # General Extra Functionality {{{

@@ -53,14 +53,10 @@ in
       oceanic-next.enable = true;
       gruvbox.enable = false;
       # Visually colorise CSS-compatible # colour code strings
-      "norcalli/nvim-colorizer.lua" = {
+      nvim-colorizer-lua = {
         enable = true;
         extraConfig = ''
-          require("colorizer").setup {
-            "*",
-            css:
-              css: true
-          }
+          require("colorizer").setup { filetypes: { "css", "javascript" } }
         '';
       };
       nvim-web-devicons = {
@@ -74,24 +70,24 @@ in
       };
 
       # Visual display of indent levels
-      "lukas-reineke/indent-blankline.nvim" = {
+      indent-blankline-nvim = {
         enable = true;
         # TODO indent_blankline_use_treesitter ?
         # TODO indent_blankline_show_current_context ? may be extra-useful when
         # working with Python and MoonScript
         extraConfig = ''
-          -- FIXME Remove once identline-blankline.nvim#59 / neovim#14209 is resolved
-          o.colorcolumn = "99999"
-          g.indent_blankline_char = '▏'
-          g.indent_blankline_buftype_exclude = {
-            "terminal", "help", "quickfix", "prompt", "nofile", "nowrite"
-          }
-          g.indent_blankline_show_first_indent_level = false
+          require"ibl".setup
+            indent:
+              char: '▏'
+            exclude:
+            buftypes: { "terminal", "nofile", "quickfix", "prompt", "help", "nowrite" }
+          hooks = require "ibl.hooks"
+          hooks.register(hooks.type.WHITESPACE, hooks.builtin.hide_first_space_indent_level)
         '';
       };
 
       # Displays function signatures from completions in the command line
-      "Shougo/echodoc.vim" = {
+      echodoc = {
         # TODO re-enable once I sort out my completion setup
         enable = false;
         extraConfig = ''
@@ -106,6 +102,15 @@ in
       nvim-treesitter = {
         enable = true;
         source = pkgs.vimPlugins.nvim-treesitter.withAllGrammars;
+        binDeps = [
+          pkgs.gcc
+        ];
+        extraConfig = ''
+          treesitter = require "nvim-treesitter.configs"
+          treesitter.setup
+            highlight:
+              enable: true
+        '';
       };
       # Async linting
       ale = with pkgs; mkMerge [
@@ -247,9 +252,8 @@ in
         enable = true;
         for = "fish";
       };
-      "nginx.vim" = {
+      nginx-vim = {
         enable = true;
-        source = ./nvim-files/local/nginx;
       };
       # }}}
 
@@ -274,10 +278,10 @@ in
       };
       # Automatic closing of control flow blocks for most languages, eg. `end`
       # inserted after `if` in Ruby
-      "tpope/vim-endwise".enable = true;
+      vim-endwise.enable = true;
       # Automatic context-sensitive closing of quotes, parenthesis, brackets, etc.
       # and related features
-      "Raimondi/delimitMate".enable = true;
+      delimitMate.enable = true;
       # Flexible word-variant tooling; mostly useful to me for 'coercing' between
       # different variable-naming styles (e.g. snake_case to camelCase via `crc`)
       vim-abolish.enable = true;
@@ -341,7 +345,7 @@ in
           g.workspace_right_trunc_icon = ""
         '';
       };
-      "kyazdani42/nvim-tree.lua" = {
+      nvim-tree-lua = {
         # TODO override the git icons with something more legible / immediately comprehensible
         # TODO add lines and arrows for dir structure?
         enable = true;
@@ -451,15 +455,15 @@ in
         '';
       };
       # Allows for splitting/joining code into/from multi-line formats, gS and gJ
-      # bydefault
-      "AndrewRadev/splitjoin.vim".enable = true;
+      # by default
+      splitjoin-vim.enable = true;
       # SublimeText-style multiple cursor impl., ctrl-n to start matching on
       # current word to place
       vim-multiple-cursors.enable = true;
       # Toggle commenting of lines with gc{motion}, also works in visual mode
       vim-commentary.enable = true;
       # Allows you to visualize your undo tree in a pane opened with :GundoToggle
-      "simnalamburt/vim-mundo" = {
+      vim-mundo = {
         enable = true;
         remote.python3 = true;
         extraConfig = ''
@@ -469,10 +473,10 @@ in
         '';
       };
       # Allows doing `vim filename:lineno`
-      "bogado/file-line".enable = true;
+      file-line.enable = true;
       # ,w ,b and ,e alternate motions that support traversing CamelCase and
       # underscore_notation
-      "vim-scripts/camelcasemotion".enable = true;
+      camelcasemotion.enable = true;
       # Primarily useful for surrounding existing lines in new delimiters,
       # quotation marks, xml tags, etc., or removing or modifying said
       # 'surroundings'. <operation>s<surrounding-type> is most-used
@@ -548,10 +552,9 @@ in
           map "n", "<leader>/", ":Ack!<Space>", {noremap: true}
         '';
       };
-      "tpope/vim-unimpaired".enable = true;
-      "nvim-telescope/telescope.nvim" = {
+      vim-unimpaired.enable = true;
+      telescope-nvim = {
         enable = true;
-        dependencies = [ "nvim-lua/plenary.nvim" "nvim-lua/popup.nvim" "nvim-treesitter" ];
         binDeps = [
           pkgs.ripgrep pkgs.fd
         ];
@@ -565,10 +568,9 @@ in
           map "n", "<leader>f", "<cmd>lua require('telescope.builtin').find_files()<CR>", {noremap: true}
         '';
       };
-      "telescope-fzy-native.nvim" = {
+      telescope-fzy-native-nvim = {
         enable = true;
-        source = pkgs.callPackage ./plugins/telescope-fzy-native.nix { };
-        dependencies = [ "nvim-telescope/telescope.nvim" ];
+        dependencies = [ "telescope-nvim" ];
         extraConfig = ''
           telescope.load_extension "fzy_native"
         '';
@@ -596,7 +598,6 @@ in
           "Shados/earthshine"
         ];
       };
-      "nvim-lua/popup.nvim".dependencies = [ "nvim-lua/plenary.nvim" ];
       # }}}
     };
   };

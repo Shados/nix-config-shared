@@ -93,12 +93,12 @@ in
       ]]
     '';
     # TODO change colour
-    "lukas-reineke/indent-blankline.nvim" = {
-      after = mkIfOceanic [ "oceanic-next" ]; # Ensure 'colorscheme' is applied first, or it resets the highlight we set here
-      extraConfig = mkIfOceanic ''
+    indent-blankline-nvim = {
+      after = mkIfOceanic [ "oceanic-next" ];
+      extraConfig = mkIfOceanic (mkBefore ''
         -- Set the indent line's colour to a subtle, faded grey
-        cmd "highlight IndentBlanklineChar guifg=#343d46 gui=nocombine"
-      '';
+        cmd "highlight IblIndent guifg=#343d46 gui=nocombine"
+      '');
     };
     ale.extraConfig = mkIfOceanic ''
       -- Gutter colours that match with oceanic-next
