@@ -12,7 +12,7 @@ with lib;
     moonpick-vim = {
       enable = true;
       dependencies = singleton "ale";
-      binDeps = singleton moonpick-vim;
+      binDeps = [ moonpick-vim luajitPackages.moonscript ];
       source = moonpick-vim.src;
       # For dev purposes
       # dir = "/home/shados/technotheca/artifacts/media/software/lua/moonpick-vim";
