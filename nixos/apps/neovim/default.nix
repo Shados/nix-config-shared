@@ -81,7 +81,7 @@ in
         # working with Python and MoonScript
         extraConfig = ''
           -- FIXME Remove once identline-blankline.nvim#59 / neovim#14209 is resolved
-          set "colorcolumn", "99999"
+          o.colorcolumn = "99999"
           g.indent_blankline_char = '▏'
           g.indent_blankline_buftype_exclude = {
             "terminal", "help", "quickfix", "prompt", "nofile", "nowrite"
@@ -97,7 +97,7 @@ in
         extraConfig = ''
           -- So the current mode indicator in the command line does not overwrite the
           -- function signature display
-          set "showmode", false
+          o.showmode = false
         '';
       };
       # }}}
@@ -285,8 +285,8 @@ in
         enable = true;
         # TODO lspconfig stuff, snippets
         extraConfig = ''
-          vim.opt.shortmess = "#{o["shortmess"]}c"
-          vim.opt.completeopt = {"menu", "menuone", "noselect"}
+          opt.shortmess\append { c: true }
+          opt.completeopt = {"menu", "menuone", "noselect"}
           cmp = require "cmp"
           lspkind = require "lspkind"
           -- TODO add treesitter source once I have ts set up?

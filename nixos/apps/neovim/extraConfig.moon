@@ -1,4 +1,4 @@
-{ :api, :cmd, :fn, :g, :env, :o, :bo, :wo, :empty_dict, :is_callable } = vim
+{ :api, :cmd, :fn, :g, :env, :o, :opt, :bo, :wo, :empty_dict, :is_callable } = vim
 { :stdpath } = fn
 { :dir_exists, :set } = nvim
 map = api.nvim_set_keymap
@@ -11,69 +11,69 @@ cmd 'autocmd vimrc VimResized * exe "normal! \\<c-w>="'
 -- to configure
 -- Search
 -- Incremental searching
-set "incsearch", true
+o.incsearch = true
 -- Highlight matches by default
-set "hlsearch", true
+o.hlsearch = true
 -- Ignore case when searching
-set "ignorecase", true
+o.ignorecase = true
 -- ^ unless a capital letter is typed
-set "smartcase", true
+o.smartcase = true
 
 -- Hybrid relative line numbers
-set "number", true
-set "relativenumber", true
+o.number = true
+o.relativenumber = true
 
 -- I have mode information as part of my status line, so don't need this
-set "showmode", false
+o.showmode = false
 
 -- Indentation
 -- Copy indent to new line
-set "autoindent", true
+o.autoindent = true
 -- Use 2-space autoindentation
-set "shiftwidth", 2
-set "softtabstop", 2
+o.shiftwidth = 2
+o.softtabstop = 2
 -- Together with ^, number of spaces a <Tab> counts for
-set "tabstop", 2
+o.tabstop = 2
 -- Change <Tab> into spaces automatically in insert mode and with autoindent
-set "expandtab", true
+o.expandtab = true
 -- NOTE: Can insert a real <Tab> with CTRL-V<Tab> while in insert mode
 
 -- Allow backspace in insert mode
-set "backspace", "indent,eol,start"
-set "history", 1000
+opt.backspace = { "indent", "eol", "start" }
+o.history = 1000
 -- Buffers are not unloaded when 'abandoned' by editing a new file, only when actively quit
-set "hidden", true
+o.hidden = true
 
 -- Wrap lines...
-set "wrap", true
+o.wrap = true
 -- ...visually, at convenient places
-set "linebreak", true
+o.linebreak = true
 
 -- Display <Tab>s and trailing spaces visually
-set "list", true
-set "listchars", "trail:·,tab:»·"
+o.list = true
+opt.listchars = { trail: "·", tab: "»·" }
 -- Because file-based folds are awesome
-set "foldmethod", "marker"
+o.foldmethod = "marker"
 -- Keep 6 lines minimum above/below cursor when possible; gives context
-set "scrolloff", 6
+o.scrolloff = 6
 -- Similar, but for vertical space & columns
-set "sidescrolloff", 10
+o.sidescrolloff = 10
 -- Minimum number of columns to scroll horiznotall when moving cursor off screen
-set "sidescroll", 1
+o.sidescroll = 1
 -- Previous two only apply when `wrap` is off, something I occasionally need to do
 -- Disable mouse cursor movement
-set "mouse", "c"
+o.mouse = "c"
 -- Support modelines in files
-set "modeline", true
+o.modeline = true
 -- Always keep the gutter open, constant expanding/contracting gets annoying fast
-set "signcolumn", "yes"
+o.signcolumn = "yes"
 
 -- Set netrwhist home location to prevent .netrwhist being made in
 -- .config/nvim/ -- it is data not config
-g["netrw_home"] = (stdpath "data")
+g.netrw_home = (stdpath "data")
 
 -- Exclude temporary directories and remote/detachable mount points from shada
-vim.opt.shada\append { "r/tmp", "r/run", "r/mnt", "r/home/shados/technotheca/mnt" }
+opt.shada\append { "r/tmp", "r/run", "r/mnt", "r/home/shados/technotheca/mnt" }
 -- }}}
 
 -- Advanced configuration {{{
@@ -82,40 +82,39 @@ vim.opt.shada\append { "r/tmp", "r/run", "r/mnt", "r/home/shados/technotheca/mnt
 -- no-heading == grouping by file isn't needed for this use-case
 -- smart-case == case-insensitive search if all-lowercase pattern,
 --               case-sensitive otherwise
-g["ackprg"] = "#{rg_bin} --vimgrep --smart-case --no-heading --max-filesize=4M"
-set "grepprg", "#{rg_bin} --vimgrep --smart-case --no-heading --max-filesize=4M"
-set "grepformat", "%f:%l:%c:%m,%f:%l:%m"
+g.ackprg = "#{rg_bin} --vimgrep --smart-case --no-heading --max-filesize=4M"
+o.grepprg = "#{rg_bin} --vimgrep --smart-case --no-heading --max-filesize=4M"
+opt.grepformat = { "%f:%l:%c:%m", "%f:%l:%m" }
 
 -- When jumping from quickfix window to a location, use existing
 -- matching open buffer if present
-set "switchbuf", "useopen"
+o.switchbuf = "useopen"
 
 -- TODO: Delete old undofile automatically when vim starts
 -- TODO: Delete old backup files automatically when vim starts
 -- Both are under ~/.local/share/nvim/{undo,backup} in neovim by default
 -- Keep undo history across sessions by storing it in a file
-undodir = "#{env["HOME"]}/.local/share/nvim/undo/"
-set "undodir", undodir
-unless dir_exists undodir
-  fn.mkdir undodir, "p"
+o.undodir = "#{env["HOME"]}/.local/share/nvim/undo/"
+unless dir_exists o.undodir
+  fn.mkdir o.undodir, "p"
+o.undofile = true
 
-backupdir = "#{env["HOME"]}/.local/share/nvim/backup/"
-set "backupdir", backupdir
-unless dir_exists backupdir
+o.backupdir = "#{env["HOME"]}/.local/share/nvim/backup/"
+unless dir_exists o.backupdir
   -- TODO this doesn't work for backupdir, figure out why
-  fn.mkdir backupdir, "p"
-set "undofile", true
-set "backup", true
+  fn.mkdir o.backupdir, "p"
+o.backup = true
+
 -- This one creates temporary backup files, as opposed to the permanent
 -- ones from 'backup', so disable it
-set "writebackup", false
+o.writebackup = false
 -- Otherwise, it may decide to do all writes by first moving the written
 -- file to a temporary name, then writing out the modified files to the
 -- original name, then moving the temporary file to the backupdir. This
 -- approach generates way more filesystem events than necessary, and is
 -- likely to trigger race conditions in e.g. compiler 'watch' modes that
 -- use inotify.
-set "backupcopy", "yes"
+o.backupcopy = "yes"
 
 -- TODO: Make incremental search open all folds with matches while
 -- searching, close the newly-opened ones when done (except the one the
@@ -124,7 +123,7 @@ set "backupcopy", "yes"
 -- TODO: Configure makers for automake
 
 -- File-patterns to ignore for wildcard matching on tab completion
-set "wildignore", "*.o,*.obj,*~,*.png,*.jpg,*.gif,*.mp3,*.ogg,*.bin"
+opt.wildignore = { "*.o", "*.obj", "*~", "*.png", "*.jpg", "*.gif", "*.mp3", "*.ogg", "*.bin" }
 
 -- Have nvim jump to the last position when reopening a file
 cmd 'autocmd vimrc BufReadPost * if line("\'\\"") > 1 && line("\'\\"") <= line("$") | exe "normal! g\'\\"" | endif'
@@ -138,9 +137,7 @@ cmd 'autocmd vimrc FileType gitcommit normal! gg0'
 cmd 'autocmd vimrc FileType gitcommit normal zR'
 
 -- Track window- and buffer-local options in sessions
--- FIXME replace once we have Lua equivalent to set+=
-sessionoptions = o["sessionoptions"]
-set "sessionoptions", "#{sessionoptions},localoptions"
+opt.sessionoptions\append { "localoptions" }
 
 -- TODO when working on code inside a per-project virtualenv or nix.shell,
 -- automatically detect and use the python from the project env
@@ -284,7 +281,7 @@ setup_status_line = (widget_groups, base_highlights, highlights) ->
 
     output_line
 
-  set "statusline", [[%!luaeval("status_line()")]]
+  o.statusline = [[%!luaeval("status_line()")]]
   return
 
 sl = {}

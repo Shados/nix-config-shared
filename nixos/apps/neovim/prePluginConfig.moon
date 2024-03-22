@@ -1,5 +1,5 @@
 -- Pull some vim stuff into local scope for easier access
-{ :api, :cmd, :fn, :g, :env, :o, :bo, :wo, :empty_dict } = vim
+{ :api, :cmd, :fn, :g, :env, :o, :opt, :bo, :wo, :empty_dict } = vim
 { :stdpath } = fn
 map = api.nvim_set_keymap
 
