@@ -139,9 +139,12 @@ cmd 'autocmd vimrc FileType gitcommit normal zR'
 -- Track window- and buffer-local options in sessions
 opt.sessionoptions\append { "localoptions" }
 
--- Enable spell-checking
-opt.spelllang = "en_au"
-opt.spell = true
+-- Enable spell-checking for some filetypes
+-- Neovim's spell-checking is syntax-aware, but meaning it doesn't attempt to
+-- spell-check "code" parts of a file, but it *does* attempt to spell-check
+-- string contents, which I often find unhelpful/distracting
+o.spelllang = "en_au"
+cmd 'autocmd vimrc FileType markdown,text,tex setlocal spell'
 
 -- TODO when working on code inside a per-project virtualenv or nix.shell,
 -- automatically detect and use the python from the project env
