@@ -100,16 +100,17 @@ in
 
       # Language support and syntax highlighting {{{
       nvim-treesitter = {
-        enable = true;
+        # FIXME: unclear why, but this shit is broken AF. Doesn't appear to be
+        # a "upstream neovim parsers taking precedence over nvim-treesitter's",
+        # not clear what else could be causing the issues I was seeing.
+        enable = false;
         source = pkgs.vimPlugins.nvim-treesitter.withAllGrammars;
-        binDeps = [
-          pkgs.gcc
-        ];
         extraConfig = ''
-          treesitter = require "nvim-treesitter.configs"
-          treesitter.setup
+          require"nvim-treesitter.configs".setup
+            auto_install: false
             highlight:
               enable: true
+              additional_vim_regex_highlighting: false
         '';
       };
       # Async linting
