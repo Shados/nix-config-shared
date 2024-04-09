@@ -13,7 +13,7 @@ in
     ./chromium.nix
     ./mpv.nix
     # Custom neovim module
-    (import "${envy}/home-manager.nix" { mergeNixosDefinitions = false; })
+    (import "${envy}/home-manager.nix" { })
     # Config of it
     ./neovim
     # Explicitly merge in NixOS definitions as a baseline

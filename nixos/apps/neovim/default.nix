@@ -3,18 +3,18 @@ with lib;
 let
   nvimCfg = config.sn.programs.neovim;
   plugCfg = nvimCfg.pluginRegistry;
+  pins = import ./pins { };
   # TODO migrate plugins to non-upstream packages where possible, for more control over updates
+  inherit (pkgs) vimPlugins;
 in
 {
   imports = [
     # Theme-related defaults
-    ./gruvbox.nix
     ./oceanicnext.nix
   ];
   nixpkgs.overlays = [
     (inputs.neovim-nightly-overlay.overlay)
   ];
-
 
   sn.programs.neovim = let
     rgPkg = pkgs.ripgrep;
@@ -25,10 +25,6 @@ in
     files = {
       "ftplugin/python.vim".source = ./nvim-files/ftplugin/python.vim;
       neosnippets.source = ./nvim-files/neosnippets;
-    };
-    sourcePins = nvimCfg.lib.fillPinsFromDir {
-      priority = 1000;
-      directoryPath = ./pins;
     };
     extraBinPackages = [
       rgPkg
@@ -50,11 +46,14 @@ in
     '';
     pluginRegistry = {
       # Appearance & UI {{{
-      oceanic-next.enable = true;
-      gruvbox.enable = false;
+      oceanic-next = {
+        enable = true;
+        source = vimPlugins.oceanic-next;
+      };
       # Visually colorise CSS-compatible # colour code strings
       nvim-colorizer-lua = {
         enable = true;
+        source = vimPlugins.nvim-colorizer-lua;
         extraConfig = ''
           require("colorizer").setup { filetypes: { "css", "javascript" } }
         '';
@@ -62,6 +61,7 @@ in
       nvim-web-devicons = {
         # TODO add font dep and config?
         enable = true;
+        source = vimPlugins.nvim-web-devicons;
         extraConfig = ''
           nvim_web_devicons = require "nvim-web-devicons"
           nvim_web_devicons.setup
@@ -72,6 +72,7 @@ in
       # Visual display of indent levels
       indent-blankline-nvim = {
         enable = true;
+        source = vimPlugins.indent-blankline-nvim;
         # TODO indent_blankline_use_treesitter ?
         # TODO indent_blankline_show_current_context ? may be extra-useful when
         # working with Python and MoonScript
@@ -83,6 +84,10 @@ in
             buftypes: { "terminal", "nofile", "quickfix", "prompt", "help", "nowrite" }
           hooks = require "ibl.hooks"
           hooks.register(hooks.type.WHITESPACE, hooks.builtin.hide_first_space_indent_level)
+          ${optionalString plugCfg.vim-startify.enable ''
+          -- Disable in startify buffer
+          cmd 'autocmd vimrc FileType startify lua require("ibl").setup_buffer(0, {enabled = false})'
+          ''}
         '';
       };
 
@@ -90,6 +95,7 @@ in
       echodoc = {
         # TODO re-enable once I sort out my completion setup
         enable = false;
+        source = vimPlugins.echodoc;
         extraConfig = ''
           -- So the current mode indicator in the command line does not overwrite the
           -- function signature display
@@ -117,6 +123,7 @@ in
       ale = with pkgs; mkMerge [
         # ALE config {{{
         { enable = true;
+          source = vimPlugins.ale;
           # TODO cleanup, should only have baseline config in here
           extraConfig = ''
             -- Move forward/backward between flagged warnings & errors
@@ -204,9 +211,13 @@ in
         }
         # }}}
       ];
-      "ericpruitt/tmux.vim".enable = true;
+      "tmux.vim" = {
+        enable = true;
+        source = nvimCfg.lib.buildVimPluginFromNiv pins "tmux.vim";
+      };
       vim-markdown = {
         enable = true;
+        source = vimPlugins.vim-markdown;
         extraConfig = ''
           -- Just disable header folding; it's pretty buggy
           g.vim_markdown_folding_disabled = 1
@@ -230,11 +241,18 @@ in
         '';
       };
       # Nix syntax highlighting, error checking/linting is handled by ALE
-      vim-nix.enable = true;
-      "Matt-Deacalion/vim-systemd-syntax".enable = true;
+      vim-nix = {
+        enable = true;
+        source = vimPlugins.vim-nix;
+      };
+      vim-systemd-syntax = {
+        enable = true;
+        source = nvimCfg.lib.buildVimPluginFromNiv pins "vim-systemd-syntax";
+      };
       # Notably, let's you fold on json dict/lists
       vim-json = {
         enable = true;
+        source = vimPlugins.vim-json;
         extraConfig = ''
           -- vim-json
           -- Set foldmethod to syntax so we can fold json dicts and lists
@@ -247,14 +265,22 @@ in
           g.vim_json_syntax_conceal = 0
         '';
       };
-      "gutenye/json5.vim".enable = true;
-      vim-toml.enable = true;
+      "json5.vim" = {
+        enable = true;
+        source = nvimCfg.lib.buildVimPluginFromNiv pins "json5.vim";
+      };
+      vim-toml = {
+        enable = true;
+        source = vimPlugins.vim-toml;
+      };
       vim-fish = {
         enable = true;
+        source = vimPlugins.vim-fish;
         for = "fish";
       };
       nginx-vim = {
         enable = true;
+        source = vimPlugins.nginx-vim;
       };
       # }}}
 
@@ -263,6 +289,7 @@ in
       # TODO: Consider building my own solution on top of snippets.nvim instead
       neosnippet-vim = {
         enable = true;
+        source = vimPlugins.neosnippet-vim;
         extraConfig = ''
           -- Use actual tabstops in snippet files
           cmd 'autocmd vimrc FileType neosnippet setlocal noexpandtab'
@@ -275,19 +302,30 @@ in
       };
       neosnippet-snippets = {
         enable = true;
+        source = vimPlugins.neosnippet-snippets;
         dependencies = [ "neosnippet-vim" ];
       };
       # Automatic closing of control flow blocks for most languages, eg. `end`
       # inserted after `if` in Ruby
-      vim-endwise.enable = true;
+      vim-endwise = {
+        enable = true;
+        source = vimPlugins.vim-endwise;
+      };
       # Automatic context-sensitive closing of quotes, parenthesis, brackets, etc.
       # and related features
-      delimitMate.enable = true;
+      delimitMate = {
+        enable = true;
+        source = vimPlugins.delimitMate;
+      };
       # Flexible word-variant tooling; mostly useful to me for 'coercing' between
       # different variable-naming styles (e.g. snake_case to camelCase via `crc`)
-      vim-abolish.enable = true;
+      vim-abolish = {
+        enable = true;
+        source = vimPlugins.vim-abolish;
+      };
       nvim-cmp = {
         enable = true;
+        source = vimPlugins.nvim-cmp;
         # TODO lspconfig stuff, snippets
         extraConfig = ''
           opt.shortmess\append { c: true }
@@ -323,9 +361,9 @@ in
         '';
         # '';
         dependencies = [
-          "lspkind-nvim"
+          vimPlugins.lspkind-nvim
           # Completion sources
-          "cmp-buffer" "cmp-path" "cmp-nvim-lsp" "cmp-nvim-lua"
+          vimPlugins.cmp-buffer vimPlugins.cmp-path vimPlugins.cmp-nvim-lsp vimPlugins.cmp-nvim-lua
         ];
       };
       # }}}
@@ -335,9 +373,8 @@ in
       # TODO consider writing my own version in MoonScript, with a
       # jump-to-buffer function that works like vimfx follow-links?
       vim-buffet = {
-        source = "bagrat/vim-buffet";
         enable = true;
-        commit = "044f2954a5e49aea8625973de68dda8750f1c42d";
+        source = nvimCfg.lib.buildVimPluginFromNiv pins "vim-buffet";
         extraConfig = ''
           -- Prettify
           g.workspace_powerline_separators = 1
@@ -350,6 +387,7 @@ in
         # TODO override the git icons with something more legible / immediately comprehensible
         # TODO add lines and arrows for dir structure?
         enable = true;
+        source = vimPlugins.nvim-tree-lua;
         dependencies = [
           "nvim-web-devicons"
         ];
@@ -371,12 +409,15 @@ in
       # then q to cancel, e to quit browsing but leave tasklist up, <CR> to quit
       # and place cursor on selected task
       # TODO find/make equivalent but for telescope.nvim
-      "vim-scripts/TaskList.vim".enable = true;
-      # Extended session management, auto-save/load
-      "Shados/vim-session" = {
+      "TaskList.vim" = {
         enable = true;
-        dependencies = [ "xolox/vim-misc" ];
-        branch = "shados-local";
+        source = nvimCfg.lib.buildVimPluginFromNiv pins "TaskList.vim";
+      };
+      # Extended session management, auto-save/load
+      vim-session = {
+        enable = true;
+        source = nvimCfg.lib.buildVimPluginFromNiv pins "vim-session";
+        dependencies = [ (nvimCfg.lib.buildVimPluginFromNiv pins "vim-misc") ];
         extraConfig = let
         in ''
           g.session_autoload = "no"
@@ -397,6 +438,7 @@ in
       # current file, in a sidebar
       tagbar = {
         enable = true;
+        source = vimPlugins.tagbar;
         on_cmd = "TagbarToggle";
         extraConfig = ''
           --- Default tag sorting by order of appearance within file (still grouped by
@@ -413,6 +455,7 @@ in
       };
       vim-addon-local-vimrc = {
         enable = true;
+        source = vimPlugins.vim-addon-local-vimrc;
         extraConfig = ''
           g.local_vimrc =
             names: { ".vimrc.lua" }
@@ -430,26 +473,40 @@ in
       # Textobjects {{{
       # Upgrades many of vim's inbuilt textobjects and adds some very useful new
       # ones, like a, and i, for working with comma-separated lists
-      targets-vim.enable = true;
+      targets-vim = {
+        enable = true;
+        source = vimPlugins.targets-vim;
+      };
       # al for indent + start/close lines, ai for indent + start line, ii for
       # inside-indent
-      vim-indent-object.enable = true;
+      vim-indent-object = {
+        enable = true;
+        source = vimPlugins.vim-indent-object;
+      };
       # code-column textobject, adds ic, ac, iC and aC for working with columns,
       # a/inner column based on word/WORD
-      "coderifous/textobj-word-column.vim".enable = true;
+      "textobj-word-column.vim" = {
+        enable = true;
+        source = nvimCfg.lib.buildVimPluginFromNiv pins "textobj-word-column.vim";
+      };
       # a_ and i_ for editing the middle of lines like foo_bar_baz, a_ includes the
       # _'s
-      "lucapette/vim-textobj-underscore" = {
+      vim-textobj-underscore = {
         enable = true;
-        dependencies = [ "kana/vim-textobj-user" ];
+        source = nvimCfg.lib.buildVimPluginFromNiv pins "vim-textobj-underscore";
+        dependencies = [ vimPlugins.vim-textobj-user ];
       };
-      argtextobj-vim.enable = true;
+      argtextobj-vim = {
+        enable = true;
+        source = vimPlugins.argtextobj-vim;
+      };
       # TODO: function-based textobject
       # }}}
 
       # General extra functionality {{{
       vim-easymotion = {
         enable = true;
+        source = vimPlugins.vim-easymotion;
         extraConfig = ''
           -- s{char}{char} to easymotion-highlight all matching two-character sequences in sight
           map "n", "s", "<Plug>(easymotion-overwin-f2)", {}
@@ -457,15 +514,25 @@ in
       };
       # Allows for splitting/joining code into/from multi-line formats, gS and gJ
       # by default
-      splitjoin-vim.enable = true;
+      splitjoin-vim = {
+        enable = true;
+        source = vimPlugins.splitjoin-vim;
+      };
       # SublimeText-style multiple cursor impl., ctrl-n to start matching on
       # current word to place
-      vim-multiple-cursors.enable = true;
+      vim-multiple-cursors = {
+        enable = true;
+        source = vimPlugins.vim-multiple-cursors;
+      };
       # Toggle commenting of lines with gc{motion}, also works in visual mode
-      vim-commentary.enable = true;
+      vim-commentary = {
+        enable = true;
+        source = vimPlugins.vim-commentary;
+      };
       # Allows you to visualize your undo tree in a pane opened with :GundoToggle
       vim-mundo = {
         enable = true;
+        source = vimPlugins.vim-mundo;
         remote.python3 = true;
         extraConfig = ''
           -- Visualize undo tree in pane
@@ -474,27 +541,46 @@ in
         '';
       };
       # Allows doing `vim filename:lineno`
-      file-line.enable = true;
+      file-line ={
+        enable = true;
+        source = vimPlugins.file-line;
+      };
       # ,w ,b and ,e alternate motions that support traversing CamelCase and
       # underscore_notation
-      camelcasemotion.enable = true;
+      camelcasemotion = {
+        enable = true;
+        source = vimPlugins.camelcasemotion;
+      };
       # Primarily useful for surrounding existing lines in new delimiters,
       # quotation marks, xml tags, etc., or removing or modifying said
       # 'surroundings'. <operation>s<surrounding-type> is most-used
-      vim-surround.enable = true;
+      vim-surround = {
+        enable = true;
+        source = vimPlugins.vim-surround;
+      };
       # Plugin-hookable `.`-replacement, user-transparent
-      vim-repeat.enable = true;
+      vim-repeat = {
+        enable = true;
+        source = vimPlugins.vim-repeat;
+      };
       # Lets you do `:SudoWrite`/`:SudoRead`, and also launch vim with `nvim
       # sudo:/etc/fstab`, all of which are nicer+shorter than directly using the
       # tee trick; TODO has some issues
-      "chrisbra/SudoEdit.vim".enable = true;
+      "SudoEdit.vim" = {
+        enable = true;
+        source = nvimCfg.lib.buildVimPluginFromNiv pins "SudoEdit.vim";
+      };
       # Reverse search ex command history ala Bash ctrl-r
-      "goldfeld/ctrlr.vim".enable = true;
+      "ctrlr.vim" = {
+        enable = true;
+        source = nvimCfg.lib.buildVimPluginFromNiv pins "ctrlr.vim";
+      };
       # A fancy start screen for vim (mainly for bookmarks and session listing)
       vim-startify = {
         enable = true;
-        after = [ "Shados/vim-session" "nvim-web-devicons" ];
-        extraConfig = optionalString (plugCfg."Shados/vim-session".enable) ''
+        source = vimPlugins.vim-startify;
+        after = [ "vim-session" "nvim-web-devicons" ];
+        extraConfig = optionalString (plugCfg."vim-session".enable) ''
           g.startify_session_dir = g.session_directory
         '' + ''
           g.startify_lists = {
@@ -530,7 +616,10 @@ in
       };
       # Adds a set of functions to retrieve the name of the 'current' function in a
       # source file, for the scope the cursor is in
-      "tyru/current-func-info.vim".enable = true;
+      "current-func-info.vim" = {
+        enable = true;
+        source = nvimCfg.lib.buildVimPluginFromNiv pins "current-func-info.vim";
+      };
       # Slightly gamifies programming, for shits 'n' giggles
       # "Shados/codestats.nvim" = {
       #   enable = true;
@@ -542,6 +631,7 @@ in
       # };
       ack-vim = {
         enable = true;
+        source = vimPlugins.ack-vim;
         extraConfig = ''
           -- Use the current under-cursor word if the ack search is empty
           g.ack_use_cword_for_empty_search = 1
@@ -553,9 +643,13 @@ in
           map "n", "<leader>/", ":Ack!<Space>", {noremap: true}
         '';
       };
-      vim-unimpaired.enable = true;
+      vim-unimpaired = {
+        enable = true;
+        source = vimPlugins.vim-unimpaired;
+      };
       telescope-nvim = {
         enable = true;
+        source = vimPlugins.telescope-nvim;
         binDeps = [
           pkgs.ripgrep pkgs.fd
         ];
@@ -571,7 +665,7 @@ in
       };
       telescope-fzy-native-nvim = {
         enable = true;
-        dependencies = [ "telescope-nvim" ];
+        source = vimPlugins.telescope-fzy-native-nvim;
         extraConfig = ''
           telescope.load_extension "fzy_native"
         '';
@@ -583,7 +677,10 @@ in
       # "bootleq/ShowMarks" = { };
       # git integration for vim, need to watch screencasts. Have activated for now
       # for commit wrapping.
-      vim-fugitive.enable = true;
+      vim-fugitive = {
+        enable = true;
+        source = vimPlugins.vim-fugitive;
+      };
       # vim-based git viewer, needs fugitive repo viewer/browser
       # "gregsexton/gitv" = { };
       # Align elements on neighbouring lines, e.g. quickly build text 'tables'
@@ -594,11 +691,11 @@ in
       # }}}
 
       # Some transitive dependency specs {{{
-      "Shados/facade.nvim" = {
-        dependencies = [
-          "Shados/earthshine"
-        ];
-      };
+      # "Shados/facade.nvim" = {
+      #   dependencies = [
+      #     "Shados/earthshine"
+      #   ];
+      # };
       # }}}
     };
   };

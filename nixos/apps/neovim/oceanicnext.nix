@@ -12,9 +12,6 @@ in
   '';
   sn.programs.neovim.pluginRegistry = {
     oceanic-next = {
-      before = [
-        "famiu/feline.nvim"
-      ];
       extraConfig = ''
         set "background", "dark"
         cmd 'colorscheme OceanicNext'

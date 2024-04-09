@@ -1,10 +1,10 @@
 { config, lib, pkgs, ... }:
-
 # TODO universal ctags
 with lib;
 let
   nvimCfg = config.sn.programs.neovim;
   plugCfg = nvimCfg.pluginRegistry;
+  inherit (pkgs) vimPlugins;
 in
 {
   imports = [
@@ -13,10 +13,6 @@ in
     ./python.nix
   ];
   sn.programs.neovim = {
-    sourcePins = nvimCfg.lib.fillPinsFromDir {
-      priority = 900;
-      directoryPath = ./neovim-pins;
-    };
     mergePlugins = true;
     extraBinPackages = with pkgs; [
       xdg_utils # xdg-open
@@ -29,6 +25,7 @@ in
       # Linting & LSP setup
       nvim-lspconfig = mkMerge [
         { enable = true;
+          source = vimPlugins.nvim-lspconfig;
           after = [
             "ale" # As we modify some ALE settings :O
           ];
@@ -261,30 +258,37 @@ in
       ];
 
       # Language support and syntax highlighting {{{
-      "othree/javascript-libraries-syntax.vim" = {
-        enable = true;
-        dependencies = [ "othree/yajs.vim" ];
-      };
       # vim-markdown-composer = {
       #   enable = true;
       #   extraConfig = ''
       #     g.markdown_composer_autostart = 0
       #   '';
       # };
-      vim-erlang-runtime.enable = true;
-      vim-erlang-compiler.enable = true;
-      vim-erlang-omnicomplete.enable = true;
-      vim-erlang-tags.enable = true;
-      vim-elixir.enable = true;
-      "avdgaag/vim-phoenix".enable = true;
-      # Ocaml
-      "let-def/ocp-indent-vim" = {
-        enable = false;
-        binDeps = with pkgs.ocamlPackages_latest; [
-          ocp-indent
-        ];
+      vim-erlang-runtime = {
+        enable = true;
+        source = vimPlugins.vim-erlang-runtime;
       };
-      rust-vim.enable = true;
+      vim-erlang-compiler ={
+        enable = true;
+        source = vimPlugins.vim-erlang-compiler;
+      };
+      vim-erlang-omnicomplete ={
+        enable = true;
+        source = vimPlugins.vim-erlang-omnicomplete;
+      };
+      vim-erlang-tags = {
+        enable = true;
+        source = vimPlugins.vim-erlang-tags;
+      };
+      vim-elixir = {
+        enable = true;
+        source = vimPlugins.vim-elixir;
+      };
+      # Ocaml
+      rust-vim = {
+        enable = true;
+        source = vimPlugins.rust-vim;
+      };
       # TODO re-enable and test
       # "lervag/vimtex" = {
       #   enable = true;
@@ -321,18 +325,32 @@ in
       # };
       elm-vim = {
         enable = true;
+        source = vimPlugins.elm-vim;
         extraConfig = ''
           -- Elm
           -- Set indent/tab for Elm files to 4 spaces
           cmd 'autocmd vimrc FileType elm setlocal shiftwidth=4 softtabstop=4 tabstop=4'
         '';
       };
-      salt-vim.enable = true;
-      moonscript-vim.enable = true;
-      mediawiki-vim.enable = true;
-      vim-qml.enable = true;
+      salt-vim = {
+        enable = true;
+        source = vimPlugins.salt-vim;
+      };
+      moonscript-vim = {
+        enable = true;
+        source = vimPlugins.moonscript-vim;
+      };
+      mediawiki-vim = {
+        enable = true;
+        source = vimPlugins.mediawiki-vim;
+      };
+      vim-qml = {
+        enable = true;
+        source = vimPlugins.vim-qml;
+      };
       vim-ps1 = {
         enable = true;
+        source = vimPlugins.vim-ps1;
         for = "ps1";
       };
       # }}}
@@ -357,13 +375,20 @@ in
       # Buffer auto-writing, which I only want for specific project/file types
       vim-auto-save = {
         enable = true;
+        source = vimPlugins.vim-auto-save;
         for = "tex";
       };
       # A vim plugin to help with writing vim plugins; most notably :PP acts as a
       # decent REPL
-      vim-scriptease.enable = true;
+      vim-scriptease = {
+        enable = true;
+        source = vimPlugins.vim-scriptease;
+      };
       # Integration with direnv
-      direnv-vim.enable = true;
+      direnv-vim = {
+        enable = true;
+        source = vimPlugins.direnv-vim;
+      };
       # }}}
     };
   };
