@@ -10,10 +10,6 @@ cmd 'autocmd vimrc VimResized * exe "normal! \\<c-w>="'
 -- TODO move all these option-sets into a loop over an array? bit nicer
 -- to configure
 -- Search
--- Incremental searching
-o.incsearch = true
--- Highlight matches by default
-o.hlsearch = true
 -- Ignore case when searching
 o.ignorecase = true
 -- ^ unless a capital letter is typed
@@ -27,8 +23,6 @@ o.relativenumber = true
 o.showmode = false
 
 -- Indentation
--- Copy indent to new line
-o.autoindent = true
 -- Use 2-space autoindentation
 o.shiftwidth = 2
 o.softtabstop = 2
@@ -38,15 +32,7 @@ o.tabstop = 2
 o.expandtab = true
 -- NOTE: Can insert a real <Tab> with CTRL-V<Tab> while in insert mode
 
--- Allow backspace in insert mode
-opt.backspace = { "indent", "eol", "start" }
-o.history = 1000
--- Buffers are not unloaded when 'abandoned' by editing a new file, only when actively quit
-o.hidden = true
-
--- Wrap lines...
-o.wrap = true
--- ...visually, at convenient places
+-- wrap lines visually, at convenient places
 o.linebreak = true
 
 -- Display <Tab>s and trailing spaces visually
@@ -58,19 +44,11 @@ o.foldmethod = "marker"
 o.scrolloff = 6
 -- Similar, but for vertical space & columns
 o.sidescrolloff = 10
--- Minimum number of columns to scroll horiznotall when moving cursor off screen
-o.sidescroll = 1
 -- Previous two only apply when `wrap` is off, something I occasionally need to do
 -- Disable mouse cursor movement
 o.mouse = "c"
--- Support modelines in files
-o.modeline = true
 -- Always keep the gutter open, constant expanding/contracting gets annoying fast
 o.signcolumn = "yes"
-
--- Set netrwhist home location to prevent .netrwhist being made in
--- .config/nvim/ -- it is data not config
-g.netrw_home = (stdpath "data")
 
 -- Exclude temporary directories and remote/detachable mount points from shada
 opt.shada\append { "r/tmp", "r/run", "r/mnt", "r/home/shados/technotheca/mnt" }
@@ -92,20 +70,10 @@ o.switchbuf = "useopen"
 
 -- TODO: Delete old undofile automatically when vim starts
 -- TODO: Delete old backup files automatically when vim starts
--- Both are under ~/.local/share/nvim/{undo,backup} in neovim by default
--- Keep undo history across sessions by storing it in a file
-o.undodir = "#{env["HOME"]}/.local/share/nvim/undo/"
-unless dir_exists o.undodir
-  fn.mkdir o.undodir, "p"
 o.undofile = true
-
-o.backupdir = "#{env["HOME"]}/.local/share/nvim/backup/"
-unless dir_exists o.backupdir
-  -- TODO this doesn't work for backupdir, figure out why
-  fn.mkdir o.backupdir, "p"
+o.backupdir = "#{stdpath "data"}/backup"
 o.backup = true
-
--- This one creates temporary backup files, as opposed to the permanent
+-- This one creates temporary backup files, as opposed to the permament
 -- ones from 'backup', so disable it
 o.writebackup = false
 -- Otherwise, it may decide to do all writes by first moving the written

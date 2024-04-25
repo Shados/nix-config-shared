@@ -81,7 +81,7 @@ in
             indent:
               char: '▏'
             exclude:
-            buftypes: { "terminal", "nofile", "quickfix", "prompt", "help", "nowrite" }
+              buftypes: { "terminal", "nofile", "quickfix", "prompt", "help", "nowrite" }
           hooks = require "ibl.hooks"
           hooks.register(hooks.type.WHITESPACE, hooks.builtin.hide_first_space_indent_level)
           ${optionalString plugCfg.vim-startify.enable ''
@@ -593,9 +593,8 @@ in
           }
           g.startify_bookmarks = {
             {d: "~/notes/Todo.md"},
-            {d: "~/notes/Shopping.md"},
-            -- FIXME move it to an xdg dir instead?
-            {x: "~/.tmuxp/"},
+            {l: "~/notes/Log.md"},
+            {s: "~/notes/Shopping.md"},
           }
           g.startify_fortune_use_unicode = 1
         '' + optionalString plugCfg.nvim-web-devicons.enable ''
