@@ -11,28 +11,16 @@ let
     # Convert all the arkenfox user.js prefs into prefs
     sed -e 's|user_pref|pref|g' "$src/user.js" > "$out"
   '';
-  # legacyFox = pkgs.stdenv.mkDerivation {
-  #   name = "legacyfox";
-  #   src = pkgs.fetchFromGitHub {
-  #     owner = "girst"; repo = "LegacyFox";
-  #     rev = "54655696e65acc67ec73f01932fa2ddb1e236a78";
-  #     sha256 = "1qzyf2bv5zvf95qz9yxgcpmsgadzsvd7rdqxkhmg5x65an3gbnyg";
-  #   };
-  #   preferLocalBuild = true;
-  #   DESTDIR="$(out)";
-  # };
-  # FIXME: This is mostly just a local copy of legacyFox, but I no longer
-  # recall *why* I needed a local version. I *think* there's some tweaks I
-  # needed for... something? Will need to diff it against current stuff and
-  # find out what, if anything, is different, then probably move to just
-  # maintaining a fork or a patch rather than this clusterfuck.
-  legacyFox = pkgs.runCommand "legacyFox" {
-    src = ./legacyFox;
+  legacyFox = pkgs.stdenv.mkDerivation {
+    name = "legacyfox";
+    src = pkgs.fetchFromGitHub {
+      owner = "girst"; repo = "LegacyFox-mirror-of-git.gir.st";
+      rev = "312a791ae03bddd725dee063344801f959cfe44d";
+      sha256 = "05ppc2053lacvrlab4fspxmmjmkryvvc6ndrzhyk06ivmm2nlyyx";
+    };
     preferLocalBuild = true;
-  } ''
-    mkdir -p $out
-    cp -r "$src"/* $out/
-  '';
+    DESTDIR="$(out)";
+  };
   # TODO
   # - Certificates :O?
   # - inject keyworded search engines via bookmarks?
@@ -271,7 +259,7 @@ let
 
         ${optionalString legacyShim ''
         pref("xpinstall.signatures.required", false);
-        ${builtins.readFile ./legacyFox/config.js}
+        ${builtins.readFile "${legacyFox.outPath}/config.js"}
         ''}
 
         // Sane, personal about:config defaults {{{
