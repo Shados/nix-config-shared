@@ -13,14 +13,14 @@ in
     ./oceanicnext.nix
   ];
   nixpkgs.overlays = [
-    (inputs.neovim-nightly-overlay.overlay)
+    (inputs.neovim-nightly-overlay.overlays.default)
   ];
 
   sn.programs.neovim = let
     rgPkg = pkgs.ripgrep;
     rg = "${rgPkg}/bin/rg";
   in {
-    neovimPackage = pkgs.neovim-nightly;
+    neovimPackage = pkgs.neovim;
     mergePlugins = mkDefault true;
     files = {
       "ftplugin/python.vim".source = ./nvim-files/ftplugin/python.vim;
@@ -105,20 +105,20 @@ in
       # }}}
 
       # Language support and syntax highlighting {{{
-      nvim-treesitter = {
-        # FIXME: unclear why, but this shit is broken AF. Doesn't appear to be
-        # a "upstream neovim parsers taking precedence over nvim-treesitter's",
-        # not clear what else could be causing the issues I was seeing.
-        enable = false;
-        source = pkgs.vimPlugins.nvim-treesitter.withAllGrammars;
-        extraConfig = ''
-          require"nvim-treesitter.configs".setup
-            auto_install: false
-            highlight:
-              enable: true
-              additional_vim_regex_highlighting: false
-        '';
-      };
+      # nvim-treesitter = {
+      #   # FIXME: unclear why, but this shit is broken AF. Doesn't appear to be
+      #   # a "upstream neovim parsers taking precedence over nvim-treesitter's",
+      #   # not clear what else could be causing the issues I was seeing.
+      #   enable = false;
+      #   source = pkgs.vimPlugins.nvim-treesitter.withAllGrammars;
+      #   extraConfig = ''
+      #     require"nvim-treesitter.configs".setup
+      #       auto_install: false
+      #       highlight:
+      #         enable: true
+      #         additional_vim_regex_highlighting: false
+      #   '';
+      # };
       # Async linting
       ale = with pkgs; mkMerge [
         # ALE config {{{
