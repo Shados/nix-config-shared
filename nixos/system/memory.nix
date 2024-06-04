@@ -19,7 +19,7 @@ in
     {
       boot.kernel.sysctl = {
         # Most of my systems have plenty of RAM, so default to less swappy.
-        "vm.swappiness" = mkDefault 5;
+        "vm.swappiness" = mkDefault 1;
       };
     }
     (mkIf cfg.enableOvercommit {
