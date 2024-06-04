@@ -31,12 +31,16 @@ in
         export XSECURELOCK_BLANK_TIMEOUT=5
         exec -a "$0" ${pkgs.xsecurelock}/bin/xsecurelock "$@"
       '');
+      # TODO unset DPMS timeout in trap also
       mkXSSLocker = lockCmd: pkgs.writers.writeBash "xss-locker-wrapper" ''
         # Command to start the locker (should not fork)
         locker="${lockCmd}"
 
         # Kill locker if we get killed
         trap 'kill "$LOCKER_PID" 2>/dev/null' TERM INT
+
+        # Set DPMS timeout
+        ${setDpms}
 
         # Run the locker in the background
         $locker &
@@ -57,17 +61,30 @@ in
         # Wait for the locker to exit
         wait
 
-
         # Tell logind we're unlocked
         ${busctl} call org.freedesktop.login1 "$session_path" org.freedesktop.login1.Session SetLockedHint b false &
 
         # Now that we're unlocked again, trigger a logind Unlock event; we can
         # hook this in dbus (or in systemd via systemd-lock-handler)
         ${loginctl} unlock-session &
+
+        # Unset DPMS timeout
+        ${unsetDpms}
       '';
       busctl = "${pkgs.systemd}/bin/busctl";
       loginctl = "${pkgs.systemd}/bin/loginctl";
       jq = "${pkgs.jq}/bin/jq";
+
+      # TODO share with shared/home-manager/apps/openbox.nix
+      unsetDpms = pkgs.writers.writeBash "unset-dpms" ''
+        # Disable all DPMS timeouts, but ensure DPMS itself is enabled, so that
+        # our screen locker can use it
+        ${pkgs.xorg.xset}/bin/xset s 0 0 s noblank s noexpose dpms 0 0 0 +dpms
+      '';
+      setDpms = pkgs.writers.writeBash "set-dpms" ''
+        # Set the DPMS-off timeout to 15 seconds
+        ${pkgs.xorg.xset}/bin/xset dpms 0 0 15 +dpms
+      '';
     in {
       # FIXME: Find a way to just enable the existing, packaged user file?
       systemd.user.services.systemd-lock-handler = {
@@ -92,6 +109,7 @@ in
         Unit = {
           PartOf = [ "hm-graphical-session.target" ];
           # Don't restart on home-manager activation if paths have changed
+          # TODO somehow only restart if we're not currently locked?
           X-RestartIfChanged = false;
         };
         Service = {
@@ -139,6 +157,7 @@ in
       home.packages = with pkgs; [
         nur.repos.shados.systemd-lock-handler
         xss-lock
+        xsecurelock
       ];
     })
     (mkIf config.xsession.windowManager.openbox.enable {

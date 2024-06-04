@@ -33,9 +33,8 @@ in
       startupApps = with config.lib.openbox; listToAttrs [
         (launchCli "dpms" ''
           # Disable all DPMS timeouts, but ensure DPMS itself is enabled, so that
-          # xlockmore can use it
-          # NOTE: We also need a non-zero 'off' timer for this to work, sadly. So we set it to 5 hours.
-          ${pkgs.xorg.xset}/bin/xset s 0 0 s noblank s noexpose dpms 0 0 ${toString (5 * 60 * 60)} +dpms &
+          # our screen locker can use it
+          ${pkgs.xorg.xset}/bin/xset s 0 0 s noblank s noexpose dpms 0 0 0 +dpms &
         '')
         (launchTray "nitrogen" ''
           ${pkgs.nitrogen}/bin/nitrogen --restore &
