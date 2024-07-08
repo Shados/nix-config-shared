@@ -88,9 +88,8 @@ in
       };
       time.timeZone = "Australia/Melbourne";
 
-      # TODO: Figure out why this is currently broken for me
       documentation.nixos = {
-        enable = mkDefault false;
+        enable = true;
         includeAllModules = false;
       };
     }
