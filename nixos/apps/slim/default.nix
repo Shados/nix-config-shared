@@ -1,12 +1,12 @@
 { config, lib, pkgs, ... }:
 
 let
-  x_env = config.services.xserver.displayManager.job.environment;
+  x_env = config.services.displayManager.job.environment;
   inherit (builtins) hasAttr getAttr;
 in
 
 {
-  services.xserver.displayManager = {
+  services.displayManager = {
     slim = {
       theme = ./shadosnet-nixos-slim-theme.tar.gz;
     };

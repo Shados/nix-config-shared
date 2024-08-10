@@ -81,13 +81,14 @@ in
     atop = {
       enable = true;
       atopService.enable = false;
+      atopRotateTimer.enable = false; # FIXME: shouldn't be enabled if atopService is disabled, upstream
       settings = {
         interval = 1;
         flags = "aF";
       };
     };
     bash = {
-      enableCompletion = true;
+      completion.enable = true;
       #shellAliases = {};
     };
   };

@@ -44,19 +44,28 @@ in
         "/share/"
       ];
       security.polkit.enable = true;
+      # Necessary for GTK to support SVG. GTK uses SVG icons by default in
+      # many ways. Yes, not being able to support its own default icon
+      # format without an external run-time dependency *is* somewhat
+      # insane.
+      programs.gdk-pixbuf.modulePackages = [ pkgs.librsvg ];
       services = {
         accounts-daemon.enable = true;
         udisks2.enable = true;
         upower.enable = true;
+        displayManager.defaultSession = "xsession";
+        # displayManager.slim.enable = true; # RIP SLIM
+        displayManager.sddm = {
+          enable = true;
+        };
         xserver = {
           enable = true;
 
-          displayManager.defaultSession = "xsession";
           desktopManager.xterm.enable = false;
           desktopManager.session = singleton {
             name = "xsession";
             start = ''
-              ${pkgs.gnome3.zenity}/bin/zenity --error --text "The user must provide a ~/.xsession file containing session startup commands." --no-wrap
+              ${pkgs.zenity}/bin/zenity --error --text "The user must provide a ~/.xsession file containing session startup commands." --no-wrap
             '';
           };
 
@@ -65,17 +74,7 @@ in
             ${pkgs.xorg.xrdb}/bin/xrdb -merge ${default_xresources}
           '';
 
-          # displayManager.slim.enable = true; # RIP SLIM
-          displayManager.sddm = {
-            enable = true;
-          };
-
           updateDbusEnvironment = true;
-          # Necessary for GTK to support SVG. GTK uses SVG icons by default in
-          # many ways. Yes, not being able to support its own default icon
-          # format without an external run-time dependency *is* somewhat
-          # insane.
-          gdk-pixbuf.modulePackages = [ pkgs.librsvg ];
 
           inputClassSections = singleton ''
             Identifier "Universally Configure Compose Key"
@@ -107,8 +106,8 @@ in
         gnome2.gtk
         gtk_engines
         gtk-engine-murrine
-        gnome.gnome-themes-extra
-        gnome3.adwaita-icon-theme
+        gnome-themes-extra
+        adwaita-icon-theme
 
         arc-theme
         arc-icon-theme
@@ -168,9 +167,7 @@ in
       ];
 
       # Adapt from https://gitlab.gnome.org/GNOME/gnome-build-meta/blob/gnome-3-32/elements/core/meta-gnome-core-shell.bst
-      environment.systemPackages = with pkgs.gnome3; [
-        adwaita-icon-theme
-        gnome-themes-extra
+      environment.systemPackages = [
         pkgs.gnome-menus
         pkgs.gtk3 # for gtk-launch
         pkgs.hicolor-icon-theme

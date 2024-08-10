@@ -11,7 +11,7 @@ let
     '';
 in
 {
-  config = mkIf config.services.xserver.displayManager.sddm.enable {
+  config = mkIf config.services.displayManager.sddm.enable {
     # services.xserver.displayManager.sddm.theme = "";
     environment.systemPackages = [
       (sddmAvatarFor "shados" ./shadow_diagram_v2.png)

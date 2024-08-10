@@ -50,11 +50,6 @@ with lib;
           "\${qtWrapperArgs[@]}"
         ];
       });
-      youtube-dl = super.youtube-dl.overrideAttrs(oa: {
-        patches = oa.patches or [] ++ [
-          ../fixes/youtube-dl-uploader-id.patch
-        ];
-      });
     })
   ];
   # Fix for home-manager issues #730 and #909 is using the non-"legacy" systemd

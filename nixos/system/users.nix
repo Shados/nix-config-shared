@@ -15,7 +15,8 @@ in
       "users"
       "systemd-journal"
       "grsecurity"
-    ] ++ optional config.sound.enable "audio";
+      "audio"
+    ];
     uid = 1000;
     shell = pkgs.fish;
     openssh.authorizedKeys.keys = [
