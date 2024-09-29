@@ -83,7 +83,7 @@ in
       atopService.enable = false;
       atopRotateTimer.enable = false; # FIXME: shouldn't be enabled if atopService is disabled, upstream
       settings = {
-        interval = 1;
+        interval = 5;
         flags = "aF";
       };
     };
