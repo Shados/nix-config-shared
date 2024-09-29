@@ -98,8 +98,8 @@ in
       };
     };
     home.file.${config.xresources.path}.onChange = optionalString cfg.daemon ''
-      if systemctl --user is-active urxvtd.service 2>/dev/null; then
-        systemctl --user reload urxvtd.service
+      if ${pkgs.systemd}/bin/systemctl --user is-active urxvtd.service 2>/dev/null; then
+        ${pkgs.systemd}/bin/systemctl --user reload urxvtd.service
       fi
     '';
     systemd.user.services = mkIf cfg.daemon {

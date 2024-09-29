@@ -1120,7 +1120,7 @@ in
         source = config.xsession.windowManager.openbox.finalConfigFile;
         onChange = ''
           # Attempt to reconfigure openbox if X is running.
-          if systemctl --user is-active openbox-graphical-session.target >/dev/null; then
+          if ${pkgs.systemd}/bin/systemctl --user is-active openbox-graphical-session.target >/dev/null; then
             echo "Reconfiguring openbox"
             if [[ -v DISPLAY ]]; then
               $DRY_RUN_CMD ${pkgs.openbox}/bin/openbox --reconfigure

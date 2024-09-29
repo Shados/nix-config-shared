@@ -92,7 +92,7 @@ in
     (mkIf (cfg.enable && config.xsession.windowManager.openbox.enable && (cfg.windows != [])) {
       xsession.windowManager.openbox.startupApps = with config.lib.openbox; listToAttrs [
         (launchApp "eww-windows" ''
-          if systemctl --user is-active eww.service >/dev/null; then
+          if ${pkgs.systemd}/bin/systemctl --user is-active eww.service >/dev/null; then
             ${eww} open-many ${concatStringsSep " " cfg.windows}
           fi
         '')

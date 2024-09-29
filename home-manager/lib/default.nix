@@ -1,4 +1,4 @@
-{ config, lib, pkgs, ... }:
+{ config, inputs, lib, pkgs, ... }:
 with lib;
 {
   lib = {
@@ -13,9 +13,11 @@ with lib;
         "/run/current-system/sw/bin"
       ];
       makePath = concatStringsSep ":";
-      mkPoetryApplication = import ./poetry2nix.nix {
+      mkPoetryApplication = let
+        poetry2nix = inputs.poetry2nix.lib.mkPoetry2Nix { inherit pkgs; };
+      in import ./poetry2nix.nix {
         inherit lib;
-        inherit (pkgs.poetry2nix) mkPoetryApplication;
+        inherit (poetry2nix) mkPoetryApplication;
       };
     };
   };

@@ -61,7 +61,7 @@ in
       performServiceRestarts = lib.hm.dag.entryAfter [ "onFilesChange" "reloadSystemd" ] ''
         for service in "''${!restartServices[@]}"; do
           echo Restarting "$service.service"
-          $DRY_RUN_CMD systemctl --user restart "$service.service"
+          $DRY_RUN_CMD ${pkgs.systemd}/bin/systemctl --user restart "$service.service"
         done
       '';
     };
