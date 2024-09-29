@@ -421,15 +421,15 @@ let
   '');
 in
 {
-  home.packages = with pkgs; [
-    (customizeFox rec {
+  nixpkgs.overlays = singleton (self: super: {
+    firefox-customised = (customizeFox rec {
       # base = firefox-esr-68-unwrapped;
-      base = firefox-unwrapped;
+      base = super.firefox-unwrapped;
       libName = "firefox";
       binName = "firefox";
       legacyShim = true;
-    })
-    ((wrapFirefox firefox-bin-unwrapped {
+    });
+    firefox-uncustomised = (super.wrapFirefox super.firefox-bin-unwrapped {
       applicationName = "firefox";
       nameSuffix = "-noprefs";
       pname = "firefox-noprefs-bin";
@@ -438,7 +438,11 @@ in
       meta = oa.meta or {} // {
         priority = 1000;
       };
-    }))
+    });
+  });
+  home.packages = with pkgs; [
+    firefox-customised
+    firefox-uncustomised
   ];
   xdg.mimeApps.defaultApplications = {
     "x-scheme-handler/http" = "firefox.desktop";
