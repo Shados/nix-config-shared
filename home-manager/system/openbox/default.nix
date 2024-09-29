@@ -1122,9 +1122,7 @@ in
           # Attempt to reconfigure openbox if X is running.
           if ${pkgs.systemd}/bin/systemctl --user is-active openbox-graphical-session.target >/dev/null; then
             echo "Reconfiguring openbox"
-            if [[ -v DISPLAY ]]; then
-              $DRY_RUN_CMD ${pkgs.openbox}/bin/openbox --reconfigure
-            fi
+            $DRY_RUN_CMD ${pkgs.systemd}/bin/systemctl --user start openbox-reconfigure.service
           fi
         '';
       };
@@ -1187,6 +1185,18 @@ in
         BindsTo = [ "graphical-session.target" ];
         Requisite = [ "graphical-session.target" ];
       };
+    };
+
+    # Running this within a systemd session allows us to make use of its
+    # environment, including DISPLAY and XAUTHORITY
+    systemd.user.services.openbox-reconfigure = rec {
+      Unit.Description = "Reconfigures Openbox";
+      Unit.Requires = [ "openbox-graphical-session.target" ];
+      Unit.After = Unit.Requires;
+      Service.ExecStart = pkgs.writers.writeBash "systemd-openbox-reconfigure" ''
+        ${pkgs.openbox}/bin/openbox --reconfigure
+      '';
+      Service.Type = "oneshot";
     };
   };
 }
