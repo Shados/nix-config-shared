@@ -72,10 +72,6 @@ in
 
       keyboard.keybind = {
         # Desktop management binds
-        "W-1 W-A-F1" = singleton { action = "desktop"; desktop = 1; };
-        "W-2 W-A-F2" = singleton { action = "desktop"; desktop = 2; };
-        "W-3 W-A-F3" = singleton { action = "desktop"; desktop = 3; };
-        "W-4 W-A-F4" = singleton { action = "desktop"; desktop = 4; };
         "W-Tab" = singleton { action = "goToDesktop"; to = "next"; wrap = true; };
         "W-A-d" = singleton "toggleShowDesktop";
 
@@ -86,7 +82,7 @@ in
           "focusToBottom"
           "unfocus"
         ];
-        "A-Space" = singleton { action = "showMenu"; menu = "client-menu"; };
+        "A-space" = singleton { action = "showMenu"; menu = "client-menu"; };
         # Window switching
         "A-Tab" = singleton "nextWindow";
         "A-S-Tab" = singleton "previousWindow";
