@@ -74,6 +74,17 @@
     </application>
   </xsl:template>
 
+  <!-- Handle desktop names -->
+  <xsl:template match="/expr/attrs/attr[@name = 'desktops']/attrs/attr[@name = 'names']">
+    <names>
+      <xsl:for-each select="list/string">
+        <name>
+          <xsl:value-of select="@value" />
+        </name>
+      </xsl:for-each>
+    </names>
+  </xsl:template>
+
   <!-- Handle Menu files -->
   <xsl:template match="/expr/attrs/attr/attrs/attr[@name = 'file']">
     <xsl:for-each select="list/string">
