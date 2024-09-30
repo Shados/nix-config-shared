@@ -52,7 +52,5 @@ with lib;
       });
     })
   ];
-  # Fix for home-manager issues #730 and #909 is using the non-"legacy" systemd
-  # script, which for some reason isn't enabled by default
-  systemd.user.startServices = true;
+  systemd.user.startServices = "legacy";
 }
