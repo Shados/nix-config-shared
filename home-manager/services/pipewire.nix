@@ -56,5 +56,9 @@ in
         restartServices["pipewire"]=1
       '';
     };
+    xdg.configFile."systemd/user/pipewire-pulse.service.d/restart.conf".text = ''
+      [Unit]
+      Requires=pipewire.service
+    '';
   });
 }
