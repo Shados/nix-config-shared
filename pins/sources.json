@@ -53,10 +53,10 @@
         "homepage": "",
         "owner": "transmission-remote-gui",
         "repo": "transgui",
-        "rev": "25df397d92fbd53b970ef72a6ffd9f644458f935",
-        "sha256": "0jvnpxbzmg8d59zcrmwx7igamwqhc59nlyhrjqzr6y63ykd1w0ld",
+        "rev": "8854357ece266e749e8981a93c8002465a93d8f2",
+        "sha256": "1jbp5l8hj7zmxah1l5kc7zlxxjl5nr9kd3ds7mfp0yfg72z249zk",
         "type": "tarball",
-        "url": "https://github.com/transmission-remote-gui/transgui/archive/25df397d92fbd53b970ef72a6ffd9f644458f935.tar.gz",
+        "url": "https://github.com/transmission-remote-gui/transgui/archive/8854357ece266e749e8981a93c8002465a93d8f2.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     }
 }
