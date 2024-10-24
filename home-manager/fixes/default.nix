@@ -3,11 +3,6 @@ with lib;
 {
   nixpkgs.overlays = [
     (self: super: {
-      geeqie = super.geeqie.overrideAttrs(oa: rec {
-        configureFlags = oa.configureFlags or [] ++ [
-          "--disable-gpu-accel" # GPU acceleration has been varyingly buggy and slow since ~1.6.0, disable it for now
-        ];
-      });
       obs-studio = if versionOlder (getVersion super.obs-studio) "30.2.0" then super.obs-studio.overrideAttrs(oa: rec {
         version = "30.2.0-rc1";
         src = super.fetchFromGitHub {
