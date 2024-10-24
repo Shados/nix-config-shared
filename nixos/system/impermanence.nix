@@ -52,7 +52,7 @@ in
         "/nix/persist/var/log" = dsToBootFs "${abstractRoot}/nix/persist/var/log";
         "/srv" = dsToFs "${abstractRoot}/srv";
       };
-      boot.initrd.postDeviceCommands = mkAfter ''
+      boot.initrd.postResumeCommands = mkAfter ''
         echo "Rolling back root to pristine state"
         zfs rollback -r ${escapeShellArg config.fileSystems."/".device}@${escapeShellArg pristineSnapshot}
         echo "Rolling back tmp to pristine state"
