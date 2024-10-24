@@ -47,5 +47,4 @@ with lib;
       });
     })
   ];
-  systemd.user.startServices = "legacy";
 }

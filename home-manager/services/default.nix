@@ -9,4 +9,5 @@
     ./urxvt.nix
     ./wired-notify.nix
   ];
+  systemd.user.startServices = true;
 }
