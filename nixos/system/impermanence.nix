@@ -45,6 +45,12 @@ in
       abstractRoot = "${rootPool}/${config.boot.zfs.rootDataset}";
     in {
       fileSystems = {
+        "/" = dsToBootFs "${abstractRoot}/root";
+        "/home" = dsToFs "${rootPool}/HOMES";
+        "/home/shados" = dsToFs "${rootPool}/HOMES/shados";
+        "/root" = dsToFs "${rootPool}/HOMES/root";
+        "/nix" = dsToBootFs "${abstractRoot}/nix";
+        "/nix/store" = dsToBootFs "${abstractRoot}/nix/store";
         "/nix/persist" = dsToBootFs "${abstractRoot}/nix/persist";
         "/nix/persist/etc" = dsToBootFs "${abstractRoot}/nix/persist/etc";
         "/nix/persist/var" = dsToBootFs "${abstractRoot}/nix/persist/var";
