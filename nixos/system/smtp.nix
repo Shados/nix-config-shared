@@ -9,7 +9,7 @@ with lib;
       host = "smtp.fastmail.com";
       port = 465;
       user = "shados@f-m.fm";
-      passwordeval = "cat ${config.sops.secrets.msmtp-password-fastmail.path}";
+      passwordeval = "${getExe' pkgs.coreutils "cat"} ${config.sops.secrets.msmtp-password-fastmail.path}";
       tls = true;
       tls_starttls = false;
       from = "cronjobs@shados.net";
