@@ -41,6 +41,7 @@ in
       rg_bin = '${rg}'
       ${builtins.readFile ./extraConfig.moon}
     '' + optionalString plugCfg.ale.enable ''
+      g.ale_linters_explicit = 1
       g.ale_linters = ale_linters
       g.ale_fixers = ale_fixers
     '';
