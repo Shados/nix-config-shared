@@ -353,6 +353,16 @@ in
         source = vimPlugins.vim-ps1;
         for = "ps1";
       };
+      yuecheck-vim = {
+        enable = true;
+        dependencies = [ "ale" ];
+        binDeps = with pkgs; [ lua52Packages.yuecheck-vim ];
+        dir = "/home/shados/technotheca/artifacts/media/software/lua/yuecheck-vim";
+        source = pkgs.lua52Packages.yuecheck-vim;
+        extraConfig = ''
+          register_ale_tool(ale_linters, "yue", "yuecheck")
+        '';
+      };
       # }}}
 
       # General Extra Functionality {{{
