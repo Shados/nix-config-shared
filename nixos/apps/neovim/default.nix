@@ -282,6 +282,10 @@ in
         enable = true;
         source = vimPlugins.nginx-vim;
       };
+      yuescript-vim = {
+        enable = true;
+        source = nvimCfg.lib.buildVimPluginFromNiv pins "yuescript-vim";
+      };
       # }}}
 
       # Text/code creation & refactoring {{{

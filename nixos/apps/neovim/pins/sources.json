@@ -142,5 +142,17 @@
         "type": "tarball",
         "url": "https://github.com/lucapette/vim-textobj-underscore/archive/41fcdacaa5c763063a4b4f715cc22962075f22d6.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "yuescript-vim": {
+        "branch": "master",
+        "description": null,
+        "homepage": null,
+        "owner": "pigpigyyy",
+        "repo": "yuescript-vim",
+        "rev": "4a1065386b8396cb138d3cda0362fdadfefb8576",
+        "sha256": "128105asisalhf7qffb5llx7vlrb3l49kzn88djaw2bljs1md2gq",
+        "type": "tarball",
+        "url": "https://github.com/pigpigyyy/yuescript-vim/archive/4a1065386b8396cb138d3cda0362fdadfefb8576.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     }
 }
