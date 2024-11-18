@@ -62,7 +62,18 @@ in
 
   config = mkMerge [
     {
-      services.zfs.trim.interval = "Mon *-*-* 03:30:00";
+      services.zfs.trim = {
+        interval = "Mon 03:30";
+        randomizedDelaySec = "0";
+      };
+      services.zfs.autoScrub = {
+        enable = true;
+        interval = "Mon 05:00";
+        randomizedDelaySec = "0";
+      };
+    }
+    { # Workaround for openzfs/zfs issue #9810
+      boot.kernelParams = mkIf config.boot.zfs.enabled [ "spl.spl_taskq_thread_dynamic=0" ];
     }
     # Use zfs-mount-generator instead of zfs-mount.service
     # NOTE: Somewhat experimental systemd-mount-generator setup, based on a

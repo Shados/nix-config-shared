@@ -37,10 +37,6 @@ in
         KillUserProcesses=no
       '';
       systemd.enableEmergencyMode = mkDefault false;
-      services.zfs.autoScrub = {
-        enable = true;
-        interval = "Mon 05:00";
-      };
       systemd.coredump.enable = false;
       # TODO: hm equivalent config, for darwin only
       programs.command-not-found.enable = false;
@@ -92,9 +88,6 @@ in
         enable = true;
         includeAllModules = false;
       };
-    }
-    { # Workaround for openzfs/zfs issue #9810
-      boot.kernelParams = mkIf config.boot.zfs.enabled [ "spl.spl_taskq_thread_dynamic=0" ];
     }
   ];
 }
