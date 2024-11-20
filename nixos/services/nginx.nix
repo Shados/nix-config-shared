@@ -18,6 +18,9 @@ mkIf cfg.enable {
   # };
   systemd.services.nginx.serviceConfig.ReadWritePaths = singleton nginxRootDir;
   services.nginx = {
+    preStart = ''
+      mkdir -p ${nginxRootDir}/logs
+    '';
     enableReload = mkDefault true;
     recommendedGzipSettings = mkDefault true;
     recommendedTlsSettings = mkDefault true;
