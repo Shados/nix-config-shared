@@ -18,8 +18,19 @@ in
       pkgs = null;
     };
   in mkMerge [
-    # Setup access to the Nix User Repository
-    { nixpkgs.overlays = singleton inputs.nur.overlay;
+    { nixpkgs.overlays = [
+        (self: super: rec {
+          # Could cause some breakage, but personally I pretty much always want
+          # the 5.2 compat features
+          luajit = super.luajit.override(oa: {
+            enable52Compat = true;
+            # TODO upstream a passthruFun splicing fix into nixpkgs?
+            passthruFun = {self, ...}@inputs: oa.passthruFun (inputs // { self = luajit; });
+          });
+        })
+        # Setup access to the Nix User Repository
+        inputs.nur.overlay
+      ];
     }
     # Pull in overlays from my NUR
     { nixpkgs.overlays = with nur-no-packages.repos.shados.overlays; mkBefore [
