@@ -130,7 +130,7 @@ in
         # Rust
         # Rust tooling inevitably ends up being very project specific, so we
         # don't add a global rust-analyzer, instead add it to the path in
-        # shell.nix files per-project, with lorri+direnv to make it convenient
+        # shell.nix files per-project, with direnv to make it convenient
         { extraConfig = mkAfter ''
             if (fn.executable "cargo") != 0
               lspconfig.rust_analyzer.setup

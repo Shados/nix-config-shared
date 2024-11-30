@@ -57,14 +57,6 @@ with lib;
       '';
       programs.zsh.shellAliases.tmux = ''direnv exec / "${config.programs.tmux.package}/bin/tmux" $argv'';
     }
-    (mkIf (config.sn.os == "nixos") { # Lorri integration
-      services.lorri.enable = true;
-      programs.direnv.stdlib = ''
-        use_lorri() {
-          eval "$(lorri direnv)"
-        }
-      '';
-    })
     { # layout_python with custom venv directory
     programs.direnv.stdlib = ''
       source ${./layout_python_venv.sh}
