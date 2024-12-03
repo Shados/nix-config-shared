@@ -85,6 +85,11 @@ let
   '';
 
   natDest = if natcfg.externalIP == null then "masquerade" else "snat ${natcfg.externalIP}";
+
+  portsToNftSet = ports: portRanges: lib.concatStringsSep ", " (
+    map (x: toString x) ports
+    ++ map (x: "${toString x.from}-${toString x.to}") portRanges
+  );
 in
 
 # table family > table name > chain name
@@ -146,58 +151,60 @@ in
               # This chain optionally performs logging, then jumps to the
               # refuse chain
               ${optionalString fwcfg.logRefusedConnections ''
-                tcp flags syn log level info prefix "rejected connection: "
+                tcp flags syn / fin,syn,rst,ack log level info prefix "refused connection: "
               ''}
               ${optionalString (fwcfg.logRefusedPackets && !fwcfg.logRefusedUnicastsOnly) ''
                 meta pkttype broadcast log level info prefix "rejected broadcast: "
                 meta pkttype multicast log level info prefix "rejected multicast: "
-                meta pkttype != unicast jump nixos-fw-refuse
               ''}
               ${optionalString fwcfg.logRefusedPackets ''
-                log level info prefix "rejected packet: "
+                pkttype host log level info prefix "refused packet: "
               ''}
               jump nixos-fw-refuse
             '';
             nixos-fw.rules = mkMerge [
               (mkBefore ''
-                # Accept all traffic on the trusted interfaces
-                ${flip concatMapStrings fwcfg.trustedInterfaces (iface: ''
-                  meta iifname "${iface}" jump nixos-fw-accept
-                '')}
+                ${optionalString (fwcfg.trustedInterfaces != []) ''
+                  iifname { ${concatMapStringsSep ", " (int: "\"${int}\"") fwcfg.trustedInterfaces} } accept comment "trusted interfaces"
+                ''}
+
+                # Rate-limited ICMPv6 ping; has to be done prior to accepting
+                # established/related flows or it won't be applied properly
+                icmpv6 type { echo-request, echo-reply } meter icmpv6-echo { ip6 saddr & ffff:ffff:ffff:ffff:: limit rate over 4/second } counter drop comment "Drop suspiciously-high ping rate from single source /64"
 
                 # Accept packets from established/related connections
                 ct state established,related accept
+                # NOTE: Some ICMPv6 types like NDP is untracked
+                ct state vmap {
+                  invalid : drop,
+                  established : accept,
+                  related : accept,
+                  new : continue,
+                  untracked: continue,
+                }
               '')
               ''
-                # Accept connections to allowed TCP ports
-                ${concatMapStrings (port: ''
-                  tcp dport ${toString port} jump nixos-fw-accept
-                '') fwcfg.allowedTCPPorts}
+                ${lib.concatStrings (lib.mapAttrsToList (iface: cfg:
+                  let
+                    ifaceExpr = lib.optionalString (iface != "default") "iifname ${iface}";
+                    tcpSet = portsToNftSet fwcfg.allowedTCPPorts fwcfg.allowedTCPPortRanges;
+                    udpSet = portsToNftSet fwcfg.allowedUDPPorts fwcfg.allowedUDPPortRanges;
+                  in
+                  ''
+                    ${lib.optionalString (tcpSet != "") "${ifaceExpr} tcp dport { ${tcpSet} } accept"}
+                    ${lib.optionalString (udpSet != "") "${ifaceExpr} udp dport { ${udpSet} } accept"}
+                  ''
+                ) fwcfg.allInterfaces)}
 
-                # Accept connections to allowed TCP port ranges
-                ${concatMapStrings (rangeAttr:
-                  let range = toString rangeAttr.from + "-" + toString rangeAttr.to; in ''
-                  tcp dport ${range} jump nixos-fw-accept
-                '') fwcfg.allowedTCPPortRanges}
-
-                # Accept connections to allowed UDP ports
-                ${concatMapStrings (port: ''
-                  udp dport ${toString port} jump nixos-fw-accept
-                '') fwcfg.allowedUDPPorts}
-
-                # Accept connections to allowed UDP port ranges
-                ${concatMapStrings (rangeAttr:
-                  let range = toString rangeAttr.from + "-" + toString rangeAttr.to; in ''
-                  udp dport ${range} jump nixos-fw-accept
-                '') fwcfg.allowedUDPPortRanges}
-
-                # Optionally respond to ICMPv4 pings
-                ${optionalString fwcfg.allowPing ''
-                  ip6 nexthdr icmpv6 icmpv6 type echo-request ${optionalString (fwcfg.pingLimit != null) "limit rate ${fwcfg.pingLimit}"} jump nixos-fw-accept
-                  ip protocol icmp icmp type echo-request ${optionalString (fwcfg.pingLimit != null) "limit rate ${fwcfg.pingLimit}"} jump nixos-fw-accept
+                ${lib.optionalString fwcfg.allowPing ''
+                  icmp type echo-request ${optionalString (fwcfg.pingLimit != null) "meter icmpv4-echo { ip saddr limit rate ${fwcfg.pingLimit} }"} accept comment "allow ping"
                 ''}
 
-                # Filter rules
+                # ICMPv6 handling based on RFC 4890, generic for both transit
+                # and local traffic
+                icmpv6 type != { router-renumbering, 137, 139, 140 } accept comment "See RFC 4890, sections 4.3 and 4.4."
+
+                ip6 daddr fe80::/64 udp dport 546 accept comment "DHCPv6 client"
               ''
 
               (mkAfter ''
