@@ -2,7 +2,8 @@
 
 with lib;
 let
-  wgInts = attrNames config.networking.wireguard.interfaces;
+  cfg = config.networking.wireguard;
+  wgInts = attrNames cfg.interfaces;
   modifyWgService = wgInt: nameValuePair
     "wireguard-${wgInt}"
     {
@@ -20,6 +21,13 @@ let
         Type = mkForce "simple";
       };
     };
+  # NOTE: Taken from nixpkgs module, wish this were exposed somehow as it is
+  # slightly involved
+  wgAllPeers = flatten
+    (mapAttrsToList (interfaceName: interfaceCfg:
+      map (peer: { inherit interfaceName interfaceCfg peer;}) interfaceCfg.peers
+    ) cfg.interfaces);
+  mkPeerServiceName = interfaceName: peer: "wireguard-${interfaceName}-peer-${peer.name}";
 in
 {
   config = mkMerge [
@@ -41,15 +49,8 @@ in
       systemd.services = listToAttrs (map (modifyWgService) wgInts);
     }
     { # FIXME: Workaround for issue detailed in https://github.com/NixOS/nixpkgs/issues/63869#issuecomment-514655131
-      systemd.services = let
-        allPeers = flatten (mapAttrsToList (n: cfg:
-          map (peer: { intName = n; inherit peer; }) cfg.peers
-        ) config.networking.wireguard.interfaces);
-        keyToUnitName = replaceStrings
-          [ "/" "-"    " "     "+"     "="      ]
-          [ "-" "\\x2d" "\\x20" "\\x2b" "\\x3d" ];
-      in listToAttrs (map ({ intName, peer }: nameValuePair
-        "wireguard-${intName}-peer-${keyToUnitName peer.publicKey}"
+      systemd.services = listToAttrs (map ({ interfaceName, interfaceCfg, peer }: nameValuePair
+        (mkPeerServiceName interfaceName peer)
         {
           serviceConfig = {
             Restart = mkDefault "on-failure";
@@ -57,7 +58,7 @@ in
             Type = mkForce "simple";
           };
         }
-      ) allPeers);
+      ) wgAllPeers);
     }
   ];
 }
