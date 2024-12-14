@@ -4,6 +4,19 @@ let
 in
 {
   lib = {
+    # `fileSystems` & related definition helpers
+    fs = rec {
+      pristineSnapshot = "blank";
+
+      dsToFs = ds: {
+        device = ds;
+        fsType = "zfs";
+        options = [ "zfsutil" ];
+      };
+      dsToBootFs = ds: (dsToFs ds) // {
+        neededForBoot = true;
+      };
+    };
     sn = {
       baseUserPath = [
         "/run/wrappers/bin"

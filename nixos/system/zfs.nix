@@ -1,7 +1,7 @@
 { config, inputs, lib, pkgs, ... }:
 let
   inherit (lib) mkIf mkMerge mkOption types;
-  inherit (inputs.lib.fs) dsToBootFs dsToFs pristineSnapshot;
+  inherit (config.lib.fs) dsToBootFs dsToFs pristineSnapshot;
   cfg = config.boot.zfs;
 in
 {

@@ -1,7 +1,7 @@
 { config, lib, inputs, pkgs, ... }:
 let
   inherit (lib) escapeShellArg mkAfter mkIf mkForce mkMerge mkOption optionalAttrs optionals singleton types;
-  inherit (inputs.lib.fs) dsToBootFs dsToFs pristineSnapshot;
+  inherit (config.lib.fs) dsToBootFs dsToFs pristineSnapshot;
 
   usingZfs = config.boot.zfs.rootPool != null;
 in
