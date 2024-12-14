@@ -18,4 +18,8 @@
     { domain = "@audio"; type = "-"; item = "rtprio"; value = "99"; }
     { domain = "@audio"; type = "-"; item = "nice"; value = "-20"; }
   ];
+
+  # Various nixpkgs udev rule packages make use of plugdev, but NixOS only
+  # actually defines the group conditionally, which is awkward
+  users.groups.plugdev = { };
 }
