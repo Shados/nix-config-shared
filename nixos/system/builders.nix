@@ -96,14 +96,13 @@ in
           user = sshUser;
           port = node.sshPort;
           keyFile = node.sshKeyFile;
-          # FIXME: Re-enable once Nix PR #8349 is in current release
-          # extraConfig = ''
-          #   ControlMaster auto
-          #   ControlPath %d/.ssh/.control-socket-%C
-          #   ControlPersist 10m
-          #   ConnectTimeout 7
-          #   ServerAliveInterval 5
-          # '';
+          extraConfig = ''
+            ControlMaster auto
+            ControlPath %d/.ssh/.control-socket-%C
+            ControlPersist 10m
+            ConnectTimeout 7
+            ServerAliveInterval 5
+          '';
         }
       ) cfg.nodes;
       programs.ssh.knownHosts = mapAttrs' (name: node: nameValuePair
