@@ -7,8 +7,5 @@
     ./programs
     ./system
     ./services
-
-    # Library functions
-    ./lib
   ];
 }

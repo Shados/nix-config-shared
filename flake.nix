@@ -41,12 +41,14 @@
         inputs.nix-index-database.nixosModules.nix-index
         ./nixos/module.nix
         ./shared/overlays.nix
+        ./shared/lib.nix
       ];
     };
     homeModules.default = { ... }: {
       imports = [
         ./home-manager/module.nix
         ./shared/overlays.nix
+        ./shared/lib.nix
       ];
     };
     openWRTModules.default = { ... }: {

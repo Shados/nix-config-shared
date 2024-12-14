@@ -1,4 +1,4 @@
-# FIXME: Remove once nixpkgs PR #240800 is merged?
+# FIXME: Can probably remove once a resolution to nixpkgs #192771 is in
 { config, lib, pkgs, ... }:
 let
   cfg = config.security.tpm2;

@@ -158,7 +158,7 @@ in
         gvfs.enable = true;
         gnome.gnome-settings-daemon.enable = true;
       };
-      systemd.packages = with pkgs.gnome3; [ gnome-session ];
+      systemd.packages = [ pkgs.gnome-session ];
       fonts.packages = with pkgs; [
         cantarell-fonts
         dejavu_fonts

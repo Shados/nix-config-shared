@@ -1,5 +1,7 @@
-{ config, inputs, lib, pkgs, ... }:
-with lib;
+{ config, inputs, lib, pkgs, ...}:
+let
+  inherit (lib) concatStringsSep splitString;
+in
 {
   lib = {
     sn = {
@@ -19,6 +21,9 @@ with lib;
         inherit lib;
         inherit (poetry2nix) mkPoetryApplication;
       };
+      indentLinesBy = indentLevel: str: let
+        indentStr = lib.strings.replicate indentLevel " ";
+      in concatStringsSep "\n${indentStr}" (splitString "\n" (lib.strings.trim str));
     };
   };
 }
