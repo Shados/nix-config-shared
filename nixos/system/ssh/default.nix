@@ -34,5 +34,4 @@
   };
 
   security.pam.sshAgentAuth.enable = true;
-  security.pam.sshAgentAuth.authorizedKeysFiles = [ "/etc/ssh/authorized_keys.d/%u" ]; # FIXME: remove once nixpkgs #277626 is merged
 }
