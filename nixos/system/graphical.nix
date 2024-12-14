@@ -1,5 +1,4 @@
 { config, pkgs, lib, ... }:
-# FIXME: Go through nixpkgs/nixos/modules/services/x11/desktop-managers/xfce.nix in detail and codge things
 with lib;
 let
   cfg = config.fragments.graphical;
@@ -52,7 +51,8 @@ in
       services = {
         accounts-daemon.enable = true;
         udisks2.enable = true;
-        upower.enable = true;
+        upower.enable = config.powerManagement.enable;
+        colord.enable = true;
         displayManager.defaultSession = "xsession";
         # displayManager.slim.enable = true; # RIP SLIM
         displayManager.sddm = {
