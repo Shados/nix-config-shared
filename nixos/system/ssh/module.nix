@@ -16,48 +16,6 @@ in
           Whether or not to enable Mosh connectivity.
         '';
       };
-      # FIXME: Remove once nixpkgs PR 227442 is merged {{{
-      AllowUsers = mkOption {
-        type = with types; nullOr (listOf str);
-        apply = v: if v == null then v else concatStringsSep " " v;
-        default = null;
-        description = lib.mdDoc ''
-          If specified, login is allowed only for the listed users.
-          See {manpage}`sshd_config(5)` for details.
-        '';
-      };
-      DenyUsers = mkOption {
-        type = with types; nullOr (listOf str);
-        apply = v: if v == null then v else concatStringsSep " " v;
-        default = null;
-        description = lib.mdDoc ''
-          If specified, login is denied for all listed users. Takes
-          precedence over [](#opt-services.openssh.AllowUsers).
-          See {manpage}`sshd_config(5)` for details.
-        '';
-      };
-      AllowGroups = mkOption {
-        type = with types; nullOr (listOf str);
-        apply = v: if v == null then v else concatStringsSep " " v;
-        default = null;
-        description = lib.mdDoc ''
-          If specified, login is allowed only for users part of the
-          listed groups.
-          See {manpage}`sshd_config(5)` for details.
-        '';
-      };
-      DenyGroups = mkOption {
-        type = with types; nullOr (listOf str);
-        apply = v: if v == null then v else concatStringsSep " " v;
-        default = null;
-        description = lib.mdDoc ''
-          If specified, login is denied for all users part of the listed
-          groups. Takes precedence over
-          [](#opt-services.openssh.AllowGroups). See
-          {manpage}`sshd_config(5)` for details.
-        '';
-      };
-      # }}}
     };
     programs.ssh = {
       globalHosts = mkOption {
@@ -123,16 +81,6 @@ in
     };
   };
   config = mkMerge [
-    # FIXME: Remove once nixpkgs PR 227442 is merged {{{
-    {
-      services.openssh.extraConfig =
-          optionalString (cfg.AllowUsers != null) "AllowUsers ${cfg.AllowUsers}\n"
-        + optionalString (cfg.DenyUsers != null) "DenyUsers ${cfg.DenyUsers}\n"
-        + optionalString (cfg.AllowGroups != null) "AllowGroups ${cfg.AllowGroups}\n"
-        + optionalString (cfg.DenyGroups != null) "DenyGroups ${cfg.DenyGroups}\n"
-      ;
-    }
-    # }}}
     {
       programs.ssh.extraConfig = ''
         # Per-host matches
