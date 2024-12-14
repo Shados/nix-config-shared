@@ -1,6 +1,7 @@
 { config, lib, pkgs, ... }:
 let
-  inherit (lib) attrNames concatMapStrings concatStringsSep filterAttrs flip getAttr mkForce mkIf mkMerge mkOption optionalString types;
+  inherit (lib) attrNames concatMapStrings concatMapStringsSep filterAttrs flip getAttr mkForce mkIf mkMerge mkOption optionalString types;
+  inherit (config.lib.sn) indentLinesBy;
   cfg = config.services.openssh;
   cfgc = config.programs.ssh;
 
@@ -20,7 +21,8 @@ in
     programs.ssh = {
       globalHosts = mkOption {
         description = ''
-          Global list of configured ssh_config Host entries, applied to each user. Can reference private keys in the Nix store.
+          Global list of configured ssh_config Host entries, applied to each
+          user. Can reference private keys in the Nix store.
         '';
         default = {};
         type = types.loaOf (types.submodule ({ name, ... }: {
@@ -28,7 +30,8 @@ in
             name = mkOption {
               type = types.str;
               description = ''
-                The name of the ssh host. If undefined, the name of the attribute set will be used.
+                The name of the ssh host. If undefined, the name of the
+                attribute set will be used.
               '';
               example = "shados.net";
               default = name;
@@ -56,7 +59,9 @@ in
             keyFile = mkOption {
               type = types.nullOr types.path;
               description = ''
-                The path to the ssh key to use for this host, leave blank if not using key-based authentication or if you want to specify this on the command line, or via default key.
+                The path to the ssh key to use for this host, leave blank if
+                not using key-based authentication or if you want to specify
+                this on the command line, or via default key.
               '';
               default = null;
             };
@@ -90,7 +95,7 @@ in
             ${optionalString (host.user != null) ''User ${toString host.user}''}
             ${optionalString (host.port != null) ''Port ${toString host.port}''}
             ${optionalString (host.keyFile != null) ''IdentityFile ${toString host.keyFile}''}
-            ${optionalString (host.extraConfig != null) host.extraConfig}
+            ${optionalString (host.extraConfig != null) (indentLinesBy 2 (host.extraConfig))}
         '')}
         Match all
           Port ${toString cfgc.defaultPort}
