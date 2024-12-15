@@ -51,7 +51,12 @@ with lib;
           register_ale_tool ale_fixers, "python", "black"
           cmd 'autocmd vimrc FileType python let b:ale_fix_on_save = 1'
 
-        g["ale_python_auto_pipenv"] = 0
+        -- Use env-provided tooling
+        g["ale_python_auto_pipenv"] = 1
+        g["ale_python_auto_poetry"] = 1
+        g["ale_python_auto_uv"] = 1
+
+        -- Use custom flake8
         g["ale_python_flake8_use_global"] = 1
 
         -- Type checking via mypy
