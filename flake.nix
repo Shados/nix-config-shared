@@ -19,6 +19,7 @@
     home-manager.url = github:nix-community/home-manager;
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     nur.url = github:nix-community/NUR;
+    nur.inputs.nixpkgs.follows = "nixpkgs";
 
     # Additional NixOS/HM modules
     sops-nix.url = github:Mic92/sops-nix;
