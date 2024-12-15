@@ -56,10 +56,8 @@ in
     }
     (mkIf config.documentation.nixos.enable {
       environment.systemPackages = with pkgs; [
-        # nix-help # FIXME un-break this
-        # FIXME un-comment once nixpkgs issue #116472 is resolved, for now the
-        # warnings from evaluating the manual are annoying
-        # nixpkgs-help
+        nix-help
+        nixpkgs-help
       ];
     })
     (mkIf cfg.remote {
