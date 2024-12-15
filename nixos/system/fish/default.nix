@@ -78,6 +78,10 @@ in
       environment.systemPackages = with pkgs; [
         which # Fish doesn't have `which` by default
       ];
+      # NOTE: Enabled by programs.fish.enable, but generating the mandb cache
+      # is *slow*, and I don't particularly rely on fish's man-completions,
+      # they're more of a "nice to have"
+      documentation.man.generateCaches = false;
     })
   ];
 }
