@@ -29,13 +29,12 @@ in
           });
         })
         # Setup access to the Nix User Repository
-        inputs.nur.overlay
+        inputs.nur.overlays.default
       ];
     }
     # Pull in overlays from my NUR
     { nixpkgs.overlays = with nur-no-packages.repos.shados.overlays; mkBefore [
         lua-overrides
-        python-overrides
       ];
     }
     { nixpkgs.overlays = with nur-no-packages.repos.shados.overlays; [
