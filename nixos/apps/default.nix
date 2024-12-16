@@ -15,12 +15,6 @@ in
     ./tmux.nix
   ];
 
-  nixpkgs.overlays = singleton (self: super: {
-    nvimpager = super.nvimpager.overrideAttrs(oa: {
-      # FIXME: NFI why this is failing, but the failed tests only appear to be for the 'cat mode', which I don't use
-      doCheck = false;
-    });
-  });
   environment.sessionVariables.MANPAGER = "${pkgs.nvimpager}/bin/nvimpager -p";
   environment.sessionVariables.PAGER = "${pkgs.nvimpager}/bin/nvimpager -p";
 
