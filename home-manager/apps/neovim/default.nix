@@ -61,17 +61,21 @@ in
 
               -- Set autocommands conditional on server_capabilities
               if client.server_capabilities.documentHighlightProvider
-                cmd [[
-                  " TODO set these & other LSP HL groups in my theming files
-                  hi LspReferenceRead cterm=bold ctermbg=red guibg=LightYellow
-                  hi LspReferenceText cterm=bold ctermbg=red guibg=LightYellow
-                  hi LspReferenceWrite cterm=bold ctermbg=red guibg=LightYellow
-                  augroup lsp_document_highlight
-                    autocmd! * <buffer>
-                    autocmd CursorHold <buffer> lua vim.lsp.buf.document_highlight()
-                    autocmd CursorMoved <buffer> lua vim.lsp.buf.clear_references()
-                  augroup END
-                ]]
+                -- TODO set these & other LSP HL groups in my theming files
+                lsp_reference_hl = { cterm: { bold: true }, ctermbg: "red", bg: "LightYellow" }
+                vim.api.nvim_set_hl 0, "LspReferenceRead", lsp_reference_hl
+                vim.api.nvim_set_hl 0, "LspReferenceText", lsp_reference_hl
+                vim.api.nvim_set_hl 0, "LspReferenceWrite", lsp_reference_hl
+                augroup "lsp_document_highlight", ((autocmd) ->
+                  autocmd {"CursorHold"}, {
+                    buffer: bufnr,
+                    callback: -> vim.lsp.buf.document_highlight!
+                  }
+                  autocmd {"CursorMoved"}, {
+                    buffer: bufnr,
+                    callback: -> vim.lsp.buf.clear_references!
+                  }),
+                  { clear: true }
           '';
         }
         # Bash/Shell
@@ -137,15 +141,16 @@ in
                 on_attach: lsp_on_attach
               ale_fixers.rust = {}
               ale_linters.rust = {}
-              cmd [[
-                function! g:SetupFixHookForRust() abort
-                  augroup RustFixers
-                    autocmd!
-                    autocmd vimrc BufWritePre <buffer> lua vim.lsp.buf.format()
-                  augroup END
-                endfunction
-                autocmd vimrc Filetype rust call g:SetupFixHookForRust()
-              ]]
+              rust_fixer_cb = (event) -> (autocmd) ->
+                autocmd {"BufWritePre"}, {
+                  buffer: event.buf,
+                  callback: -> vim.lsp.buf.format!
+                }
+              vim.api.nvim_create_autocmd {"FileType"}, {
+                group: "vimrc",
+                pattern: { "rust" },
+                callback: (event) -> augroup "RustFixers", (rust_fixer_cb event), { clear: true }
+              }
           '';
         }
         # TypeScript/JavaScript
@@ -174,7 +179,11 @@ in
         { extraConfig = mkAfter ''
             -- Go
             register_ale_tool(ale_fixers, "go", "gofmt")
-            cmd 'autocmd vimrc FileType go let b:ale_fix_on_save = 1'
+            vim.api.nvim_create_autocmd {"FileType"}, {
+              group: "vimrc",
+              pattern: { "go" },
+              command: "let b:ale_fix_on_save = 1"
+            }
           '';
           binDeps = [
             go
@@ -203,7 +212,11 @@ in
         { extraConfig = mkAfter ''
             -- OCaml
             register_ale_tool(ale_fixers, "ocaml", "ocamlformat")
-            cmd 'autocmd vimrc FileType ocaml let b:ale_fix_on_save = 1'
+            vim.api.nvim_create_autocmd {"FileType"}, {
+              group: "vimrc",
+              pattern: { "ocaml" },
+              command: "let b:ale_fix_on_save = 1"
+            }
           '';
           binDeps = [
             ocamlformat
@@ -213,7 +226,11 @@ in
             -- Perl
             register_ale_tool(ale_linters, "perl", "perlcritic")
             register_ale_tool(ale_fixers, "perl", "perltidy")
-            cmd 'autocmd vimrc FileType perl let b:ale_fix_on_save = 1'
+            vim.api.nvim_create_autocmd {"FileType"}, {
+              group: "vimrc",
+              pattern: { "perl" },
+              command: "let b:ale_fix_on_save = 1"
+            }
           '';
           binDeps = with perlPackages; [
             PerlTidy
@@ -237,7 +254,11 @@ in
               register_ale_tool(ale_linters, "elixir", "dialyxir")
               register_ale_tool(ale_linters, "elixir", "mix")
               register_ale_tool(ale_fixers, "elixir", "mix_format")
-              cmd 'autocmd vimrc FileType elixir let b:ale_fix_on_save = 1'
+              vim.api.nvim_create_autocmd {"FileType"}, {
+                group: "vimrc",
+                pattern: { "elixir" },
+                command: "let b:ale_fix_on_save = 1"
+              }
           '';
           # Use per-project binaries
           binDeps = [ ];
@@ -247,8 +268,11 @@ in
             if (fn.executable "prettier") != 0
               register_ale_tool(ale_fixers, "typescript", "prettier")
               register_ale_tool(ale_fixers, "javascript", "prettier")
-              cmd 'autocmd vimrc FileType typescript let b:ale_fix_on_save = 1'
-              cmd 'autocmd vimrc FileType javascript let b:ale_fix_on_save = 1'
+              vim.api.nvim_create_autocmd {"FileType"}, {
+                group: "vimrc",
+                pattern: { "typescript", "javascript" },
+                command: "let b:ale_fix_on_save = 1"
+              }
           '';
           # Use per-project binaries
           binDeps = [ ];
@@ -310,7 +334,11 @@ in
       #     -- apparent reason
       #     g.tex_flavor = "latex"
       #     -- Turn auto-writing on so we get more of a 'live' PDF preview
-      #     cmd 'autocmd vimrc FileType tex silent! AutoSaveToggle'
+      #     vim.api.nvim_create_autocmd {"FileType"}, {
+      #       group: "vimrc",
+      #       pattern: { "tex" },
+      #       command: "silent! AutoSaveToggle"
+      #     }
       #     -- Turn off the horrific 'conceal' anti-feature; VIM is not a WYSIWYG editor FFS
       #     g.vimtex_syntax_conceal = {
       #       accents: 0
@@ -329,7 +357,11 @@ in
         extraConfig = ''
           -- Elm
           -- Set indent/tab for Elm files to 4 spaces
-          cmd 'autocmd vimrc FileType elm setlocal shiftwidth=4 softtabstop=4 tabstop=4'
+          vim.api.nvim_create_autocmd {"FileType"}, {
+            group: "vimrc",
+            pattern: { "elm" },
+            command: "setlocal shiftwidth=4 softtabstop=4 tabstop=4"
+          }
         '';
       };
       salt-vim = {

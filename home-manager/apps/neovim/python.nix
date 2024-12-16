@@ -49,7 +49,11 @@ with lib;
         -- Lets us disable the use of black on a per-project basis with an environment variable
         unless env["ALE_NO_BLACK"] and #env["ALE_NO_BLACK"] > 0
           register_ale_tool ale_fixers, "python", "black"
-          cmd 'autocmd vimrc FileType python let b:ale_fix_on_save = 1'
+          vim.api.nvim_create_autocmd {"FileType"}, {
+            group: "vimrc",
+            pattern: { "python" },
+            command: "let b:ale_fix_on_save = 1"
+          }
 
         -- Use env-provided tooling
         g["ale_python_auto_pipenv"] = 1

@@ -87,7 +87,11 @@ in
           hooks.register(hooks.type.WHITESPACE, hooks.builtin.hide_first_space_indent_level)
           ${optionalString plugCfg.vim-startify.enable ''
           -- Disable in startify buffer
-          cmd 'autocmd vimrc FileType startify lua require("ibl").setup_buffer(0, {enabled = false})'
+          vim.api.nvim_create_autocmd {"FileType"}, {
+            group: "vimrc",
+            pattern: { "startify" },
+            callback: -> (require "ibl").setup_buffer 0, {enabled: false}
+          }
           ''}
         '';
       };
@@ -138,7 +142,11 @@ in
             -- Clear the warning buffer immediately on any change (to prevent
             -- highlights on the edited line from falling out of sync and throwing me
             -- off)
-            cmd 'autocmd vimrc TextChanged,TextChangedI * ALEResetBuffer'
+            vim.api.nvim_create_autocmd {"TextChanged", "TextChangedI"}, {
+              group: "vimrc",
+              pattern: { "*" },
+              command: "ALEResetBuffer"
+            }
 
             -- To still make it easy to know if there is *something* in the gutter *somewhere*
             g.ale_change_sign_column_color = 1
@@ -170,7 +178,11 @@ in
             register_ale_tool(ale_linters, "sh", "shell")
             register_ale_tool(ale_linters, "sh", "shellcheck")
             register_ale_tool(ale_fixers, "sh", "shfmt")
-            cmd 'autocmd vimrc FileType sh let b:ale_fix_on_save = 1'
+            vim.api.nvim_create_autocmd {"FileType"}, {
+              group: "vimrc",
+              pattern: { "sh" },
+              command: "let b:ale_fix_on_save = 1"
+            }
           '';
           binDeps = [
             bash
@@ -181,7 +193,11 @@ in
         { extraConfig = mkAfter ''
             -- JSON
             register_ale_tool(ale_fixers, "json", "prettier")
-            cmd 'autocmd vimrc FileType json let b:ale_fix_on_save = 1'
+            vim.api.nvim_create_autocmd {"FileType"}, {
+              group: "vimrc",
+              pattern: { "json" },
+              command: "let b:ale_fix_on_save = 1"
+            }
           '';
           binDeps = [
             pkgs.nodePackages.prettier
@@ -223,7 +239,11 @@ in
           -- Just disable header folding; it's pretty buggy
           g.vim_markdown_folding_disabled = 1
           -- Set indent/tab for markdown files to 4 spaces
-          cmd 'autocmd vimrc FileType markdown setlocal shiftwidth=4 softtabstop=4 tabstop=4'
+          vim.api.nvim_create_autocmd {"FileType"}, {
+            group: "vimrc",
+            pattern: { "markdown" },
+            command: "setlocal shiftwidth=4 softtabstop=4 tabstop=4"
+          }
           -- Fixes re-wrapping long list items
           g.vim_markdown_auto_insert_bullets = 0
 
@@ -257,9 +277,17 @@ in
         extraConfig = ''
           -- vim-json
           -- Set foldmethod to syntax so we can fold json dicts and lists
-          cmd 'autocmd vimrc FileType json setlocal foldmethod=syntax'
+          vim.api.nvim_create_autocmd {"FileType"}, {
+            group: "vimrc",
+            pattern: { "json" },
+            command: "setlocal foldmethod=syntax"
+          }
           -- Then automatically unfold all so we don't start at 100% folded :)
-          cmd 'autocmd vimrc FileType json normal zR'
+          vim.api.nvim_create_autocmd {"FileType"}, {
+            group: "vimrc",
+            pattern: { "json" },
+            command: "normal zR"
+          }
           -- Don't conceal quote marks, that's fucking horrific. Who the hell would
           -- choose to default to that behaviour? Do they only ever read json, never
           -- write it?! Hell, even then it's still problematic!
@@ -297,7 +325,11 @@ in
         source = vimPlugins.neosnippet-vim;
         extraConfig = ''
           -- Use actual tabstops in snippet files
-          cmd 'autocmd vimrc FileType neosnippet setlocal noexpandtab'
+          vim.api.nvim_create_autocmd {"FileType"}, {
+            group: "vimrc",
+            pattern: { "neosnippet" },
+            command: "setlocal noexpandtab"
+          }
 
           -- Mappings
           map "i", "<C-k>", "<Plug>(neosnippet_expand_or_jump)", {}

@@ -5,7 +5,7 @@ map = api.nvim_set_keymap
 
 -- Basic configuration {{{
 -- Resize splits when the window is resized
-cmd 'autocmd vimrc VimResized * exe "normal! \\<c-w>="'
+vim.api.nvim_create_autocmd {"VimResized"}, { group: "vimrc", pattern: { "*" }, command: "exe \"normal! \\<c-w>=\"" }
 
 -- TODO move all these option-sets into a loop over an array? bit nicer
 -- to configure
@@ -94,25 +94,33 @@ o.backupcopy = "yes"
 opt.wildignore = { "*.o", "*.obj", "*~", "*.png", "*.jpg", "*.gif", "*.mp3", "*.ogg", "*.bin" }
 
 -- Have nvim jump to the last position when reopening a file
-cmd 'autocmd vimrc BufReadPost * if line("\'\\"") > 1 && line("\'\\"") <= line("$") | exe "normal! g\'\\"" | endif'
+vim.api.nvim_create_autocmd {"BufReadPost"}, {
+  group: "vimrc",
+  pattern: { "*" },
+  command: 'if line("\'\\"") > 1 && line("\'\\"") <= line("$") | exe "normal! g\'\\"" | endif'
+}
 -- Exclude gitcommit type to avoid doing this in commit message editor
 -- sessions
-cmd 'autocmd vimrc FileType gitcommit normal! gg0'
+vim.api.nvim_create_autocmd {"FileType"}, { group: "vimrc", pattern: { "gitcommit" }, command: "normal! gg0" }
 
 -- Default to opened folds in gitcommit filetype (having them closed by
 -- default doesn't make sense in this context; only really comes up when
 -- using e.g. `git commit -v` to get the commit changes displayed)
-cmd 'autocmd vimrc FileType gitcommit normal zR'
+vim.api.nvim_create_autocmd {"FileType"}, { group: "vimrc", pattern: { "gitcommit" }, command: "normal zR" }
 
 -- Track window- and buffer-local options in sessions
 opt.sessionoptions\append { "localoptions" }
 
 -- Enable spell-checking for some filetypes
--- Neovim's spell-checking is syntax-aware, but meaning it doesn't attempt to
+-- Neovim's spell-checking is syntax-aware, meaning it doesn't attempt to
 -- spell-check "code" parts of a file, but it *does* attempt to spell-check
 -- string contents, which I often find unhelpful/distracting
 o.spelllang = "en_au"
-cmd 'autocmd vimrc FileType markdown,text,tex setlocal spell'
+vim.api.nvim_create_autocmd {"FileType"}, {
+  group: "vimrc",
+  pattern: { "markdown", "text", "tex" },
+  command: "setlocal spell"
+}
 
 -- TODO when working on code inside a per-project virtualenv or nix.shell,
 -- automatically detect and use the python from the project env

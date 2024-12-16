@@ -4,8 +4,6 @@
 map = api.nvim_set_keymap
 
 -- Helpers
--- FIXME Replace by dependence on a library of my own making, or 0.5
--- compatibility shim
 dir_exists = (dir) -> (fn.isdirectory dir) != 0
 
 -- Helper function that acts more like vimscript's ':set'
@@ -29,18 +27,27 @@ set = do
         api.nvim_set_option name, value
     return
 
+-- Convenience wrapper for group-scoped autocmd creation
+augroup = (name, scoped_fn, group_opts={}) ->
+  group = vim.api.nvim_create_augroup name, group_opts
+
+  autocmd = (event, opts) ->
+    opts.group = group
+    vim.api.nvim_create_autocmd event, opts
+
+  scoped_fn(autocmd)
+  return group
+
 
 export nvim
-nvim = { :dir_exists, :set }
+nvim = { :augroup, :dir_exists, :set }
 
 -- Early-load settings
--- FIXME Once there's a nice way to create expr-quote values from Lua
-space = api.nvim_eval '"\\<Space>"'
-g["mapleader"] = space
+tc = (str) -> vim.api.nvim_replace_termcodes str, true, true, true
+g["mapleader"] = tc "<Space>"
 
 -- Define my autocmd group for later use
--- FIXME Once there's a way to use augroup directly from Lua or the API
-cmd "augroup vimrc | autocmd! | augroup END"
+vim.api.nvim_create_augroup "vimrc", { clear: true }
 
 -- Theming stuff
 -- The xterm and screen ones are actually both for Mosh
