@@ -24,7 +24,6 @@
     # Additional NixOS/HM modules
     sops-nix.url = github:Mic92/sops-nix;
     sops-nix.inputs.nixpkgs.follows = "nixpkgs";
-    sops-nix.inputs.nixpkgs-stable.follows = "nixpkgs"; # Only used by its checks attribute
     impermanence.url = github:nix-community/impermanence;
     nix-index-database.url = github:nix-community/nix-index-database;
     nix-index-database.inputs.nixpkgs.follows = "nixpkgs";
@@ -46,6 +45,16 @@
         ./nixos/module.nix
         ./shared/overlays.nix
         ./shared/lib.nix
+        {
+          nix.settings = {
+            substituters = [
+              "https://nix-community.cachix.org/"
+            ];
+            trusted-public-keys = [
+              "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+            ];
+          };
+        }
       ];
     };
     homeModules.default = { ... }: {
