@@ -177,23 +177,29 @@ in
     }
     # }}}
 
+    # Audio
+    {
+      services.pipewire = {
+        enable = true;
+        alsa.enable = true;
+        alsa.support32Bit = true;
+        jack.enable = true;
+        pulse.enable = true;
+        lowLatency = {
+          enable = true;
+        };
+      };
+      security.rtkit.enable = true;
+      environment.variables.AE_SINK = "alsa";
+      environment.variables.SDL_AUDIODRIVER = "pipewire";
+      environment.variables.ALSOFT_DRIVERS = "pipewire";
+    }
+
     # Latency-oriented tweaking
     {
-      boot.kernel.sysctl = {
-        # CPU scheduling tweaks (CFS) {{{
-        # Minimum timeslice per task before they can be preempted if required.
-        "kernel.sched_min_granularity_ns" = 500000; # 0.5ms, from 3,000,000 / 3ms
-
-        # Minimum timeslice allotted to a task woken by an event/interrupt.
-        "kernel.sched_wakeup_granularity_ns" = 500000; # 0.5ms, from 4,000,000 / 4ms
-
-        # Period within which each task is guaranteed to be scheduled at least
-        # once. If (number_of_tasks * sched_min_granularity_ns) >
-        # sched_latency_ns, then sched_latency_ns will equal number_of_tasks *
-        # sched_min_granularity_ns instead.
-        "kernel.sched_latency_ns" = 4000000; # 4ms, from 24,000,000 / 24ms
-        # }}}
-      };
+      boot.kernelParams = [
+        "preempt=full"
+      ];
     }
   ]);
 }
