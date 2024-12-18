@@ -28,6 +28,32 @@ in
             hash = "sha256-iYQSqT2tG4DjdVDme3b2TErbSxkQqmELO22eq2Gmo4s=";
           };
         });
+        # FIXME: Remove once nixpkgs #177733 is resolved
+        borgbackup = prev.borgbackup.overrideAttrs(finalAttrs: {
+          postInstall = finalAttrs.postInstall or "" + ''
+            mv $out/bin/borg $out/bin/.borg-real
+            echo '#!${prev.stdenv.shell}' > "$out/bin/borg"
+
+            cat << EOF >> "$out/bin/borg"
+            realBorg="$out/bin/.borg-real"
+
+            function borg(){
+              local returnCode=0
+              "\$realBorg" "\$@" || returnCode=\$?
+
+              if [[ \$returnCode -eq 1 ]]; then
+                return 0
+              else
+                return \$returnCode
+              fi
+            }
+
+            borg "\$@"
+            EOF
+
+            chmod +x "$out/bin/borg"
+          '';
+        });
       });
     }
     (mkIf config.services.mullvad-vpn.enable {
