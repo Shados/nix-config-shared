@@ -15,7 +15,7 @@ in
   sn.programs.neovim = {
     mergePlugins = true;
     extraBinPackages = with pkgs; [
-      xdg_utils # xdg-open
+      xdg-utils # xdg-open
     ];
     files."autoload/snlib/list.vim".source = ./nvim-files/autoload/snlib/list.vim;
     # TODO replace remaining python plugins:

@@ -13,7 +13,7 @@ let
         before        = [ "network.target" ];
         wantedBy      = [ "multi-user.target" ];
 
-        path = with pkgs; [ iproute ppp ];
+        path = with pkgs; [ iproute2 ppp ];
 
         serviceConfig = {
           ExecStart   = "${pkgs.ppp}/bin/pppd file ${configFile} nodetach nolog debug";

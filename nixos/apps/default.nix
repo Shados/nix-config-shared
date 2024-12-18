@@ -23,7 +23,7 @@ in
     # Terminal enhancements
     tmux
     fish
-    rxvt_unicode.terminfo # Only need terminfo by default, as hardly need an X terminal on a server
+    rxvt-unicode-unwrapped.terminfo # Only need terminfo by default, as hardly need an X terminal on a server
 
     # VCS
     git gitAndTools.git-octopus
@@ -50,6 +50,7 @@ in
     psmisc
     bind.dnsutils # We only care about the client-side DNS utilities, not the server
     jq.bin jq.man
+    usbutils
 
     # Generally-useful file utilities
     wget

@@ -8,4 +8,5 @@
     ./system
     ./services
   ];
+  home.enableNixpkgsReleaseCheck = false;
 }

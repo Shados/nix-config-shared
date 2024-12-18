@@ -30,9 +30,21 @@ in
   nixpkgs.overlays = [
     (self: super: {
       dmenu = super.dmenu.overrideAttrs (oldAttrs: {
-        patchFlags = "-p2";
+        patchFlags = "-p1";
         patches = [
-          ./dmenu/fuzzymatch.patch
+          (super.fetchpatch {
+            url = "https://tools.suckless.org/dmenu/patches/fuzzymatch/dmenu-fuzzymatch-5.3.diff";
+            sha256 = "sha256-uPuuwgdH2v37eaefnbQ93ZTMvUBcl3LAjysfOEPD1Y8=";
+          })
+        ];
+        preConfigure = ":";
+        buildFlags = with super.lib; [
+          "X11INC=${makeIncludePath (singleton super.xorg.libX11)}/X11"
+          "X11LIB=${makeLibraryPath (singleton super.xorg.libX11)}/X11"
+          "FREETYPEINC=${makeIncludePath (singleton super.xorg.libXft)}/freetype2"
+        ];
+        installFlags = [
+          "PREFIX=$(out)"
         ];
       });
 

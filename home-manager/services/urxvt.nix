@@ -25,7 +25,7 @@ in
       };
       font = mkOption {
         type = with types; str;
-        default = "FantasqueSansM Nerd Font:style=Regular";
+        default = "FantasqueSansMNerdFont:style=Regular";
         description = ''
           XFT font name for urxvt to use.
         '';

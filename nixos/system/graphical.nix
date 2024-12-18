@@ -101,9 +101,9 @@ in
         # Baseline themes / theme engines
         tango-icon-theme
         hicolor-icon-theme
-        gnome2.gnome_icon_theme
+        gnome-icon-theme
         oxygen
-        gnome2.gtk
+        gtk2
         gtk_engines
         gtk-engine-murrine
         gnome-themes-extra

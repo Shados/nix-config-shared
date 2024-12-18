@@ -98,7 +98,7 @@ in
           keyFile = node.sshKeyFile;
           extraConfig = ''
             ControlMaster auto
-            ControlPath %d/.ssh/.control-socket-%C
+            ControlPath /run/user/%i/ssh-control-socket-%C
             ControlPersist 10m
             ConnectTimeout 7
             ServerAliveInterval 5

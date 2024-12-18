@@ -69,7 +69,7 @@ in
         mph_2b_damase
         # noto-fonts noto-fonts-cjk noto-fonts-emoji
         unifont unifont_upper
-        (nerdfonts.override { fonts = [ "FantasqueSansMono" ]; })
+        nerd-fonts.fantasque-sans-mono
         product-sans
       ];
       fonts.fontconfig.enable = true;

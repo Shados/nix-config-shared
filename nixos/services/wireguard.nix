@@ -49,13 +49,22 @@ in
       systemd.services = listToAttrs (map (modifyWgService) wgInts);
     }
     { # FIXME: Workaround for issue detailed in https://github.com/NixOS/nixpkgs/issues/63869#issuecomment-514655131
-      systemd.services = listToAttrs (map ({ interfaceName, interfaceCfg, peer }: nameValuePair
+    systemd.services = listToAttrs (map ({ interfaceName, interfaceCfg, peer }: let
+      dynamicRefreshSeconds = interfaceCfg: peer:
+        if peer.dynamicEndpointRefreshSeconds != null
+        then peer.dynamicEndpointRefreshSeconds
+        else interfaceCfg.dynamicEndpointRefreshSeconds;
+    in nameValuePair
         (mkPeerServiceName interfaceName peer)
         {
-          serviceConfig = {
+          serviceConfig = if (dynamicRefreshSeconds interfaceCfg peer != 0) then {
             Restart = mkDefault "on-failure";
             RestartSec = mkDefault 3;
             Type = mkForce "simple";
+            RemainAfterExit = false;
+          } else {
+            Restart = mkDefault "on-failure";
+            RestartSec = mkDefault 5;
           };
         }
       ) wgAllPeers);

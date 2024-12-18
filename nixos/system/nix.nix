@@ -17,14 +17,12 @@ in
           automatic = !config.boot.isContainer;
         };
 
-        package = pkgs.nixFlakes;
         extraOptions = ''
           experimental-features = nix-command flakes
         '';
         settings = {
           sandbox = true;
           trusted-users = [
-            "root"
             "shados"
           ];
           substituters = mkOrder 999 [

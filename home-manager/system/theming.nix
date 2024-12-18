@@ -12,7 +12,7 @@ with lib;
     home.packages = with pkgs; [
       # TODO investigate if these can safely be user packages while having
       # mis-matched qt system things? Or just move all QT stuff to home-manager?
-      qt5ct
+      libsForQt5.qt5ct
       libsForQt5.qtstyleplugin-kvantum
       zafiro-icons
     ];
