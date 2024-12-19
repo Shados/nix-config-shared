@@ -746,7 +746,7 @@ in
 
           -- Searches through current buffers and recursive file/dir tree
           map "n", "<leader>b", "<cmd>lua require('telescope.builtin').buffers()<CR>", {noremap: true}
-          map "n", "<leader>f", "<cmd>lua require('telescope.builtin').find_files()<CR>", {noremap: true}
+          map "n", "<leader>f", "<cmd>lua require('telescope.builtin').find_files({no_ignore = true})<CR>", {noremap: true}
         '';
       };
       telescope-fzy-native-nvim = {
