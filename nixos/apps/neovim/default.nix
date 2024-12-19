@@ -430,7 +430,7 @@ in
                     tree_winid = nvim_tree_api.tree.winid()
                     max_width = vim.fn.winwidth(tree_winid) - 5
                     cwd = vim.fn.fnamemodify(vim.fn.getcwd!, ":~:")
-                    return nvim.squish_path cwd, max_width
+                    return nvim.contract_path cwd, max_width
                 }
               },
               color_icons: true
@@ -450,7 +450,7 @@ in
           bufferline.setup bufferline_opts
 
           map "n", "gb", ":BufferLinePick<CR>", {noremap: true, silent: true}
-          map "n", "gb", ":BufferLineClose<CR>", {noremap: true, silent: true}
+          map "n", "gD", ":BufferLineClose<CR>", {noremap: true, silent: true}
         '';
       };
       # Tab-scoped buffers

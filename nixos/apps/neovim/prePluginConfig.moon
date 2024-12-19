@@ -38,20 +38,70 @@ augroup = (name, scoped_fn, group_opts={}) ->
   scoped_fn(autocmd)
   return group
 
+
 -- Takes a path and 'squishes' it to fit a maximum character-width, replacing
 -- the middle section with an interposed "squish indicator"
-SQUISH_PATH_INTERPOSE = "~...~"
-squish_path = (path, max, interpose=SQUISH_PATH_INTERPOSE) ->
+contract_path = (path, max, interpose="~...~", trail="~..") ->
   return path if #path <= max
 
   section_length = math.floor ((max - #interpose)/2)
-  head = path\sub 1, section_length
-  tail = path\sub -section_length
-  return head .. interpose .. tail
+
+  -- Check the length of the last path component, as we'd like to preserve it
+  -- while still retaining leading context if possible, but will fallback to a
+  -- more aggressive approach otherwise
+  last_name_start, _, last_name = path\find "(/[^/]+)$"
+  if #last_name <= section_length
+    -- The last path element is short enough to preserve in full
+    head = path\sub 1, section_length
+    tail = path\sub -section_length
+    res = head .. interpose .. tail
+    assert #res <= max
+    return res
+  else
+    -- Preference preserving more of the last path element, but try to still
+    -- keep at least enough of the head to know the type of path (absolute,
+    -- relative, home-relative) and the first letter of its first child
+    -- element. In the worst case, we just return as much of the last path
+    -- element as we can.
+    half_interpose = math.ceil (#interpose/2)
+    min_head_length = 3
+    if max >= (min_head_length + #interpose + #last_name)
+      -- We have enough space to preserve the last path element in full
+      max_75pct = math.floor(((max*3/4) - half_interpose))
+      tail_length = math.max(#last_name, max_75pct)
+      head_length = max - tail_length - #interpose
+
+      head = path\sub 1, head_length
+      -- If the last path element isn't short enough, we need to strip some of it
+      -- as well, preserving the leading portions of it
+      tail = path\sub -tail_length
+      return head .. interpose .. tail
+    else
+      -- We need to shrink the last path element, preserving the earlier
+      -- characters of it
+      head_length = 3
+      tail_length = max - head_length - #interpose
+      if tail_length - #trail >= 5
+        -- We can keep the minimum head and still preserve at least 5
+        -- characters of the last path element
+        head = path\sub 1, head_length
+        tail = if #last_name <= tail_length
+          path\sub -tail_length
+        else
+          (path\sub last_name_start, last_name_start + tail_length - #trail - 1) .. trail
+        return head .. interpose .. tail
+      else
+        -- We can't afford to keep even the minimum head around
+        tail_length = math.min max, (#last_name - 1)
+        tail = if #last_name - 1 <= tail_length
+          path\sub -tail_length
+        else
+          (path\sub last_name_start +1, last_name_start + tail_length - #trail - 1) .. trail
+        return tail\sub 1, max
 
 
 export nvim
-nvim = { :augroup, :dir_exists, :set, :squish_path }
+nvim = { :augroup, :dir_exists, :set, :contract_path }
 
 -- Early-load settings
 tc = (str) -> vim.api.nvim_replace_termcodes str, true, true, true
