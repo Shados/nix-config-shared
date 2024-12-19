@@ -38,9 +38,20 @@ augroup = (name, scoped_fn, group_opts={}) ->
   scoped_fn(autocmd)
   return group
 
+-- Takes a path and 'squishes' it to fit a maximum character-width, replacing
+-- the middle section with an interposed "squish indicator"
+SQUISH_PATH_INTERPOSE = "~...~"
+squish_path = (path, max, interpose=SQUISH_PATH_INTERPOSE) ->
+  return path if #path <= max
+
+  section_length = math.floor ((max - #interpose)/2)
+  head = path\sub 1, section_length
+  tail = path\sub -section_length
+  return head .. interpose .. tail
+
 
 export nvim
-nvim = { :augroup, :dir_exists, :set }
+nvim = { :augroup, :dir_exists, :set, :squish_path }
 
 -- Early-load settings
 tc = (str) -> vim.api.nvim_replace_termcodes str, true, true, true

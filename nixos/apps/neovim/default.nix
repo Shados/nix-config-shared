@@ -406,18 +406,64 @@ in
       # }}}
 
       # Project management {{{
-      # Statusline with buffers and tabs listed very cleanly
-      # TODO consider writing my own version in MoonScript, with a
-      # jump-to-buffer function that works like vimfx follow-links?
-      vim-buffet = {
+      # Tab- and buffer-line
+      bufferline-nvim = {
         enable = true;
-        source = nvimCfg.lib.buildVimPluginFromNiv pins "vim-buffet";
+        source = vimPlugins.bufferline-nvim;
+        after = [ "nvim-web-devicons" ];
         extraConfig = ''
-          -- Prettify
-          g.workspace_powerline_separators = 1
-          g.workspace_tab_icon = ""
-          g.workspace_left_trunc_icon = ""
-          g.workspace_right_trunc_icon = ""
+          nvim_tree_api = require "nvim-tree.api"
+          bufferline = require "bufferline"
+          bufferline_opts = {
+            options:
+              themable: true
+              numbers: "buffer_id"
+              diagnostics: "nvim_lsp"
+              diagnostics_indicator: (count, level) ->
+                icon = level\match("error") and " " or " "
+                return " #{icon}#{count}"
+              offsets: {
+                { filetype: "NvimTree"
+                  separator: true
+                  text_align: "left"
+                  text: ->
+                    tree_winid = nvim_tree_api.tree.winid()
+                    max_width = vim.fn.winwidth(tree_winid) - 5
+                    cwd = vim.fn.fnamemodify(vim.fn.getcwd!, ":~:")
+                    return nvim.squish_path cwd, max_width
+                }
+              },
+              color_icons: true
+              show_buffer_icons: true
+              show_buffer_close_icons: false
+              show_close_icon: false
+              persist_buffer_sort: false
+              always_show_bufferline: true
+              hover: { enabled: false }
+          }
+          -- Set in theming scripts
+          if bufferline_highlights
+            bufferline_opts.highlights = bufferline_highlights
+          if bufferline_offset_highlight
+            for offset in *bufferline_opts.options.offsets
+              offset.highlight = bufferline_offset_highlight
+          bufferline.setup bufferline_opts
+
+          map "n", "gb", ":BufferLinePick<CR>", {noremap: true, silent: true}
+          map "n", "gb", ":BufferLineClose<CR>", {noremap: true, silent: true}
+        '';
+      };
+      # Tab-scoped buffers
+      scope-nvim = {
+        enable = true;
+        source = vimPlugins.scope-nvim;
+        # g.workspace_powerline_separators = 1
+        # g.workspace_tab_icon = ""
+        # g.workspace_left_trunc_icon = ""
+        # g.workspace_right_trunc_icon = ""
+        extraConfig = ''
+          scope = require "scope"
+          scope.setup {}
         '';
       };
       nvim-tree-lua = {
@@ -437,6 +483,10 @@ in
               ignore: false
             filters:
               custom: {".git"}
+            renderer:
+              -- Don't show the root dir label if we have bufferline-nvim, as
+              -- it'll do it for us
+              root_folder_label: ${if plugCfg.bufferline-nvim.enable then "false" else ":~"}
 
           map "n", "<leader>p", ":NvimTreeToggle<CR>", {noremap: true}
           map "n", "<C-\\>", ":NvimTreeFindFile<CR>", {noremap: true}

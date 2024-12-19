@@ -74,21 +74,6 @@ in
           }
       '';
     };
-    vim-buffet.extraConfig = mkIfOceanic ''
-      -- Customize vim-workspace colours based on oceanic-next colours
-      cmd [[
-        function! g:WorkspaceSetCustomColors()
-          highlight WorkspaceBufferCurrentDefault guibg=#65737e guifg=#cdd3de
-          highlight WorkspaceBufferActiveDefault guibg=#4f5b66 guifg=#a7adba
-          highlight WorkspaceBufferHiddenDefault guibg=#343d46 guifg=#a7adba
-          highlight WorkspaceBufferTruncDefault guibg=#343d46 guifg=#c594c5
-          highlight WorkspaceTabCurrentDefault guibg=#99c794 guifg=#343d46
-          highlight WorkspaceTabHiddenDefault guibg=#6699cc guifg=#343d46
-          highlight WorkspaceFillDefault guibg=#343d46 guifg=#343d46
-          highlight WorkspaceIconDefault guibg=#343d46 guifg=#343d46
-        endfunction
-      ]]
-    '';
     # TODO change colour
     indent-blankline-nvim = {
       after = mkIfOceanic [ "oceanic-next" ];
@@ -105,5 +90,14 @@ in
         highlight ALESignColumnWithErrors guibg=#ec5f67
       ]]
     '';
+    bufferline-nvim.extraConfig = mkIfOceanic (mkBefore ''
+      bufferline_highlights = {
+        -- Colour the background of the buffer bar
+        fill: { bg: "#112029" }
+        -- Colour the little vertical bar indicating the currently-active buffer
+        indicator_selected: { fg: "#6699cc" }
+      }
+      bufferline_offset_highlight = "Normal"
+    '');
   };
 }
