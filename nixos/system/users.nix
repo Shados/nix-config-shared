@@ -16,7 +16,15 @@ in
       "systemd-journal"
       "grsecurity"
       "audio"
-    ];
+      "plugdev"
+      ]
+      ++ optional config.networking.networkmanager.enable "networkmanager"
+      ++ optional config.virtualisation.libvirtd.enable "libvirtd"
+      ++ optional config.programs.adb.enable "adbusers"
+      ++ optional config.programs.gamemode.enable "gamemode"
+      ++ optional config.hardware.uinput.enable "uinput"
+      ++ optional config.virtualisation.docker.enable "docker"
+    ;
     uid = 1000;
     shell = pkgs.fish;
     openssh.authorizedKeys.keys = [

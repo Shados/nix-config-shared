@@ -16,5 +16,4 @@ in
   ] ++ optionals config.networking.enableIPv6 [
     "2620:fe::fe" "2620:fe::9" # Quad9
   ]);
-  users.users.shados.extraGroups = mkIf config.networking.networkmanager.enable [ "networkmanager" ];
 }
