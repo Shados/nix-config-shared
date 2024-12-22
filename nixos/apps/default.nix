@@ -84,7 +84,28 @@ in
     };
     bash = {
       completion.enable = true;
-      #shellAliases = {};
     };
+  };
+
+  programs.steam = mkIf config.programs.steam.enable {
+    package = pkgs.steam.override {
+      extraEnv = {
+        MANGOHUD = true;
+      };
+    };
+    extraPackages = with pkgs; [
+      gsettings-desktop-schemas glib
+      xorg.libxcb dbus nss # Needed for electron-based shit I think
+
+      # Needed for gamescope to work right
+      libkrb5 keyutils
+
+      gamemode
+
+      cups # Needed for bitburner
+    ];
+    protontricks.enable = mkDefault true;
+    localNetworkGameTransfers.openFirewall = mkDefault true;
+    remotePlay.openFirewall = mkDefault true;
   };
 }
