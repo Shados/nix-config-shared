@@ -30,12 +30,11 @@ in
         enable = mkDefault true;
         settings = {
           general = {
-            desiredgov = "performance";
+            desiredgov = "schedutil";
             renice = 20;
           };
           gpu = {
             apply_gpu_optimisations = "accept-responsibility";
-            gpu_device = 0;
             amd_performance_level = "high";
           };
           # custom = {
@@ -45,7 +44,7 @@ in
         };
       };
       environment.variables = {
-        GAMEMODERUNEXEC = mkIf config.programs.gamemode.enable "PROTON_WINEDBF_DISABLE=1 WINEDEBUG=-all";
+        GAMEMODERUNEXEC = mkIf config.programs.gamemode.enable "PROTON_WINEDBG_DISABLE=1 WINEDEBUG=-all";
       };
     }
   ];
