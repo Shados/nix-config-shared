@@ -85,6 +85,8 @@ in
         # Set the DPMS-off timeout to 15 seconds
         ${pkgs.xorg.xset}/bin/xset dpms 0 0 15 +dpms
       '';
+
+      powerSwitchScript = "/run/current-system/sw/bin/lock-power-switch";
     in {
       # FIXME: Find a way to just enable the existing, packaged user file?
       systemd.user.services.systemd-lock-handler = {
@@ -122,7 +124,7 @@ in
       };
       systemd.user.services.power-switch-lock = {
         Service = {
-          ExecStart = "/run/current-system/sw/bin/lock-power-switch lock";
+          ExecStart = "${powerSwitchScript} lock";
           Slice = "session.slice";
           Type = "oneshot";
         };
@@ -132,6 +134,7 @@ in
           X-RestartIfChanged = false;
           RefuseManualStart = true;
           RefuseManualStop = true;
+          ConditionPathExists = powerSwitchScript;
         };
         Install = {
           WantedBy = [ "lock.target" ];
@@ -139,7 +142,7 @@ in
       };
       systemd.user.services.power-switch-unlock = {
         Service = {
-          ExecStart = "/run/current-system/sw/bin/lock-power-switch unlock";
+          ExecStart = "${powerSwitchScript} unlock";
           Slice = "session.slice";
           Type = "oneshot";
         };
@@ -149,6 +152,7 @@ in
           X-RestartIfChanged = false;
           RefuseManualStart = true;
           RefuseManualStop = true;
+          ConditionPathExists = powerSwitchScript;
         };
         Install = {
           WantedBy = [ "unlock.target" ];
