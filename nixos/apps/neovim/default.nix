@@ -110,20 +110,29 @@ in
       # }}}
 
       # Language support and syntax highlighting {{{
-      # nvim-treesitter = {
-      #   # FIXME: unclear why, but this shit is broken AF. Doesn't appear to be
-      #   # a "upstream neovim parsers taking precedence over nvim-treesitter's",
-      #   # not clear what else could be causing the issues I was seeing.
-      #   enable = false;
-      #   source = pkgs.vimPlugins.nvim-treesitter.withAllGrammars;
-      #   extraConfig = ''
-      #     require"nvim-treesitter.configs".setup
-      #       auto_install: false
-      #       highlight:
-      #         enable: true
-      #         additional_vim_regex_highlighting: false
-      #   '';
-      # };
+      nvim-treesitter = {
+        enable = true;
+        source = pkgs.vimPlugins.nvim-treesitter.withPlugins(ps: with ps; [
+          ada arduino asm awk bash bicep c c_sharp capnp clojure cmake
+          comment commonlisp cpp css csv d devicetree dhall diff
+          disassembly djot dockerfile dot dtd elixir elm elvish erlang
+          fennel fish forth fsharp gdscript gdshader glsl gnuplot go
+          godot_resource graphql hlsl html ini java javascript json
+          latex lua luadoc luap make markdown markdown_inline meson
+          nginx nim nim_format_string ninja nix ocaml ocaml_interface
+          ocamllex odin perl python r regex rescript ruby rust scala
+          scheme scss sql ssh_config tcl teal terraform tmux toml
+          typescript udev vala verilog vhdl vim vimdoc wgsl wgsl_bevy
+          xcompose xml xresources yaml zig
+        ]);
+        extraConfig = ''
+          require"nvim-treesitter.configs".setup
+            auto_install: false
+            highlight:
+              enable: true
+              additional_vim_regex_highlighting: false
+        '';
+      };
       # Async linting
       ale = with pkgs; mkMerge [
         # ALE config {{{
