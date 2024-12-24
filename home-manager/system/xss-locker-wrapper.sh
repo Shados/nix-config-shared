@@ -38,12 +38,14 @@ fi
 # Wait for the locker to exit
 wait
 
+# Unset DPMS timeout
+unset-dpms
+
 # Tell logind we're unlocked
 busctl call org.freedesktop.login1 "$session_path" org.freedesktop.login1.Session SetLockedHint b false &
 
 # Now that we're unlocked again, trigger a logind Unlock event; we can
-# hook this in dbus (or in systemd via systemd-lock-handler)
+# hook this in dbus (or in systemd via systemd-lock-handler).
+# NOTE: This will also trigger xss-lock to kill us, so it must be the last
+# thing we do.
 loginctl unlock-session &
-
-# Unset DPMS timeout
-unset-dpms

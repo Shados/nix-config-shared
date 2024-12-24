@@ -12,6 +12,7 @@ in
     ./os-dependent.nix
     ./sshfs.nix
     ./theming.nix
+    ./xsecurelock.nix
     ./zsh.nix
   ];
   options = {

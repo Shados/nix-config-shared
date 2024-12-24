@@ -23,21 +23,33 @@ let
 in
 {
   config = mkMerge [
+    # Enable by default if using NixOS w/ graphical xorg setup
     (mkIf (config.sn.os == "nixos" && config.xsession.enable) {
       services.screen-locker.enable = mkDefault true;
     })
+
+    # Openbox screen-lock keybind
     (mkIf (config.services.screen-locker.enable && config.xsession.windowManager.openbox.enable) {
-      # Screen-lock keybind
       xsession.windowManager.openbox.keyboard.keybind."W-A-l" = lib.singleton { action = "execute"; command = "loginctl lock-session"; };
     })
-    (mkIf config.services.screen-locker.enable (let
-      inherit (lib) getExe getExe';
-      locker = pkgs.writers.writeBash "xsecurelock-shados" ''
-        export XSECURELOCK_AUTH_TIMEOUT=30
-        export XSECURELOCK_BLANK_TIMEOUT=5
-        exec -a "$0" ${pkgs.xsecurelock}/bin/xsecurelock "$@"
+
+    # Helper for wrapping lockers in xss-lock-compatible behaviour + configuring dpms
+    (let
+      inherit (lib) getExe;
+
+      # TODO share with shared/home-manager/apps/openbox.nix ?
+      unsetDpms = pkgs.writers.writeBashBin "unset-dpms" ''
+        # Disable all DPMS timeouts, but ensure DPMS itself is enabled, so that
+        # our screen locker can use it
+        ${xset} s 0 0 s noblank s noexpose dpms 0 0 0 +dpms
       '';
-      xss-locker-wrapper = pkgs.writeShellApplication {
+      setDpms = pkgs.writers.writeBashBin "set-dpms" ''
+        # Set the DPMS-off timeout to 15 seconds
+        ${xset} dpms 0 0 15 +dpms
+      '';
+      xset = getExe pkgs.xorg.xset;
+    in {
+      lib.xss-locker-wrapper = pkgs.writeShellApplication {
         name = "xss-locker-wrapper";
         text = builtins.readFile ./xss-locker-wrapper.sh;
         runtimeInputs = with pkgs; [
@@ -45,24 +57,12 @@ in
           setDpms unsetDpms
         ];
       };
+    })
 
-      # TODO share with shared/home-manager/apps/openbox.nix ?
-      unsetDpms = pkgs.writers.writeBashBin "unset-dpms" ''
-        # Disable all DPMS timeouts, but ensure DPMS itself is enabled, so that
-        # our screen locker can use it
-        ${pkgs.xorg.xset}/bin/xset s 0 0 s noblank s noexpose dpms 0 0 0 +dpms
-      '';
-      setDpms = pkgs.writers.writeBashBin "set-dpms" ''
-        # Set the DPMS-off timeout to 15 seconds
-        ${pkgs.xorg.xset}/bin/xset dpms 0 0 15 +dpms
-      '';
-
-      powerSwitchScript = "/run/current-system/sw/bin/lock-power-switch";
+    # Modify upstream xss-lock config to use systemd-lock-handler, and make some other improvements
+    (let
+      inherit (lib) getExe';
     in {
-      services.screen-locker.lockCmd = "${getExe xss-locker-wrapper} ${locker}";
-      services.screen-locker.xss-lock.extraOptions = mkDefault [
-        "-n ${pkgs.xsecurelock}/libexec/xsecurelock/dimmer -l"
-      ];
       # Don't restart on home-manager activation if paths have changed
       # TODO somehow only restart if we're not currently locked?
       systemd.user.services.xss-lock.Unit.X-RestartIfChanged = false;
@@ -94,6 +94,53 @@ in
           WantedBy = [ "default.target" ];
         };
       };
+      home.packages = with pkgs; [
+        # We must add this to get the un/lock target files
+        nur.repos.shados.systemd-lock-handler
+        # Nice to have in the env
+        xss-lock
+      ];
+      # TODO move hasUnitChanged into a more generic activation-script-env-setup type of thing?
+      home.activation.schedule-unlock-only-restarts = let
+        configHome = lib.removePrefix config.home.homeDirectory config.xdg.configHome;
+        systemctl = lib.getExe' pkgs.systemd "systemctl";
+      in lib.hm.dag.entryBetween [ "performServiceRestarts" ] [ "onFilesChange" "reloadSystemd" "initServiceRestartArray" ] ''
+        # Returns success if it is changed, failure if it hasn't (or if we can't determine if it has or not)
+        function hasUnitChanged {
+          unit="$1"
+          if [[ -v oldGenPath ]]; then
+            local oldUnitsDir="$oldGenPath/home-files${configHome}/systemd/user"
+            if [[ ! -e $oldUnitsDir ]]; then
+              return 1
+            fi
+          fi
+
+          local newUnitsDir="$newGenPath/home-files${configHome}/systemd/user"
+          if [[ ! -e $newUnitsDir ]]; then
+            return 1
+          fi
+
+          declare oldHash newHash
+          oldHash=($(sha256sum "$oldUnitsDir/$unit"))
+          newHash=($(sha256sum "$newUnitsDir/$unit"))
+          [[ "$oldHash" != "$newHash" ]]
+          return $?
+        }
+
+        if ! ${systemctl} --user is-active lock.target >/dev/null; then
+          if hasUnitChanged "xss-lock.service"; then
+            restartServices["xss-lock"]=1
+          fi
+        fi
+      '';
+    })
+
+    # Handle running system-provided lock-power-switch, if it exists
+    (mkIf config.services.screen-locker.enable (let
+      inherit (lib) getExe';
+
+      powerSwitchScript = "/run/current-system/sw/bin/lock-power-switch";
+    in {
       systemd.user.services.power-switch-lock = {
         Service = {
           ExecStart = "${powerSwitchScript} lock";
@@ -128,44 +175,6 @@ in
           WantedBy = [ "unlock.target" ];
         };
       };
-      home.packages = with pkgs; [
-        # We must add this to get the un/lock target files
-        nur.repos.shados.systemd-lock-handler
-        # Nice to have these in the env
-        xss-lock
-        xsecurelock
-      ];
-      # TODO move hasUnitChanged into a more generic activation-script-env-setup type of thing?
-      home.activation.check-xss-lock-restart = let
-        configHome = lib.removePrefix config.home.homeDirectory config.xdg.configHome;
-        systemctl = lib.getExe' pkgs.systemd "systemctl";
-      in lib.hm.dag.entryBetween [ "performServiceRestarts" ] [ "onFilesChange" "reloadSystemd" "initServiceRestartArray" ] ''
-        # Returns success if it is changed, failure if it hasn't (or if we can't determine if it has or not)
-        function hasUnitChanged {
-          unit="$1"
-          if [[ -v oldGenPath ]]; then
-            local oldUnitsDir="$oldGenPath/home-files${configHome}/systemd/user"
-            if [[ ! -e $oldUnitsDir ]]; then
-              return 1
-            fi
-          fi
-
-          local newUnitsDir="$newGenPath/home-files${configHome}/systemd/user"
-          if [[ ! -e $newUnitsDir ]]; then
-            return 1
-          fi
-
-          declare oldHash newHash
-          oldHash=($(sha256sum "$oldUnitsDir/$unit"))
-          newHash=($(sha256sum "$newUnitsDir/$unit"))
-          [[ "$oldHash" != "$newHash" ]]
-          return $?
-        }
-
-        if (! ${systemctl} --user is-active lock.target >/dev/null) && hasUnitChanged "xss-lock.service"; then
-          restartServices["xss-lock"]=1
-        fi
-      '';
     }))
   ];
 }
