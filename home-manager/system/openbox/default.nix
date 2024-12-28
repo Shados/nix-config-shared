@@ -1073,7 +1073,7 @@ in
         # Update user dirs as described in http://freedesktop.org/wiki/Software/xdg-user-dirs/
         ${xdg-user-dirs}/bin/xdg-user-dirs-update
 
-        ${pkgs.dbus}/bin/dbus-update-activation-environment --systemd DISPLAY XDG_SESSION_ID XDG_SESSION_TYPE XDG_CURRENT_DESKTOP XDG_DATA_DIRS
+        ${pkgs.dbus}/bin/dbus-update-activation-environment --systemd DISPLAY XDG_SESSION_ID XDG_SESSION_TYPE XDG_CURRENT_DESKTOP XDG_DATA_DIRS XDG_VTNR
         ${openbox}/bin/openbox-session
         ${pkgs.systemd}/bin/systemctl --user stop openbox-graphical-session.target
       '';
