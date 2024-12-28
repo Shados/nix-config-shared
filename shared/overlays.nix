@@ -43,6 +43,7 @@ in
         fixes
         oldflash
         dochelpers
+        (import ./fixes.nix)
       ];
     }
   ];
