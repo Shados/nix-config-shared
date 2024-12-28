@@ -72,5 +72,10 @@ in
         };
       };
     })
+    {
+      systemd.services.rpc-statd-notify.preStart = ''
+        mkdir -p /var/lib/nfs/{sm,sm.bak}
+      '';
+    }
   ];
 }
