@@ -121,6 +121,9 @@ in
         includeAllModules = false;
       };
     }
+    (mkIf config.boot.loader.systemd-boot.enable {
+      fileSystems.${config.boot.loader.efi.efiSysMountPoint}.options = [ "umask=0077" ];
+    })
     (let
       memSize = "2M";
       memLabel = "pstore";
