@@ -88,11 +88,11 @@ in
   };
 
   programs.steam = mkIf config.programs.steam.enable {
-    package = pkgs.steam.override {
+    package = mkDefault (pkgs.steam.override {
       extraEnv = {
         MANGOHUD = true;
       };
-    };
+    });
     extraPackages = with pkgs; [
       gsettings-desktop-schemas glib
       xorg.libxcb dbus nss # Needed for electron-based shit I think
