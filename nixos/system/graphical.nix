@@ -55,9 +55,7 @@ in
         colord.enable = true;
         displayManager.defaultSession = "xsession";
         # displayManager.slim.enable = true; # RIP SLIM
-        displayManager.sddm = {
-          enable = true;
-        };
+        displayManager.sddm.enable = mkDefault true;
         xserver = {
           enable = true;
 
@@ -200,6 +198,11 @@ in
       boot.kernelParams = [
         "preempt=full"
       ];
+    }
+
+    {
+      # Get console font config etc. done during early initrd
+      console.earlySetup = true;
     }
   ]);
 }
