@@ -24,6 +24,19 @@ in {
       };
     });
 
+  # Workaround for electron issue #43819
+  electron = if versionAtLeast (getVersion prev.electron) "33.3.1" then prev.electron else
+    prev.electron.override(origElectronArgs: {
+      electron-unwrapped = origElectronArgs.electron-unwrapped.overrideAttrs(finalAttrs: prevAttrs: {
+        patches = prevAttrs.patches or [] ++ [
+          (prev.fetchpatch {
+            url = "file://${./electron-33-portal-fix.patch}";
+            sha256 = "sha256-+qEfbQkILgQX/Prz9qH7Td7eqsYcwUevKCX1Ezbln1U=";
+          })
+        ];
+      });
+    });
+
   pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
     (pyfinal: pyprev: {
       # Fix for uncaught issue in PR #341434
