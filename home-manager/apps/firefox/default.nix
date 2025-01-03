@@ -80,12 +80,13 @@ let
         // unlockPref("network.connectivity-service.IPv4.url"); pref("network.connectivity-service.IPv4.url", "http://detectportal.firefox.com/success.txt?ipv4");
         // unlockPref("network.connectivity-service.IPv6.url"); pref("network.connectivity-service.IPv6.url", "http://detectportal.firefox.com/success.txt?ipv6");
 
-        /* 0705: disable DNS-over-HTTPS (DoH) rollout [FF60+]
-         * 0=off by default, 2=TRR (Trusted Recursive Resolver) first, 3=TRR only, 5=explicitly off
-         * see "doh-rollout.home-region": USA Feb 2020, Canada July 2021 [3]
+        /* 0710: enable DNS-over-HTTPS (DoH) [FF60+]
+         * 0=default, 2=increased (TRR (Trusted Recursive Resolver) first), 3=max (TRR only), 5=off (no rollout)
+         * see "doh-rollout.home-region": USA 2019, Canada 2021, Russia/Ukraine 2022 [3]
+         * [SETTING] Privacy & Security>DNS over HTTPS
          * [1] https://hacks.mozilla.org/2018/05/a-cartoon-intro-to-dns-over-https/
          * [2] https://wiki.mozilla.org/Security/DOH-resolver-policy
-         * [3] https://blog.mozilla.org/mozilla/news/firefox-by-default-dns-over-https-rollout-in-canada/
+         * [3] https://support.mozilla.org/kb/firefox-dns-over-https
          * [4] https://www.eff.org/deeplinks/2020/12/dns-doh-and-odoh-oh-my-year-review-2020 ***/
         unlockPref("network.trr.mode"); pref("network.trr.mode", 5); // I use my own DNS, kthx
 
@@ -111,51 +112,8 @@ let
          * [1] https://bugzilla.mozilla.org/buglist.cgi?bug_id=1642387,1660945 ***/
         unlockPref("dom.security.https_only_mode_send_http_background_request"); pref("dom.security.https_only_mode_send_http_background_request", true);
 
-        // Needed to allow AusPost's parcel tracking page to function
-        /* 1601: control when to send a cross-origin referer
-         * 0=always (default), 1=only if base domains match, 2=only if hosts match
-         * [SETUP-WEB] Known to cause issues with older modems/routers and some sites e.g vimeo, icloud, instagram ***/
-        unlockPref("network.http.referer.XOriginPolicy"); pref("network.http.referer.XOriginPolicy", 1);
-
-        // WebRTC santization
-        /* 2002: force WebRTC inside the proxy [FF70+] ***/
-        unlockPref("media.peerconnection.ice.proxy_only_if_behind_proxy"); pref("media.peerconnection.ice.proxy_only_if_behind_proxy", false);
-        // Force usage of proxy + no direct ICE candidates, TURN only
-        pref("media.peerconnection.ice.proxy_only", true);
-        pref("media.peerconnection.ice.relay_only", true);
-        // Use *my* server for TURN
-        pref("media.peerconnection.ice.use_document_iceservers", false);
-        // Example only, actual setting contains auth secret
-        // pref("media.peerconnection.ice.default_iceservers", [{"urls": "turn:turnserver", "username": "user", "credential": "password"}]);
-
-        /* 2302: disable service workers [FF32, FF44-compat]
-         * Service workers essentially act as proxy servers that sit between web apps, and the
-         * browser and network, are event driven, and can control the web page/site they are associated
-         * with, intercepting and modifying navigation and resource requests, and caching resources.
-         * [NOTE] Service workers require HTTPS, have no DOM access, and are not supported in PB mode [1]
-         * [SETUP-WEB] Disabling service workers will break some sites. This pref is required true for
-         * service worker notifications (2304), push notifications (disabled, 2305) and service worker
-         * cache (2740). If you enable this pref, then check those settings as well
-         * [1] https://bugzilla.mozilla.org/show_bug.cgi?id=1320796#c7 ***/
-        unlockPref("dom.serviceWorkers.enabled"); pref("dom.serviceWorkers.enabled", true);
-
         // TODO Run my own self-hosted push server? See: https://mozilla-push-service.readthedocs.io/en/latest/#mozilla-push-service
         // unlockPref("dom.push.serverURL"); pref("dom.push.serverURL", "wss://push.services.mozilla.com/");
-        /* 2305: disable Push Notifications [FF44+]
-         * Push is an API that allows websites to send you (subscribed) messages even when the site
-         * isn't loaded, by pushing messages to your userAgentID through Mozilla's Push Server
-         * [NOTE] Push requires service workers (2302) to subscribe to and display, and is behind
-         * a prompt (7002). Disabling service workers alone doesn't stop Firefox polling the
-         * Mozilla Push Server. To remove all subscriptions, reset your userAgentID.
-         * [1] https://support.mozilla.org/kb/push-notifications-firefox
-         * [2] https://developer.mozilla.org/docs/Web/API/Push_API ***/
-        unlockPref("dom.push.enabled"); pref("dom.push.enabled", true);
-           // unlockPref("dom.push.userAgentID"); pref("dom.push.userAgentID", "");
-
-        // The mitigation in 2404 is sufficient
-        /* 2403: block popup windows
-         * [SETTING] Privacy & Security>Permissions>Block pop-up windows ***/
-        unlockPref("dom.disable_open_during_load"); pref("dom.disable_open_during_load", false);
 
         // I do actually ship an extension in the application dir, and am sure as shit that no one else is in my case :^)
         /* 2660: lock down allowed extension directories
@@ -166,33 +124,20 @@ let
         unlockPref("extensions.enabledScopes"); pref("extensions.enabledScopes", 6); // [HIDDEN PREF]
         unlockPref("extensions.autoDisableScopes"); pref("extensions.autoDisableScopes", 11); // [DEFAULT: 15]
 
-        /* 2801: delete cookies and site data on exit
-         * 0=keep until they expire (default), 2=keep until you close Firefox
-         * [NOTE] A "cookie" block permission also controls localStorage/sessionStorage, indexedDB,
-         * sharedWorkers and serviceWorkers. serviceWorkers require an "Allow" permission
-         * [SETTING] Privacy & Security>Cookies and Site Data>Delete cookies and site data when Firefox is closed
-         * [SETTING] to add site exceptions: Ctrl+I>Permissions>Cookies>Allow
-         *   If using FPI the syntax must be https://example.com/^firstPartyDomain=example.com
-         * [SETTING] to manage site exceptions: Options>Privacy & Security>Permissions>Settings ***/
-        unlockPref("network.cookie.lifetimePolicy"); pref("network.cookie.lifetimePolicy", 0);
-
-        /* 2802: enable Firefox to clear items on shutdown (2803)
-         * [SETTING] Privacy & Security>History>Custom Settings>Clear history when Firefox closes ***/
+        /* 2810: enable Firefox to clear items on shutdown
+         * [NOTE] In FF129+ clearing "siteSettings" on shutdown (2811), or manually via site data (2820) and
+         * via history (2830), will no longer remove sanitize on shutdown "cookie and site data" site exceptions (2815)
+         * [SETTING] Privacy & Security>History>Custom Settings>Clear history when Firefox closes | Settings ***/
         unlockPref("privacy.sanitize.sanitizeOnShutdown"); pref("privacy.sanitize.sanitizeOnShutdown", false);
 
-        /* 2806: reset default "Time range to clear" for "Clear Recent History" (2804)
+        /* 2840: set "Time range to clear" for "Clear Data" (2820) and "Clear History" (2830)
          * Firefox remembers your last choice. This will reset the value when you start Firefox
          * 0=everything, 1=last hour, 2=last two hours, 3=last four hours, 4=today
          * [NOTE] Values 5 (last 5 minutes) and 6 (last 24 hours) are not listed in the dropdown,
          * which will display a blank value, and are not guaranteed to work ***/
         unlockPref("privacy.sanitize.timeSpan"); pref("privacy.sanitize.timeSpan", 1);
 
-        // TODO re-enable once I can *separately* disable the "force 1600x900 window size on start" thing
-        /* 4501: enable privacy.resistFingerprinting [FF41+]
-         * [SETUP-WEB] RFP can cause some website breakage: mainly canvas, use a site exception via the urlbar
-         * RFP also has a few side effects: mainly timezone is UTC0, and websites will prefer light theme
-         * [1] https://bugzilla.mozilla.org/418986 ***/
-        unlockPref("privacy.resistFingerprinting"); pref("privacy.resistFingerprinting", false);
+        // TODO enable RFP once I can *separately* disable the "force 1600x900 window size on start" thing
 
         // TODO re-enable once I figure out a way to 'snap' window resizing to the letterboxed sizes?
         /* 4504: enable RFP letterboxing [FF67+]
@@ -206,14 +151,6 @@ let
          * [2] https://hg.mozilla.org/mozilla-central/rev/6d2d7856e468#l2.32 ***/
         unlockPref("privacy.resistFingerprinting.letterboxing"); pref("privacy.resistFingerprinting.letterboxing", false); // [HIDDEN PREF]
 
-        /* 4512: enforce links targeting new windows to open in a new tab instead
-         * 1=most recent window or tab, 2=new window, 3=new tab
-         * Stops malicious window sizes and some screen resolution leaks.
-         * You can still right-click a link and open in a new window
-         * [SETTING] General>Tabs>Open links in tabs instead of new windows
-         * [TEST] https://arkenfox.github.io/TZP/tzp.html#screen
-         * [1] https://gitlab.torproject.org/tpo/applications/tor-browser/-/issues/9881 ***/
-        unlockPref("browser.link.open_newwindow"); pref("browser.link.open_newwindow", 3);
         /* 4513: set all open window methods to abide by "browser.link.open_newwindow" (4512)
          * [1] https://searchfox.org/mozilla-central/source/dom/tests/browser/browser_test_new_window_from_content.js ***/
         // Instead, only abide by it in non-script windows
@@ -221,16 +158,10 @@ let
 
         // Open *external* links in new tab in the last active window
         unlockPref("browser.link.open_newwindow.override.external"); pref("browser.link.open_newwindow.override.external", 3);
-
-        // See later non-override note
-        /* 4520: disable WebGL (Web Graphics Library)
-         * [SETUP-WEB] If you need it then enable it. RFP still randomizes canvas for naive scripts ***/
-        unlockPref("webgl.disabled"); pref("webgl.disabled", false);
-
         /* 5003: disable saving passwords
          * [NOTE] This does not clear any passwords already saved
          * [SETTING] Privacy & Security>Logins and Passwords>Ask to save logins and passwords for websites ***/
-        unlockPref("signon.rememberSignons"); pref("signon.rememberSignons", false);
+        unlockPref("signon.rememberSignons"); lockPref("signon.rememberSignons", false);
 
         /* 5016: discourage downloading to desktop
          * 0=desktop, 1=downloads (default), 2=last used
@@ -248,7 +179,7 @@ let
         /* Sadly crucial for not having absolutely terrible performance that
          * somehow *also* kills the performance of any GL-using stuff on the same
          * system, especially during scrolling. Does affect fingerprinting, but
-         * RFP mitigates WebGL stuff.
+         * oh well.
          */
         pref("layers.acceleration.force-enabled",   true);
         pref("webgl.force-enabled",                 true);
