@@ -48,7 +48,7 @@ in
         ${xset} dpms 0 0 15 +dpms
       '';
       xset = getExe pkgs.xorg.xset;
-    in {
+    in mkIf config.services.screen-locker.enable {
       lib.xss-locker-wrapper = pkgs.writeShellApplication {
         name = "xss-locker-wrapper";
         text = builtins.readFile ./xss-locker-wrapper.sh;
@@ -62,7 +62,7 @@ in
     # Modify upstream xss-lock config to use systemd-lock-handler, and make some other improvements
     (let
       inherit (lib) getExe';
-    in {
+    in mkIf config.services.screen-locker.enable {
       # Don't restart on home-manager activation if paths have changed
       # TODO somehow only restart if we're not currently locked?
       systemd.user.services.xss-lock.Unit.X-RestartIfChanged = false;
