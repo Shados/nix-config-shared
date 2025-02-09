@@ -24,6 +24,8 @@ in {
       };
     });
 
+  fop = if versionAtLeast (getVersion prev.fop) "2.10" then prev.fop else prev.callPackage ./fop.nix { };
+
   # Workaround for electron issue #43819
   electron = if versionAtLeast (getVersion prev.electron) "33.3.1" then prev.electron else
     prev.electron.override(origElectronArgs: {
