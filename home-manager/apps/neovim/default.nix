@@ -36,28 +36,28 @@ in
               local_map = (...) -> api.nvim_buf_set_keymap bufnr, ...
 
               -- Some mappings
-              local_map "n", "K", "<Cmd>lua vim.lsp.buf.hover()<CR>", { noremap: true, silent: true }
+              local_map "n", "K", "<cmd>lua vim.lsp.buf.hover()<CR>", { noremap: true, silent: true }
               local_map "n", "gd", "<cmd>lua vim.lsp.buf.definition()<CR>", { noremap: true, silent: true }
               local_map "n", "gD", "<cmd>lua vim.lsp.buf.declaration()<CR>", { noremap: true, silent: true }
               local_map "n", "gi", "<cmd>lua vim.lsp.buf.implementation()<CR>", { noremap: true, silent: true }
               local_map "n", "<C-k>", "<cmd>lua vim.lsp.buf.signature_help()<CR>", { noremap: true, silent: true }
-              local_map "n", "<space>wa", "<cmd>lua vim.lsp.buf.add_workspace_folder()<CR>", { noremap: true, silent: true }
-              local_map "n", "<space>wr", "<cmd>lua vim.lsp.buf.remove_workspace_folder()<CR>", { noremap: true, silent: true }
-              local_map "n", "<space>wl", "<cmd>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<CR>", { noremap: true, silent: true }
-              local_map "n", "<space>D", "<cmd>lua vim.lsp.buf.type_definition()<CR>", { noremap: true, silent: true }
-              local_map "n", "<space>rn", "<cmd>lua vim.lsp.buf.rename()<CR>", { noremap: true, silent: true }
-              local_map "n", "<space>ca", "<cmd>lua vim.lsp.buf.code_action()<CR>", { noremap: true, silent: true }
+              local_map "n", "<leader>wa", "<cmd>lua vim.lsp.buf.add_workspace_folder()<CR>", { noremap: true, silent: true }
+              local_map "n", "<leader>wr", "<cmd>lua vim.lsp.buf.remove_workspace_folder()<CR>", { noremap: true, silent: true }
+              local_map "n", "<leader>wl", "<cmd>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<CR>", { noremap: true, silent: true }
+              local_map "n", "<leader>D", "<cmd>lua vim.lsp.buf.type_definition()<CR>", { noremap: true, silent: true }
+              local_map "n", "<leader>rn", "<cmd>lua vim.lsp.buf.rename()<CR>", { noremap: true, silent: true }
+              local_map "n", "<leader>ca", "<cmd>lua vim.lsp.buf.code_action()<CR>", { noremap: true, silent: true }
               local_map "n", "gr", "<cmd>lua vim.lsp.buf.references()<CR>", { noremap: true, silent: true }
-              local_map "n", "<space>e", "<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<CR>", { noremap: true, silent: true }
-              local_map "n", "[d", "<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>", { noremap: true, silent: true }
-              local_map "n", "]d", "<cmd>lua vim.lsp.diagnostic.goto_next()<CR>", { noremap: true, silent: true }
-              local_map "n", "<space>q", "<cmd>lua vim.lsp.diagnostic.set_loclist()<CR>", { noremap: true, silent: true }
+              local_map "n", "<leader>e", "<cmd>lua vim.diagnostic.show_line_diagnostics()<CR>", { noremap: true, silent: true }
+              local_map "n", "[d", "<cmd>lua vim.diagnostic.goto_prev()<CR>", { noremap: true, silent: true }
+              local_map "n", "]d", "<cmd>lua vim.diagnostic.goto_next()<CR>", { noremap: true, silent: true }
+              local_map "n", "<leader>q", "<cmd>lua vim.diagnostic.set_loclist()<CR>", { noremap: true, silent: true }
 
               -- Set some keybinds conditional on server capabilities
               if client.server_capabilities.documentFormattingProvider
-                local_map "n", "<space>f", "<cmd>lua vim.lsp.buf.formatting()<CR>", { noremap: true, silent: true }
+                local_map "n", "<leader>F", "<cmd>lua vim.lsp.buf.formatting()<CR>", { noremap: true, silent: true }
               if client.server_capabilities.documentRangeFormattingProvider
-                local_map "v", "<space>f", "<cmd>lua vim.lsp.buf.range_formatting()<CR>", { noremap: true, silent: true }
+                local_map "v", "<leader>F", "<cmd>lua vim.lsp.buf.range_formatting()<CR>", { noremap: true, silent: true }
 
               -- Set autocommands conditional on server_capabilities
               if client.server_capabilities.documentHighlightProvider
@@ -157,7 +157,7 @@ in
         # Project-specific tooling provided by direnv+Nix
         { extraConfig = mkAfter ''
             if (fn.executable "typescript-language-server") != 0
-              lspconfig.tsserver.setup
+              lspconfig.ts_ls.setup
                 on_attach: lsp_on_attach
           '';
         }
