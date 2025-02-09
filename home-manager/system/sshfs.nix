@@ -24,6 +24,14 @@ in
         '';
         type = types.attrsOf (types.submodule ({ config, ... }: {
           options = {
+            enabled = mkOption {
+              type = types.bool;
+              default = true;
+              description = ''
+                Whether or not this mount service should start by default.
+              '';
+            };
+
             mountPath = mkOption {
               type = types.str;
               default = config._module.args.name;
@@ -92,7 +100,7 @@ in
           ];
         };
         Install = {
-          WantedBy = [ "default.target" ];
+          WantedBy = optional opts.enabled "default.target";
         };
       }
     );
