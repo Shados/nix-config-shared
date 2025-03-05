@@ -364,7 +364,6 @@ in
       applicationName = "firefox";
       nameSuffix = "-noprefs";
       pname = "firefox-noprefs-bin";
-      desktopName = "Firefox No Upstream Prefs";
     }).overrideAttrs(oa: {
       meta = oa.meta or {} // {
         priority = 1000;

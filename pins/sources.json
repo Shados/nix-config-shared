@@ -17,10 +17,10 @@
         "homepage": "",
         "owner": "arkenfox",
         "repo": "user.js",
-        "rev": "eae5762d29f18115fbffd73d89bd9e2510b25427",
-        "sha256": "01w8vzhwkaizw6nbab5ajdqprd2alnvqakn26389dbp1rmajmb6j",
+        "rev": "c25187332e19c633b956a6755a7971a6591d3e8d",
+        "sha256": "1nawrvrf4kkj0i5zffq7yk7z7z5n8ghqxbq296gwl5ybg7cji57w",
         "type": "tarball",
-        "url": "https://github.com/arkenfox/user.js/archive/eae5762d29f18115fbffd73d89bd9e2510b25427.tar.gz",
+        "url": "https://github.com/arkenfox/user.js/archive/c25187332e19c633b956a6755a7971a6591d3e8d.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "go-markdown2confluence": {
@@ -29,10 +29,10 @@
         "homepage": null,
         "owner": "justmiles",
         "repo": "go-markdown2confluence",
-        "rev": "9290184d1ba1fda3d0af78a5755608f8d94227f2",
-        "sha256": "1s2byq2alkzisgyms30ksh3c44n73m9il2r4gc5n3i7navh04h7k",
+        "rev": "812f9ef8812f5552f31d5fb46b71cf7f7e582219",
+        "sha256": "1m4ydyp9fl6wwxd4mbam706vr6rilvf21qvqaxziqvy2hav69vxp",
         "type": "tarball",
-        "url": "https://github.com/justmiles/go-markdown2confluence/archive/9290184d1ba1fda3d0af78a5755608f8d94227f2.tar.gz",
+        "url": "https://github.com/justmiles/go-markdown2confluence/archive/812f9ef8812f5552f31d5fb46b71cf7f7e582219.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "telescope-fzy-native.nvim": {
