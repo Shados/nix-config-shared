@@ -93,11 +93,18 @@ in
           # NOTE: I found which mouse Button# was correct using xev
           button = "C-Button9"; action = "press"; actions = [
             { action = "execute";
-              command = "${getExe pkgs.bash} -c ${escapeShellArg shellCmd}";
+              command = "${pkgs.writeScript "discord-toggle-mute" ''
+                #!${pkgs.stdenv.shell}
+                orig_winid=$(${xdotool} getwindowfocus)
+                ${xdotool} search --classname '^(discord|vesktop)$' | while read -r winid; do
+                  ${xdotool} windowfocus --sync "$winid"
+                  ${xdotool} key --delay 1 'ctrl+shift+m'
+                done
+                ${xdotool} windowfocus --sync "$orig_winid"
+              ''}";
             }
           ];
         };
-        shellCmd = "${xdotool} search --classname '^(discord|vesktop)$' windowfocus --sync %1 key --delay 1 'ctrl+shift+m' windowfocus \"$(${xdotool} getwindowfocus)\"";
         xdotool = getExe pkgs.xdotool;
       in {
         "frame" = singleton toggleVesktopMute;
