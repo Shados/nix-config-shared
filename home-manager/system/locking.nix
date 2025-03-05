@@ -113,6 +113,8 @@ in
             if [[ ! -e $oldUnitsDir ]]; then
               return 1
             fi
+          else
+            return 1
           fi
 
           local newUnitsDir="$newGenPath/home-files${configHome}/systemd/user"
