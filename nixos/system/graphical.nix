@@ -100,7 +100,7 @@ in
         tango-icon-theme
         hicolor-icon-theme
         gnome-icon-theme
-        oxygen
+        kdePackages.oxygen
         gtk2
         gtk_engines
         gtk-engine-murrine
