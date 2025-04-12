@@ -743,7 +743,7 @@ in
         source = vimPlugins.vim-unimpaired;
       };
       telescope-nvim = {
-        enable = true;
+        enable = false; # FIXME
         source = vimPlugins.telescope-nvim;
         binDeps = [
           pkgs.ripgrep pkgs.fd
@@ -759,7 +759,7 @@ in
         '';
       };
       telescope-fzy-native-nvim = {
-        enable = true;
+        enable = false; # FIXME
         source = vimPlugins.telescope-fzy-native-nvim;
         extraConfig = ''
           telescope.load_extension "fzy_native"
