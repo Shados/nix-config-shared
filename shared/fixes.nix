@@ -89,4 +89,20 @@ in {
       chmod +x "$out/bin/borg"
     '';
   });
-}
+} // (let
+  # FIXME: Remove once nixpkgs issue #375460 is resolved
+  pinnedWine = import (fetchTarball {
+    url = "https://github.com/NixOS/nixpkgs/archive/da466ad.tar.gz";
+    sha256 = "04wc7l07f34aml0f75479rlgj85b7n7wy2mky1j8xyhadc2xjhv5";
+  }) {
+    system = prev.system;
+  };
+in {
+  yabridge = prev.yabridge.override {
+    wine = pinnedWine.wineWowPackages.staging;
+  };
+
+  yabridgectl = prev.yabridgectl.override {
+    wine = pinnedWine.wineWowPackages.staging;
+  };
+})
