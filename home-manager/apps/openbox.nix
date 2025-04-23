@@ -108,12 +108,6 @@ in
         "C-A-e" = singleton { action = "execute"; command = "${terminal.bin} -e nvim"; };
         "W-A-r" = singleton { action = "execute"; command = runner.bin; };
         "W-A-t" = singleton { action = "execute"; command = terminal.bin; };
-        # # MPD binds
-        # "W-A-c" = singleton { action = "execute"; command = "${music.bin} toggle"; };
-        # "W-A-f" = singleton { action = "execute"; command = "${music.bin} volume +5"; };
-        # "W-A-g" = singleton { action = "execute"; command = "${music.bin} volume -5"; };
-        # "W-A-v" = singleton { action = "execute"; command = "${music.bin} prev"; };
-        # "W-A-b" = singleton { action = "execute"; command = "${music.bin} next"; };
       };
       mouse.mousebind = {
         "frame" = [
