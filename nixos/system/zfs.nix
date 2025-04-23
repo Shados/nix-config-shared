@@ -61,9 +61,6 @@ in
     { # Workaround for openzfs/zfs issue #9810
       boot.kernelParams = mkIf config.boot.zfs.enabled [ "spl.spl_taskq_thread_dynamic=0" ];
     }
-    { # Helps with some OOM issues, see openzfs/zfs issue #10255
-      boot.kernelParams = mkIf config.boot.zfs.enabled [ "zfs.zfs_arc_shrinker_limit=0" ];
-    }
     # Use zfs-mount-generator instead of zfs-mount.service
     # NOTE: Somewhat experimental systemd-mount-generator setup, based on a
     # comment in nixpkgs #62644, appears to solve nixpkgs #212762
