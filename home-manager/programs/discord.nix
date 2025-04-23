@@ -41,26 +41,30 @@ in
   };
   config = let
     # TODO figure out DST/timezone issue
-    mkDiscordSandbox = pkg: pkgs.bwrapper {
-      inherit pkg;
-      runScript = pkg.pname;
-      overwriteExec = true;
-      additionalFolderPathsReadWrite = [
+    mkDiscordSandbox = pkg: pkgs.mkBwrapper {
+      app = {
+        package = pkg;
+        runScript = pkg.pname;
+        env = {
+          XAUTHORITY = "$XAUTHORITY";
+          GTK_USE_PORTAL = 1;
+          # GDK_DEBUG = "portals";
+        };
+        overwriteExec = true;
+      };
+      mounts = {
+        # FIXME: Not sure why this is needed, but without it XAUTHORITY fails
+        # to work, despite its path being explicitly ro-bound already
+        privateTmp = false;
+        readWrite = [
           "$XDG_CONFIG_HOME/${pkg.pname}" # Configuration/session/etc. storage
-      ];
-      # additionalFolderPaths = [
-      # ];
-      dbusOwns = [
+        ];
+      };
+      dbus.session.owns = [
         "com.discordapp.Discord"
       ];
-      appendBwrapArgs = [
-        "--ro-bind $XAUTHORITY $XAUTHORITY"
-        "--setenv GTK_USE_PORTAL 1"
-        "--setenv GDK_DEBUG portals"
-      ];
-      dbusLogging = false;
-      # dbusTalks = [
-      # ];
+      dbus.logging = false;
+      sockets.wayland = false;
     };
   in mkMerge [
     {

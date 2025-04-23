@@ -11,12 +11,12 @@ layout_poetry() {
 	VENV=$(poetry env info --path)
 	if [[ ! -d $VENV || ! -d $VENV/bin ]]; then
 		log_status 'No created poetry virtual environment found. Creating new one...'
-		poetry install --sync || exit 2
+		poetry install || exit 2
 		VENV=$(poetry env info --path)
 	else
 		log_status 'Synchronising poetry virtual environment to lockfile...'
-		poetry lock --no-update
-		poetry install --sync || exit 2
+		poetry lock
+		poetry sync || exit 2
 	fi
 
 	export VIRTUAL_ENV="$VENV"
