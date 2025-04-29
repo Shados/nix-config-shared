@@ -35,18 +35,6 @@
         "url": "https://github.com/TwinCrows/CDDA-Maps-HostileArchitecture/archive/1db493ff758d686c7a9ce460bc2ddd9f6ba9f7fa.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
-    "CDDA_Nonperishable_Overhaul": {
-        "branch": "master",
-        "description": "Nonperisable Overall Mod for Cataclysm: Dark Days Ahead",
-        "homepage": "",
-        "owner": "chaosvolt",
-        "repo": "CDDA_Nonperishable_Overhaul",
-        "rev": "7584230eddbc6c46abbef24243ccaad649d5ea0f",
-        "sha256": "0dfc70dl2vjvydf8hphsqjs7b3y9m2n5m6x3f7685ljazf1r5dc8",
-        "type": "tarball",
-        "url": "https://github.com/chaosvolt/CDDA_Nonperishable_Overhaul/archive/7584230eddbc6c46abbef24243ccaad649d5ea0f.tar.gz",
-        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
-    },
     "Dorf-Life-CDDA": {
         "branch": "master",
         "description": "Dorf Life, a Cataclysm: Dark Days Ahead mod",
@@ -105,18 +93,6 @@
         "sha256": "0lz74g05mlmpcw312w4rdjrwhfp1wfxam7w5942vzs7jy045cr8q",
         "type": "tarball",
         "url": "https://github.com/chaosvolt/cdda-arcana-mod/archive/0b7b26d972083f46a2fb4947f1701595e6e07fff.tar.gz",
-        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
-    },
-    "cdda-fewer-farms-mod": {
-        "branch": "master",
-        "description": "A simple Cataclysm: Dark Days Ahead mod. Reduces the maximum number of the various types of farm that can spawn in each overmap.",
-        "homepage": null,
-        "owner": "chaosvolt",
-        "repo": "cdda-fewer-farms-mod",
-        "rev": "7144e44af898403e267edea55d363ed6ec662b9c",
-        "sha256": "1l4g9w56w2v3wcmrpap8iqiqdzwsiyghrswazkxlwixh7jmwd9hs",
-        "type": "tarball",
-        "url": "https://github.com/chaosvolt/cdda-fewer-farms-mod/archive/7144e44af898403e267edea55d363ed6ec662b9c.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cdda-stamina-regen-buff": {

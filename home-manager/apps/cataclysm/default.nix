@@ -8,12 +8,10 @@ let
     (modFromGitSubDir "CDDA-Croppable-Rice" pins.CBN-Rice-Mod "Croppable_Rice")
     (modFromGitSubDir "CDDA-Dorf-Life" pins.Dorf-Life-CDDA "Dorf_Life")
     # (modFromGitSubDir "CDDA-BL9" pins.BL9 "BL9-100%_monster_resilience_version")
-    (modFromGitSubDir "CDDA-Fewer-Farms" pins.cdda-fewer-farms-mod "Fewer_Farms")
     # (modFromGitSubDir "CDDA-Maps-HostileArchitecture" pins.CDDA-Maps-HostileArchitecture "data/mods/Hostile_Architecture")
     (modFromGitSubDir "CDDA-MST-Extra" pins.MST_Extra_Mod "MST_Extra")
     (modFromGitSubDir "CDDA-Medieval-Mod-Reborn" pins.cdda_medieval_mod_reborn "Medieval_Mod_Reborn")
     (modFromGitSubDir "CDDA-Nocts-Cata-Mod" pins.nocts_cata_mod "nocts_cata_mod_DDA")
-    (modFromGitSubDir "CDDA-Nonperishable-Overhaul" pins.CDDA_Nonperishable_Overhaul "Nonperishable_Overhaul")
     (modFromGitDir "CDDA-PrepperCache" pins.PrepperCache "PrepperCache")
     (modFromGitSubDir "CDDA-Stamina-Regen-Buff" pins.cdda-stamina-regen-buff "stamina_regen_buff")
     (modFromGitSubDir "CDDA-Tankmod-Revived" pins.cdda-tankmod-revived-mod "Tankmod_Revived")
@@ -90,9 +88,9 @@ in
       cdda = self.cataclysm-dda-git.withMods [];
       cataclysm-dda-git = let
         basePkg = super.cataclysm-dda-git.override(oa: rec {
-          version = "2024-01-05-0017";
+          version = "2025-04-28-0936";
           rev = "cdda-experimental-${version}";
-          sha256 = "sha256-FfMFfsj28xUC7K8gy0hzEgVjLDQRl9gyTg68jK1cGFA=";
+          sha256 = "sha256-ac71oJOWL2eqikSzoc+JUdoI6szidc6RbaLI8+7yEqg=";
         });
         overriddenPkg = basePkg.overrideAttrs(oa: {
           patches = [
