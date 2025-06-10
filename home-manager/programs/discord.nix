@@ -5,6 +5,7 @@ let
   vCfg = config.programs.vesktop;
 in
 {
+  disabledModules = [ "programs/vesktop.nix" ];
   options.programs.discord = {
     enable = mkEnableOption "discord chat";
     sandbox = mkOption {
