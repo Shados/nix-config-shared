@@ -7,7 +7,7 @@
 {
   config = lib.mkIf config.programs.zsh.enable {
     programs.zsh = {
-      enableAutosuggestions = true;
+      autosuggestion.enable = true;
       autocd = true;
       defaultKeymap = "viins";
       # defaultKeymap?
@@ -33,7 +33,7 @@
         save = 1000000000;
         size = save;
       };
-      initExtra = ''
+      initContent = ''
         # TODO check for interactive session
         # if ! [[ -v TMUX ]]; then
         #   tmux

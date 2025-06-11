@@ -434,7 +434,7 @@ in
         for = "ps1";
       };
       yuecheck-vim = {
-        enable = true;
+        enable = mkIf (config.sn.os != "darwin") true; # TODO Find out why building lunix is broken on darwin
         dependencies = [ "ale" ];
         binDeps = with pkgs; [ lua52Packages.yuecheck-vim ];
         # dir = "/home/shados/technotheca/artifacts/media/software/lua/yuecheck-vim";

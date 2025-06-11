@@ -40,7 +40,7 @@ in
 
   config = {
     xdg.enable = true; # Explicitly sets the XDG base directory paths
-    xdg.portal = {
+    xdg.portal = mkIf (config.sn.os != "darwin") {
       enable = true;
       config.common.default = [ "gtk" ];
       extraPortals = with pkgs; [
@@ -65,7 +65,7 @@ in
     };
     home.username = "shados";
     home.homeDirectory = mkDefault "/home/${config.home.username}";
-    home.activation = {
+    home.activation = mkIf (config.sn.os != "darwin") {
       initServiceRestartArray = lib.hm.dag.entryBefore [ "onFilesChange" ] ''
         declare -A restartServices
       '';
