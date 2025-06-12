@@ -39,6 +39,10 @@ in
   };
 
   config = {
+    home.packages = with pkgs; [
+      nerd-fonts.fantasque-sans-mono
+    ];
+
     xdg.enable = true; # Explicitly sets the XDG base directory paths
     xdg.portal = mkIf (config.sn.os != "darwin") {
       enable = true;

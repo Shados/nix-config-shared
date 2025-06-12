@@ -86,7 +86,6 @@ in
           # noto-fonts noto-fonts-cjk noto-fonts-emoji
           unifont
           unifont_upper
-          nerd-fonts.fantasque-sans-mono
           product-sans
         ];
       fonts.fontconfig.enable = true;
