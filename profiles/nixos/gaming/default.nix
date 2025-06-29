@@ -25,7 +25,19 @@ in
       ];
 
       programs.gamescope.enable = true;
-      programs.gamescope.capSysNice = true;
+      # See nixpkgs issue #351516
+      programs.gamescope.capSysNice = false;
+      services.ananicy = {
+        enable = true;
+        package = pkgs.ananicy-cpp;
+        rulesProvider = pkgs.ananicy-cpp;
+        extraRules = [
+          {
+            "name" = "gamescope";
+            "nice" = -20;
+          }
+        ];
+      };
       programs.gamemode = {
         enable = mkDefault true;
         settings = {
