@@ -17,10 +17,10 @@
         "homepage": "",
         "owner": "arkenfox",
         "repo": "user.js",
-        "rev": "7f852e94fc80fd0aa19f1c948319974e3301187f",
-        "sha256": "1fn31bcl8ax7n1pp1mlwlrwn98bym7h4k49slsxlw7wb5a3jdy31",
+        "rev": "9103afafff2b5287b495c1a1268968fdb447d66f",
+        "sha256": "0bj9j891lbaaq0qv0v29z78yxzv52shkm968gjg8rx5glxn7jczq",
         "type": "tarball",
-        "url": "https://github.com/arkenfox/user.js/archive/7f852e94fc80fd0aa19f1c948319974e3301187f.tar.gz",
+        "url": "https://github.com/arkenfox/user.js/archive/9103afafff2b5287b495c1a1268968fdb447d66f.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "go-markdown2confluence": {
