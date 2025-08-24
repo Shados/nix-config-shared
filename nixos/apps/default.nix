@@ -89,6 +89,7 @@ in
 
   programs.steam = mkIf config.programs.steam.enable {
     package = mkDefault (pkgs.steam.override {
+      extraBwrapArgs = [ "--tmpfs" "/dev/shm" ];
       extraEnv = {
         MANGOHUD = true;
       };
