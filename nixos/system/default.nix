@@ -128,13 +128,12 @@ in
       memSize = "2M";
       memLabel = "pstore";
       # NOTE: We don't setup pstore if crashdump is enabled: pstore code runs
-      # in the context of the crashed kernel, and thus may is in a known-bad
-      # state and may further alter the system state. This isn't an issue
-      # normally (given it's already in a crashed state), but with crashdump
-      # enabled you ideally want to preserve the state of the system as it was
-      # when the crash was triggered, for debugging purposes.
-      # crashdump also largely obviates the utility of pstore panic logs
-      # anyway.
+      # in the context of the crashed kernel, and thus is in a known-bad state
+      # and may further alter the system state. This isn't an issue normally
+      # (given it's already in a crashed state), but with crashdump enabled you
+      # ideally want to preserve the state of the system as it was when the
+      # crash was triggered, for debugging purposes. crashdump also largely
+      # obviates the utility of pstore panic logs anyway.
     in mkIf ((system == "x86_64-linux") && (!config.boot.crashDump.enable)) {
       boot.kernelParams = [
         # Get the kernel to reserve a 2M region of memory for use as the
@@ -168,7 +167,7 @@ in
       ];
       boot.kernelPatches = [
         { name = "pstore_console_logs";
-          extraStructuredConfig.PSTORE_CONSOLE = lib.kernel.yes;
+          structuredExtraConfig.PSTORE_CONSOLE = lib.kernel.yes;
           patch = null;
         }
       ];
