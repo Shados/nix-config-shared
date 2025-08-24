@@ -122,7 +122,7 @@ in
           nginx nim nim_format_string ninja nix ocaml ocaml_interface
           ocamllex odin perl python r regex rescript ruby rust scala
           scheme scss sql ssh_config tcl teal terraform tmux toml
-          typescript udev vala verilog vhdl vim vimdoc wgsl wgsl_bevy
+          typescript udev vala vhdl vim vimdoc wgsl wgsl_bevy
           xcompose xml xresources yaml zig
         ]);
         extraConfig = ''
@@ -216,14 +216,6 @@ in
             -- Nix
             register_ale_tool(ale_linters, "nix", "nix-instantiate", "nix")
           '';
-        }
-        { extraConfig = mkAfter ''
-            -- VimL/vimscript
-            register_ale_tool(ale_linters, "vim", "vint")
-          '';
-          binDeps = [
-            vim-vint
-          ];
         }
         { extraConfig = mkAfter ''
             -- YAML
