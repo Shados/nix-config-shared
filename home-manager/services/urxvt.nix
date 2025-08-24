@@ -57,11 +57,6 @@ in
             url = "https://aur.archlinux.org/cgit/aur.git/plain/24-bit-color.patch?h=rxvt-unicode-truecolor-wide-glyphs";
             sha256 = "sha256-HYBe2s4vVgiLnShaZmYps17sd46u9d7qp9xTPshsz4Q=";
           })
-          (super.fetchpatch {
-            name = "7-bit-queries.patch";
-            url = "https://aur.archlinux.org/cgit/aur.git/plain/7-bit-queries.patch?h=rxvt-unicode-truecolor-wide-glyphs";
-            sha256 = "sha256-hnRfQc4jPiBrm06nJ3I7PHdypUc3jwnIfQV3uMYz+/Y=";
-          })
         ];
         configureFlags = oa.configureFlags or [] ++ [
           "--enable-24-bit-color"
