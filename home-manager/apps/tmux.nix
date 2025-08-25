@@ -17,23 +17,22 @@
       # TODO add NIX_PATH propagation to shared config
       # TODO make tmux reload the source automatically on changes as part of nixos/hm rebuild?
       extraConfig = ''
-        # {{{
         bind-key C-o rotate-window -D
 
         # Window title modification stuff
-          set -g set-titles on
-          # Set window title string
-          #  #H  Hostname of local host
-          #  #I  Current window index
-          #  #P  Current pane index
-          #  #S  Session name
-          #  #T  Current window title
-          #  #W  Current window name
-          #  #   A literal ‘#’
-          set -g set-titles-string '#h:#S:#W@#I'
+        set -g set-titles on
+        # Set window title string
+        #  #H  Hostname of local host
+        #  #I  Current window index
+        #  #P  Current pane index
+        #  #S  Session name
+        #  #T  Current window title
+        #  #W  Current window name
+        #  #   A literal ‘#’
+        set -g set-titles-string '#h:#S:#W@#I'
 
-          # Automatically set window title
-          setw -g automatic-rename
+        # Automatically set window title
+        setw -g automatic-rename
 
         # Makes new panes/windows start in the same directory as the current pane
         bind '"' split-window -c "#{pane_current_path}"
@@ -80,10 +79,9 @@
         bind -r C-j resize-pane -D
         bind -r C-h resize-pane -L
         bind -r C-l resize-pane -R
-        # }}}
 
         # Type-in-all-panes binding, useful when working on clusters
-        bind -n C-x setw synchronize-panes
+        bind C-x setw synchronize-panes
 
         ##CLIPBOARD selection integration
         ##Requires prefix key before the command key

@@ -45,19 +45,19 @@ with lib;
       bind-key C-o rotate-window -D
 
       # Window title modification stuff
-        set -g set-titles on
-        # Set window title string
-        #  #H  Hostname of local host
-        #  #I  Current window index
-        #  #P  Current pane index
-        #  #S  Session name
-        #  #T  Current window title
-        #  #W  Current window name
-        #  #   A literal ‘#’
-        set -g set-titles-string '#h:#S:#W@#I'
+      set -g set-titles on
+      # Set window title string
+      #  #H  Hostname of local host
+      #  #I  Current window index
+      #  #P  Current pane index
+      #  #S  Session name
+      #  #T  Current window title
+      #  #W  Current window name
+      #  #   A literal ‘#’
+      set -g set-titles-string '#h:#S:#W@#I'
 
-        # Automatically set window title
-        setw -g automatic-rename
+      # Automatically set window title
+      setw -g automatic-rename
 
       # Makes new panes/windows start in the same directory as the current pane
       bind '"' split-window -c "#{pane_current_path}"
