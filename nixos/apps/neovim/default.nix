@@ -163,6 +163,7 @@ in
               go
               godot_resource
               graphql
+              hcl
               hlsl
               html
               ini
@@ -572,10 +573,9 @@ in
             nvim_tree.setup
               disable_netrw: false
               hijack_netrw: false
-              git:
-                ignore: false
               filters:
-                custom: {".git"}
+                custom: {"^\\.git$"}
+                git_ignored: false
               renderer:
                 -- Don't show the root dir label if we have bufferline-nvim, as
                 -- it'll do it for us
