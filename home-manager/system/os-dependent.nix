@@ -5,48 +5,83 @@
   ...
 }:
 let
+  inherit (lib) mkAfter mkBefore;
   prefixEnvPath = varName: elems: (lib.concatStringsSep ":" elems) + "\${${varName}:+:}\$${varName}";
 in
 {
   config = lib.mkMerge [
     (lib.mkIf (config.sn.os == "darwin") {
-      home.sessionVariables = {
-        NIX_PATH = prefixEnvPath "NIX_PATH" [
-          "nixpkgs=/nix/var/nix/profiles/per-user/${config.home.username}/channels/nixpkgs"
-          "darwin-config=$HOME/.config/darwin-config/configuration.nix"
-          "nixos-config=$HOME/.config/nixos-config/configuration.nix"
-          "$HOME/.nix-defexpr/channels"
-          "/nix/var/nix/profiles/per-user/${config.home.username}/channels"
-        ];
-        PATH = prefixEnvPath "PATH" [
-          "$HOME/.rvm/bin" # TODO manage rvm with Nix?
-          "${config.home.profileDirectory}/bin"
-          "/nix/var/nix/profiles/default/bin"
-        ];
-      };
+      home.sessionPath = mkBefore [
+        "${config.home.profileDirectory}/bin"
+        "/nix/var/nix/profiles/default/bin"
+      ];
       sn.programs.neovim.extraConfig = ''
         g.netrw_browsex_viewer = "/usr/bin/open -a \"/Applications/Google Chrome.app\""
       '';
+    })
+    # Work-around MacOS' `path_helper` insanity
+    (lib.mkIf (config.sn.os == "darwin") {
       # These need to be in both .zshrc and .zprofile to avoid path_helper bullshit
       # See https://gist.github.com/Linerre/f11ad4a6a934dcf01ee8415c9457e7b2
-      programs.zsh =
-        let
-          pathSetup = ''
-            export PATH="${
-              prefixEnvPath "PATH" [
-                "$HOME/.rvm/bin" # TODO manage rvm with Nix?
-                "$HOME/.nix-profile/bin"
-                "/nix/var/nix/profiles/default/bin"
-              ]
-            }";
-            export MANPATH="$HOME/.nix-profile/share/man:$(manpath 2>/dev/null)";
-            typeset -U PATH path
-          '';
-        in
-        {
-          initExtra = pathSetup;
-          profileExtra = pathSetup;
+      # for details of the this clusterfuck
+      programs.zsh = {
+        # In load order:
+        # 1. ~/.zshenv
+        envExtra = mkAfter ''
+          # Ensure PATH elements are unique by enforcing uniqueness constraint
+          typeset -U PATH path
+          # Save PATH for later restoration after `path_helper` munging
+          typeset -a path_pre_munge=($path)
+
+          # Similar setup for MANPATH
+          typeset -T MANPATH manpath
+          typeset -U MANPATH manpath
+          MANPATH="${prefixEnvPath "MANPATH" [ "$HOME/.nix-profile/share/man" ]}";
+          typeset -a manpath_pre_munge=($manpath)
+
+          export PATH
+          export MANPATH
+        '';
+        # 2. /etc/zprofile runs `path_helper` and messes with ordering
+        # 3. ~/.zprofile restores my path setup, retaining anything *added* by
+        # `path_helper` at the end
+        profileExtra = mkBefore ''
+          path=($path_pre_munge $path)
+          manpath=($manpath_pre_munge $manpath)
+        '';
+      };
+    })
+    # Don't use the MacOS-provided ssh-agent, as it doesn't support e.g. FIDO2-backed keys
+    (lib.mkIf (config.sn.os == "darwin") {
+      launchd.agents.ssh-agent = {
+        enable = true;
+        config = {
+          ProgramArguments = let
+            sshPkg = if (config.programs.ssh.package) != null
+              then config.programs.ssh.package
+              else pkgs.openssh;
+          in [
+            "/bin/sh"
+            "-c"
+            "rm -f $SSH_AUTH_SOCK; exec ${lib.getExe' sshPkg "ssh-agent"} -D -a $SSH_AUTH_SOCK"
+          ];
+          KeepAlive = {
+            Crashed = true;
+            SuccessfulExit = false;
+          };
+          RunAtLoad = true;
         };
+      };
+
+      home.activation.ensureNoDefaultSSHAgent =
+        lib.hm.dag.entryBefore [ "setupLaunchAgents" ] ''
+          agent_pid=$(/bin/launchctl list | ${lib.getExe pkgs.ripgrep} 'com\.openssh\.ssh-agent' | ${lib.getExe' pkgs.coreutils "cut"} -f 1)
+          if [[ $agent_pid != "-" ]]; then
+            warnEcho "Disabling and stopping default MacOS ssh-agent..."
+            run launchctl disable "gui/$(id -u)/com.openssh.ssh-agent"
+            run launchctl kill SIGTERM "gui/$(id -u)/com.openssh.ssh-agent"
+          fi
+        '';
     })
     (lib.mkIf (config.sn.os == "nixos") {
       xsession.initExtra = ''

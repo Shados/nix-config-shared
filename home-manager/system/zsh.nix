@@ -42,6 +42,11 @@
         # Write out history line-by-line, rather than on shell session exit
         setopt INC_APPEND_HISTORY
       '';
+      # Ensure bash completions are also used
+      completionInit = ''
+        autoload -U compinit && compinit
+        autoload bashcompinit && bashcompinit
+      '';
     };
   };
 }
