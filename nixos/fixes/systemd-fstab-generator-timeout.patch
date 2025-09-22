@@ -1,0 +1,38 @@
+diff --git a/src/fstab-generator/fstab-generator.c b/src/fstab-generator/fstab-generator.c
+index 6b7445b201..ef8e5f4719 100644
+--- a/src/fstab-generator/fstab-generator.c
++++ b/src/fstab-generator/fstab-generator.c
+@@ -982,15 +982,24 @@ static int parse_fstab_one(
+                 return 0;
+         }
+ 
+-        /* Follow symlinks here; see 5261ba901845c084de5a8fd06500ed09bfb0bd80 which makes sense for
+-         * mount units, but causes problems since it historically worked to have symlinks in e.g.
+-         * /etc/fstab. So we canonicalize here. Note that we use CHASE_NONEXISTENT to handle the case
+-         * where a symlink refers to another mount target; this works assuming the sub-mountpoint
+-         * target is the final directory. */
+-        r = canonicalize_mount_path(where_original, "where", prefix_sysroot, &where);
+-        if (r < 0)
+-                return r;
+-        where_changed = r > 0;
++        /* Don't run canonicalize_mount_path on network file systems. */
++        if (!STRPTR_IN_SET(fstype, "nfs", "nfs4", "cifs", "smb", "fuse.sshfs")) {
++                /* Follow symlinks here; see 5261ba901845c084de5a8fd06500ed09bfb0bd80 which makes sense for
++                 * mount units, but causes problems since it historically worked to have symlinks in e.g.
++                 * /etc/fstab. So we canonicalize here. Note that we use CHASE_NONEXISTENT to handle the case
++                 * where a symlink refers to another mount target; this works assuming the sub-mountpoint
++                 * target is the final directory. */
++                r = canonicalize_mount_path(where_original, "where", prefix_sysroot, &where);
++                if (r < 0)
++                        return r;
++                where_changed = r > 0;
++        } else {
++                where = strdup(where_original);
++                if (!where) {
++                        return log_oom();
++                }
++                where_changed = 0;
++        }
+ 
+         if (prefix_sysroot && fstab_is_bind(options, fstype)) {
+                 /* When in initrd, the source of bind mount needs to be prepended with /sysroot as well. */

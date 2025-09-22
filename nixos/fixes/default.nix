@@ -25,5 +25,13 @@ in
         mkdir -p /var/lib/nfs/{sm,sm.bak}
       '';
     }
+    {
+      # Testing workaround for nixpkgs issue #375376
+      systemd.package = pkgs.systemd.overrideAttrs(oa: {
+        patches = oa.patches or [] ++ [
+          ./systemd-fstab-generator-timeout.patch
+        ];
+      });
+    }
   ];
 }
