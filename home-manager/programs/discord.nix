@@ -42,6 +42,7 @@ in
   };
   config = let
     # TODO figure out DST/timezone issue
+    # FIXME: make it cd to home before starting discord
     mkDiscordSandbox = pkg: pkgs.mkBwrapper {
       app = {
         package = pkg;
@@ -50,6 +51,7 @@ in
           XAUTHORITY = "$XAUTHORITY";
           GTK_USE_PORTAL = 1;
           # GDK_DEBUG = "portals";
+          GDK_SYNCHRONIZE = "true"; # FIXME: Figure out why it crashes on start without this
         };
         overwriteExec = true;
       };
