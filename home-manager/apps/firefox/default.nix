@@ -15,8 +15,8 @@ let
     name = "legacyfox";
     src = pkgs.fetchFromGitHub {
       owner = "girst"; repo = "LegacyFox-mirror-of-git.gir.st";
-      rev = "312a791ae03bddd725dee063344801f959cfe44d";
-      sha256 = "05ppc2053lacvrlab4fspxmmjmkryvvc6ndrzhyk06ivmm2nlyyx";
+      rev = "3b7740f4da0ad4e8c21792fd6215c5c5a389bfe4";
+      sha256 = "sha256-/xcFuyKlXwCNRJ/QovUS6EUIV4ShvZeyT5HDtU16x5w=";
     };
     preferLocalBuild = true;
     DESTDIR="$(out)";
