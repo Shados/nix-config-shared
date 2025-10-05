@@ -19,7 +19,7 @@ maven.buildMavenPackage rec {
   };
 
   # Note: the hash changes if we disable/enable testing
-  mvnHash = "sha256-QNY9pZ41pMDEMfBv3WqXBXSGsIfY811dANz+Ic/IJuQ=";
+  mvnHash = "sha256-XPVtmJlWKizcOYJnH5tdSBKl6fInU16FLdM5tNWvSYI=";
 
   mvnParameters = "-DskipTests";
 
