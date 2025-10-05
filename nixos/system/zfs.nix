@@ -1,6 +1,17 @@
-{ config, inputs, lib, pkgs, ... }:
+{
+  config,
+  inputs,
+  lib,
+  pkgs,
+  ...
+}:
 let
-  inherit (lib) mkIf mkMerge mkOption types;
+  inherit (lib)
+    mkIf
+    mkMerge
+    mkOption
+    types
+    ;
   inherit (config.lib.fs) dsToBootFs dsToFs pristineSnapshot;
   cfg = config.boot.zfs;
 in
@@ -58,55 +69,66 @@ in
         randomizedDelaySec = "0";
       };
     }
-    { # Workaround for openzfs/zfs issue #9810
+    {
+      # Workaround for openzfs/zfs issue #9810
       boot.kernelParams = mkIf config.boot.zfs.enabled [ "spl.spl_taskq_thread_dynamic=0" ];
     }
     # Use zfs-mount-generator instead of zfs-mount.service
     # NOTE: Somewhat experimental systemd-mount-generator setup, based on a
     # comment in nixpkgs #62644, appears to solve nixpkgs #212762
-    (mkIf (cfg.rootPool != null) (let
-      inherit (cfg) rootPool;
-    in {
-      systemd.tmpfiles.rules = [
-        #Type Path                                                    Mode User Group Age         Argument
-        "f    /etc/zfs/zfs-list.cache/${rootPool}                        0644 root root  -           -"
-      ];
-      systemd.generators."zfs-mount-generator" = "${config.boot.zfs.package}/lib/systemd/system-generator/zfs-mount-generator";
-      environment.etc."zfs/zed.d/history_event-zfs-list-cacher.sh".source = "${config.boot.zfs.package}/etc/zfs/zed.d/history_event-zfs-list-cacher.sh";
-      systemd.services.zfs-mount.enable = false;
+    (mkIf (cfg.rootPool != null) (
+      let
+        inherit (cfg) rootPool;
+      in
+      {
+        systemd.tmpfiles.rules = [
+          #Type Path                                                    Mode User Group Age         Argument
+          "f    /etc/zfs/zfs-list.cache/${rootPool}                        0644 root root  -           -"
+        ];
+        systemd.generators."zfs-mount-generator" =
+          "${config.boot.zfs.package}/lib/systemd/system-generator/zfs-mount-generator";
+        environment.etc."zfs/zed.d/history_event-zfs-list-cacher.sh".source =
+          "${config.boot.zfs.package}/etc/zfs/zed.d/history_event-zfs-list-cacher.sh";
+        systemd.services.zfs-mount.enable = false;
 
-      # NOTE: Have to fully re-define because this is a string value, no way to
-      # simply add diffutils to the front of the list, and can't re-use the
-      # default without hitting infinite recursion... might be nice if the
-      # module system exposed a `.default` attribute for options, maybe?
-      services.zfs.zed.settings.PATH = lib.mkForce (lib.makeBinPath [
-        pkgs.diffutils
-        config.boot.zfs.package
-        pkgs.coreutils
-        pkgs.curl
-        pkgs.gawk
-        pkgs.gnugrep
-        pkgs.gnused
-        pkgs.nettools
-        pkgs.util-linux
-      ]);
-    }))
+        # NOTE: Have to fully re-define because this is a string value, no way to
+        # simply add diffutils to the front of the list, and can't re-use the
+        # default without hitting infinite recursion... might be nice if the
+        # module system exposed a `.default` attribute for options, maybe?
+        services.zfs.zed.settings.PATH = lib.mkForce (
+          lib.makeBinPath [
+            pkgs.diffutils
+            config.boot.zfs.package
+            pkgs.coreutils
+            pkgs.curl
+            pkgs.gawk
+            pkgs.gnugrep
+            pkgs.gnused
+            pkgs.nettools
+            pkgs.util-linux
+          ]
+        );
+      }
+    ))
 
     # No-sync /tmp instead of tmpfs
-    (mkIf (cfg.rootPool != null) (let
-      inherit (cfg) rootPool rootDataset;
-    in {
-      boot.tmp.cleanOnBoot = true;
-      boot.tmp.useTmpfs = false;
-      fileSystems."/tmp" = dsToFs "${rootPool}/${rootDataset}/tmp";
-      disk.fileSystems.zfs.pools.${rootPool}.datasets."${rootDataset}/tmp".properties = {
-        checksum = "skein";
-        compression = "zle";
-        sync = "disabled";
-        devices = false;
-        setuid = false;
-        "com.sun:auto-snapshot" = "false";
-      };
-    }))
+    (mkIf (cfg.rootPool != null) (
+      let
+        inherit (cfg) rootPool rootDataset;
+      in
+      {
+        boot.tmp.cleanOnBoot = true;
+        boot.tmp.useTmpfs = false;
+        fileSystems."/tmp" = dsToFs "${rootPool}/${rootDataset}/tmp";
+        disk.fileSystems.zfs.pools.${rootPool}.datasets."${rootDataset}/tmp".properties = {
+          checksum = "skein";
+          compression = "zle";
+          sync = "disabled";
+          devices = false;
+          setuid = false;
+          "com.sun:auto-snapshot" = "false";
+        };
+      }
+    ))
   ];
 }

@@ -1,5 +1,11 @@
 # TODO implement sharedConfig
-{ config, lib, pkgs, sharedConfig, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  sharedConfig,
+  ...
+}:
 let
   inherit (lib) concatMapStringsSep escapeShellArg;
 

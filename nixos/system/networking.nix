@@ -1,6 +1,16 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 let
-  inherit (lib) mkDefault mkIf mkMerge optionals;
+  inherit (lib)
+    mkDefault
+    mkIf
+    mkMerge
+    optionals
+    ;
 in
 {
   config = mkMerge [
@@ -13,11 +23,16 @@ in
       # avoids some weird issues with portable devices being connected to the same
       # subnet on both wifi and ethernet.
       networking.firewall.checkReversePath = mkIf (!config.fragments.router.enable) "loose";
-      networking.nameservers = mkDefault ([
-        "9.9.9.9" "149.112.112.112" # Quad9
-      ] ++ optionals config.networking.enableIPv6 [
-        "2620:fe::fe" "2620:fe::9" # Quad9
-      ]);
+      networking.nameservers = mkDefault (
+        [
+          "9.9.9.9"
+          "149.112.112.112" # Quad9
+        ]
+        ++ optionals config.networking.enableIPv6 [
+          "2620:fe::fe"
+          "2620:fe::9" # Quad9
+        ]
+      );
     }
     (mkIf config.networking.networkmanager.enable {
       networking.networkmanager = {

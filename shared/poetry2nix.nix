@@ -1,5 +1,9 @@
 { lib, mkPoetryApplication }:
-{ python, src, doCheck ? true }:
+{
+  python,
+  src,
+  doCheck ? true,
+}:
 with lib;
 let
   metadata = (builtins.fromTOML (builtins.readFile "${src}/pyproject.toml")).tool.poetry;
@@ -12,5 +16,6 @@ mkPoetryApplication rec {
   meta = {
     maintainers = metadata.maintainers or metadata.authors;
     description = metadata.description;
-  } // optionalAttrs (metadata ? repository) { downloadPage = metadata.repository; };
+  }
+  // optionalAttrs (metadata ? repository) { downloadPage = metadata.repository; };
 }

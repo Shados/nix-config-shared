@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 # TODO universal ctags
 with lib;
 let
@@ -27,7 +32,8 @@ in
     pluginRegistry = {
       # Linting & LSP setup
       nvim-lspconfig = mkMerge [
-        { enable = true;
+        {
+          enable = true;
           source = vimPlugins.nvim-lspconfig;
           after = [
             "ale" # As we modify some ALE settings :O
@@ -82,7 +88,8 @@ in
           '';
         }
         # Bash/Shell
-        { extraConfig = mkAfter ''
+        {
+          extraConfig = mkAfter ''
             lspconfig.bashls.setup
               on_attach: lsp_on_attach
             ale_linters.sh = {}
@@ -92,7 +99,8 @@ in
           ];
         }
         # CSS
-        { extraConfig = mkAfter ''
+        {
+          extraConfig = mkAfter ''
             lspconfig.cssls.setup
               on_attach: lsp_on_attach
             ale_linters.css = {}
@@ -105,7 +113,8 @@ in
           ];
         }
         # Go
-        { extraConfig = mkAfter ''
+        {
+          extraConfig = mkAfter ''
             lspconfig.gopls.setup
               on_attach: lsp_on_attach
             ale_linters.go = {}
@@ -115,7 +124,8 @@ in
           ];
         }
         # Nix
-        { extraConfig = mkAfter ''
+        {
+          extraConfig = mkAfter ''
             lspconfig.nil_ls.setup
               on_attach: lsp_on_attach
               settings:
@@ -150,7 +160,8 @@ in
         #   ];
         # }
         # Ruby
-        { extraConfig = mkAfter ''
+        {
+          extraConfig = mkAfter ''
             lspconfig.solargraph.setup
               on_attach: lsp_on_attach
             ale_linters.ruby = {}
@@ -163,7 +174,8 @@ in
         # Rust tooling inevitably ends up being very project specific, so we
         # don't add a global rust-analyzer, instead add it to the path in
         # shell.nix files per-project, with direnv to make it convenient
-        { extraConfig = mkAfter ''
+        {
+          extraConfig = mkAfter ''
             if (fn.executable "cargo") != 0
               lspconfig.rust_analyzer.setup
                 on_attach: lsp_on_attach
@@ -183,7 +195,8 @@ in
         }
         # TypeScript/JavaScript
         # Project-specific tooling provided by direnv+Nix
-        { extraConfig = mkAfter ''
+        {
+          extraConfig = mkAfter ''
             if (fn.executable "typescript-language-server") != 0
               lspconfig.ts_ls.setup
                 on_attach: lsp_on_attach
@@ -191,123 +204,133 @@ in
         }
       ];
 
-      ale = with pkgs; mkMerge [
-        # ALE config {{{
-        # { extraConfig = mkAfter ''
-        #     -- Elm
-        #     call s:register_ale_tool(g:ale_linters, 'elm', 'elm-make')
-        #     call s:register_ale_tool(g:ale_fixers, 'elm', 'elm-format')
-        #     autocmd vimrc FileType elm let b:ale_fix_on_save = 1
-        #   '';
-        #   binDeps = with elmPackages; [
-        #     elm
-        #     elm-format
-        #   ];
-        # }
-        { extraConfig = mkAfter ''
-            -- Go
-            register_ale_tool(ale_fixers, "go", "gofmt")
-            vim.api.nvim_create_autocmd {"FileType"}, {
-              group: "vimrc",
-              pattern: { "go" },
-              command: "let b:ale_fix_on_save = 1"
-            }
-          '';
-          binDeps = [
-            go
-          ];
-        }
-        { extraConfig = mkAfter ''
-            -- Javascript
-            register_ale_tool(ale_linters, "javascript", "eslint")
-            register_ale_tool(ale_linters, "javascript", "jshint")
-          '';
-          binDeps = with pkgs.nodePackages; [
-            eslint
-            jshint
-          ];
-        }
-        { extraConfig = mkAfter ''
-            -- Lua
-            register_ale_tool(ale_linters, "lua", "luac")
-            register_ale_tool(ale_linters, "lua", "luacheck")
-          '';
-          binDeps = [
-            lua5_1
-            luajitPackages.luacheck
-          ];
-        }
-        { extraConfig = mkAfter ''
-            -- OCaml
-            register_ale_tool(ale_fixers, "ocaml", "ocamlformat")
-            vim.api.nvim_create_autocmd {"FileType"}, {
-              group: "vimrc",
-              pattern: { "ocaml" },
-              command: "let b:ale_fix_on_save = 1"
-            }
-          '';
-          binDeps = [
-            ocamlformat
-          ];
-        }
-        { extraConfig = mkAfter ''
-            -- Perl
-            register_ale_tool(ale_linters, "perl", "perlcritic")
-            register_ale_tool(ale_fixers, "perl", "perltidy")
-            vim.api.nvim_create_autocmd {"FileType"}, {
-              group: "vimrc",
-              pattern: { "perl" },
-              command: "let b:ale_fix_on_save = 1"
-            }
-          '';
-          binDeps = with perlPackages; [
-            PerlTidy
-            PerlCritic
-          ];
-        }
-        { extraConfig = mkAfter ''
-            -- C/C++
-            register_ale_tool(ale_fixers, "c", "cppcheck")
-            register_ale_tool(ale_fixers, "c", "clang-tidy", "clangtidy")
-          '';
-          binDeps = [
-            cppcheck
-            clang-tools
-          ];
-        }
-        { extraConfig = mkAfter ''
-            -- Elixir
-            if (fn.executable "mix") != 0
-              register_ale_tool(ale_linters, "elixir", "credo")
-              register_ale_tool(ale_linters, "elixir", "dialyxir")
-              register_ale_tool(ale_linters, "elixir", "mix")
-              register_ale_tool(ale_fixers, "elixir", "mix_format")
+      ale =
+        with pkgs;
+        mkMerge [
+          # ALE config {{{
+          # { extraConfig = mkAfter ''
+          #     -- Elm
+          #     call s:register_ale_tool(g:ale_linters, 'elm', 'elm-make')
+          #     call s:register_ale_tool(g:ale_fixers, 'elm', 'elm-format')
+          #     autocmd vimrc FileType elm let b:ale_fix_on_save = 1
+          #   '';
+          #   binDeps = with elmPackages; [
+          #     elm
+          #     elm-format
+          #   ];
+          # }
+          {
+            extraConfig = mkAfter ''
+              -- Go
+              register_ale_tool(ale_fixers, "go", "gofmt")
               vim.api.nvim_create_autocmd {"FileType"}, {
                 group: "vimrc",
-                pattern: { "elixir" },
+                pattern: { "go" },
                 command: "let b:ale_fix_on_save = 1"
               }
-          '';
-          # Use per-project binaries
-          binDeps = [ ];
-        }
-        { extraConfig = mkAfter ''
-            -- TypeScript/JS
-            if (fn.executable "prettier") != 0
-              register_ale_tool(ale_fixers, "typescript", "prettier")
-              register_ale_tool(ale_fixers, "javascript", "prettier")
+            '';
+            binDeps = [
+              go
+            ];
+          }
+          {
+            extraConfig = mkAfter ''
+              -- Javascript
+              register_ale_tool(ale_linters, "javascript", "eslint")
+              register_ale_tool(ale_linters, "javascript", "jshint")
+            '';
+            binDeps = with pkgs.nodePackages; [
+              eslint
+              jshint
+            ];
+          }
+          {
+            extraConfig = mkAfter ''
+              -- Lua
+              register_ale_tool(ale_linters, "lua", "luac")
+              register_ale_tool(ale_linters, "lua", "luacheck")
+            '';
+            binDeps = [
+              lua5_1
+              luajitPackages.luacheck
+            ];
+          }
+          {
+            extraConfig = mkAfter ''
+              -- OCaml
+              register_ale_tool(ale_fixers, "ocaml", "ocamlformat")
               vim.api.nvim_create_autocmd {"FileType"}, {
                 group: "vimrc",
-                pattern: { "typescript", "javascript" },
+                pattern: { "ocaml" },
                 command: "let b:ale_fix_on_save = 1"
               }
-          '';
-          # Use per-project binaries
-          binDeps = [ ];
-        }
-        # TODO LaTeX (and/or markdown) prose linting?
-        # }}}
-      ];
+            '';
+            binDeps = [
+              ocamlformat
+            ];
+          }
+          {
+            extraConfig = mkAfter ''
+              -- Perl
+              register_ale_tool(ale_linters, "perl", "perlcritic")
+              register_ale_tool(ale_fixers, "perl", "perltidy")
+              vim.api.nvim_create_autocmd {"FileType"}, {
+                group: "vimrc",
+                pattern: { "perl" },
+                command: "let b:ale_fix_on_save = 1"
+              }
+            '';
+            binDeps = with perlPackages; [
+              PerlTidy
+              PerlCritic
+            ];
+          }
+          {
+            extraConfig = mkAfter ''
+              -- C/C++
+              register_ale_tool(ale_fixers, "c", "cppcheck")
+              register_ale_tool(ale_fixers, "c", "clang-tidy", "clangtidy")
+            '';
+            binDeps = [
+              cppcheck
+              clang-tools
+            ];
+          }
+          {
+            extraConfig = mkAfter ''
+              -- Elixir
+              if (fn.executable "mix") != 0
+                register_ale_tool(ale_linters, "elixir", "credo")
+                register_ale_tool(ale_linters, "elixir", "dialyxir")
+                register_ale_tool(ale_linters, "elixir", "mix")
+                register_ale_tool(ale_fixers, "elixir", "mix_format")
+                vim.api.nvim_create_autocmd {"FileType"}, {
+                  group: "vimrc",
+                  pattern: { "elixir" },
+                  command: "let b:ale_fix_on_save = 1"
+                }
+            '';
+            # Use per-project binaries
+            binDeps = [ ];
+          }
+          {
+            extraConfig = mkAfter ''
+              -- TypeScript/JS
+              if (fn.executable "prettier") != 0
+                register_ale_tool(ale_fixers, "typescript", "prettier")
+                register_ale_tool(ale_fixers, "javascript", "prettier")
+                vim.api.nvim_create_autocmd {"FileType"}, {
+                  group: "vimrc",
+                  pattern: { "typescript", "javascript" },
+                  command: "let b:ale_fix_on_save = 1"
+                }
+            '';
+            # Use per-project binaries
+            binDeps = [ ];
+          }
+          # TODO LaTeX (and/or markdown) prose linting?
+          # }}}
+        ];
 
       # Language support and syntax highlighting {{{
       # vim-markdown-composer = {
@@ -320,11 +343,11 @@ in
         enable = true;
         source = vimPlugins.vim-erlang-runtime;
       };
-      vim-erlang-compiler ={
+      vim-erlang-compiler = {
         enable = true;
         source = vimPlugins.vim-erlang-compiler;
       };
-      vim-erlang-omnicomplete ={
+      vim-erlang-omnicomplete = {
         enable = true;
         source = vimPlugins.vim-erlang-omnicomplete;
       };
@@ -464,4 +487,3 @@ in
     };
   };
 }
-

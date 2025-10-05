@@ -1,4 +1,10 @@
-{ config, lib, pkgs, inputs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  inputs,
+  ...
+}:
 let
   inherit (lib) optionals;
   pins = import ../../pins;
@@ -65,9 +71,7 @@ in
         ff = "only";
       };
       credential = {
-        helper = if (config.sn.os != "darwin")
-          then "cache"
-          else "osxkeychain";
+        helper = if (config.sn.os != "darwin") then "cache" else "osxkeychain";
       };
       merge = {
         conflictstyle = "diff3";
@@ -83,7 +87,7 @@ in
       };
       alias = {
         lgbase = "log --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --date=relative";
-        lg  = "!git lgbase --graph --abbrev-commit --date-order";
+        lg = "!git lgbase --graph --abbrev-commit --date-order";
         lgr = "!git lgbase -g";
       };
     };
@@ -123,27 +127,29 @@ in
   home.sessionVariables = {
     EDITOR = "nvim";
   };
-  home.packages = with pkgs; [
-    (writers.writePython3Bin "urldecode" { } ''
-      import sys
-      from urllib.parse import unquote
-      if len(sys.argv) > 1:
-          print(unquote(sys.argv[1]))
-      else:
-          print(unquote(sys.stdin.read()))
-    '')
-    (writers.writePython3Bin "urlencode" { } ''
-      import sys
-      from urllib.parse import quote
-      if len(sys.argv) > 1:
-          print(quote(sys.argv[1]))
-      else:
-          print(quote(sys.stdin.read()))
-    '')
-  ]
-  # TODO More precise "graphical-only" check would be nice, so as to not
-  # presume X11/xorg usage
-  ++ optionals config.xsession.enable [
-    libsecret
-  ];
+  home.packages =
+    with pkgs;
+    [
+      (writers.writePython3Bin "urldecode" { } ''
+        import sys
+        from urllib.parse import unquote
+        if len(sys.argv) > 1:
+            print(unquote(sys.argv[1]))
+        else:
+            print(unquote(sys.stdin.read()))
+      '')
+      (writers.writePython3Bin "urlencode" { } ''
+        import sys
+        from urllib.parse import quote
+        if len(sys.argv) > 1:
+            print(quote(sys.argv[1]))
+        else:
+            print(quote(sys.stdin.read()))
+      '')
+    ]
+    # TODO More precise "graphical-only" check would be nice, so as to not
+    # presume X11/xorg usage
+    ++ optionals config.xsession.enable [
+      libsecret
+    ];
 }

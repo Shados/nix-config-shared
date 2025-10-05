@@ -1,6 +1,18 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 let
-  inherit (lib) concatStringsSep mkEnableOption mkIf mkOption optionalString types;
+  inherit (lib)
+    concatStringsSep
+    mkEnableOption
+    mkIf
+    mkOption
+    optionalString
+    types
+    ;
   cfg = config.services.crontab;
   tabfile = pkgs.writeText "crontab" ((concatStringsSep "\n" cfg.jobs) + "\n");
 in
@@ -13,7 +25,7 @@ in
         example = [
           "*/1 * * * * cd ~/Documents/Python/cron && /usr/local/bin/python3 cron_test.py >> ~/Documents/Python/cron/cron.txt 2>&1"
         ];
-        default = [];
+        default = [ ];
         description = ''
           A list of cron jobs, in the usual format:
 
@@ -28,7 +40,7 @@ in
       };
       files = mkOption {
         type = with types; listOf path;
-        default = [];
+        default = [ ];
         description = ''
           A list of extra crontab files that will be read and appended to the
           main crontab file when the crontab is installed.
@@ -39,7 +51,8 @@ in
 
   config = mkIf cfg.enable {
     assertions = [
-      { assertion = config.sn.os == "darwin";
+      {
+        assertion = config.sn.os == "darwin";
         message = "crontab: only implemented for darwin";
       }
     ];
@@ -47,14 +60,19 @@ in
     home.activation.crontab = config.lib.dag.entryAfter [ "writeBoundary" ] ''
       TMP_CRON=$(mktemp "$TMPDIR/crontab.XXXXXX")
       $DRY_RUN_CMD cp -f "${tabfile}" "$TMP_CRON"
-      ${if (cfg.files != []) then ''
-        echo "Installing the crontab from generated ${tabfile} and given files ${concatStringsSep " " cfg.files}"
-        for tabfile in ${lib.escapeShellArgs cfg.files}; do
-          $DRY_RUN_CMD cat "$tabfile" >> "$TMP_CRON"
-        done
-      '' else ''
-        echo "Installing the crontab from generated ${tabfile}"
-      ''}
+      ${
+        if (cfg.files != [ ]) then
+          ''
+            echo "Installing the crontab from generated ${tabfile} and given files ${concatStringsSep " " cfg.files}"
+            for tabfile in ${lib.escapeShellArgs cfg.files}; do
+              $DRY_RUN_CMD cat "$tabfile" >> "$TMP_CRON"
+            done
+          ''
+        else
+          ''
+            echo "Installing the crontab from generated ${tabfile}"
+          ''
+      }
       $DRY_RUN_CMD /usr/bin/crontab "$TMP_CRON"
       rm -f "$TMP_CRON"
     '';

@@ -1,8 +1,8 @@
 { config, pkgs, ... }:
 
 {
-  services.haveged = 
-    { enable = true;
-      refill_threshold = 3072;
-    };
+  services.haveged = {
+    enable = true;
+    refill_threshold = 3072;
+  };
 }

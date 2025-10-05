@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 {
   config = lib.mkIf config.programs.zsh.enable {
     programs.zsh = {
@@ -9,18 +14,24 @@
       oh-my-zsh = {
         enable = true;
         plugins = [
-          "vi-mode" "git" "sudo" "brew"
+          "vi-mode"
+          "git"
+          "sudo"
+          "brew"
         ];
-        custom = toString (pkgs.runCommand "oh-my-zsh-custom" { } ''
-          mkdir -p "$out/themes"
-          cp -r ${pkgs.zsh-powerlevel10k}/share/zsh-powerlevel10k "$out/themes/powerlevel10k"
-        '');
+        custom = toString (
+          pkgs.runCommand "oh-my-zsh-custom" { } ''
+            mkdir -p "$out/themes"
+            cp -r ${pkgs.zsh-powerlevel10k}/share/zsh-powerlevel10k "$out/themes/powerlevel10k"
+          ''
+        );
         theme = "powerlevel10k/powerlevel10k";
       };
       history = rec {
         share = false;
         extended = true;
-        save = 1000000000; size = save;
+        save = 1000000000;
+        size = save;
       };
       initExtra = ''
         # TODO check for interactive session

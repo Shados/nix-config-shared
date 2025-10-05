@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 with lib;
 let
   pins = import ./sources { };
@@ -15,93 +20,113 @@ let
     (modFromGitDir "CDDA-PrepperCache" pins.PrepperCache "PrepperCache")
     (modFromGitSubDir "CDDA-Stamina-Regen-Buff" pins.cdda-stamina-regen-buff "stamina_regen_buff")
     (modFromGitSubDir "CDDA-Tankmod-Revived" pins.cdda-tankmod-revived-mod "Tankmod_Revived")
-    (modFromGitSubDir "CDDA-Useful-Helicopters" pins.useful_helicopters "Useful_Helicopters_experimental")
+    (modFromGitSubDir "CDDA-Useful-Helicopters" pins.useful_helicopters
+      "Useful_Helicopters_experimental"
+    )
     (modFromGitSubDir "CDDA-Learnable-Helicopters" pins.Learnable_Helicopters "Learnable_Helicopters")
   ]
-  ++ (modsFromSubDirs "CDDA-Arcana" pins.cdda-arcana-mod.rev (pins.cdda-arcana-mod.outPath + "/Patchmods")
-       (path: hasPrefix "DDA_" path))
+  ++ (modsFromSubDirs "CDDA-Arcana" pins.cdda-arcana-mod.rev (
+    pins.cdda-arcana-mod.outPath + "/Patchmods"
+  ) (path: hasPrefix "DDA_" path))
   ++ zipMods;
 
   zipMods = flip map zipModFilesList (path: modFromZip (./sources + "/${path}"));
   zipModFilesList = mapAttrsToList (n: v: n) zipModFiles;
   zipModFiles = filterAttrs (n: v: v == "regular" && hasSuffix ".zip" n) (builtins.readDir ./sources);
-  modFromZip = zipPath: let
-    name = removeSuffix ".zip" (last (splitString "/" zipPath));
-  in pkgs.runCommandNoCCLocal name {
-    src = zipPath;
-    nativeBuildInputs = with pkgs; [
-      unzip
-    ];
-  } ''
-    unzip "$src"
-    moddir="$out/share/cataclysm-dda/mods/"
-    mkdir -p "$moddir"
-    for dir in ./*; do
-      mv "$dir" "$moddir"/"$(echo "$dir" | tr -d _)"
-    done
-  '';
+  modFromZip =
+    zipPath:
+    let
+      name = removeSuffix ".zip" (last (splitString "/" zipPath));
+    in
+    pkgs.runCommandNoCCLocal name
+      {
+        src = zipPath;
+        nativeBuildInputs = with pkgs; [
+          unzip
+        ];
+      }
+      ''
+        unzip "$src"
+        moddir="$out/share/cataclysm-dda/mods/"
+        mkdir -p "$moddir"
+        for dir in ./*; do
+          mv "$dir" "$moddir"/"$(echo "$dir" | tr -d _)"
+        done
+      '';
 
-  modFromGitSubDir = pname: gitSrc: subdir: pkgs.stdenv.mkDerivation {
-    inherit pname;
-    version = "unstable-${gitSrc.rev}";
-    src = gitSrc.outPath;
-    installPhase = ''
-      moddir="$out/share/cataclysm-dda/mods/"
-      mkdir -p "$moddir"
-      cp -r ${subdir} "$moddir"/
-    '';
-  };
+  modFromGitSubDir =
+    pname: gitSrc: subdir:
+    pkgs.stdenv.mkDerivation {
+      inherit pname;
+      version = "unstable-${gitSrc.rev}";
+      src = gitSrc.outPath;
+      installPhase = ''
+        moddir="$out/share/cataclysm-dda/mods/"
+        mkdir -p "$moddir"
+        cp -r ${subdir} "$moddir"/
+      '';
+    };
 
-  modFromGitDir = pname: gitSrc: outdir: pkgs.stdenv.mkDerivation {
-    inherit pname;
-    version = "unstable-${gitSrc.rev}";
-    src = gitSrc.outPath;
-    installPhase = ''
-      moddir="$out/share/cataclysm-dda/mods/${outdir}"
-      mkdir -p "$moddir"
-      cp -r * "$moddir"/
-    '';
-  };
+  modFromGitDir =
+    pname: gitSrc: outdir:
+    pkgs.stdenv.mkDerivation {
+      inherit pname;
+      version = "unstable-${gitSrc.rev}";
+      src = gitSrc.outPath;
+      installPhase = ''
+        moddir="$out/share/cataclysm-dda/mods/${outdir}"
+        mkdir -p "$moddir"
+        cp -r * "$moddir"/
+      '';
+    };
 
-  modsFromSubDirs = basename: version: path: filterFn: let
-    mods = map (subdir: modFromSubDir basename version (path + "/${subdir}")) filteredDirs;
-    filteredDirs = filter filterFn modDirs;
-    modDirs = mapAttrsToList (n: v: n) (builtins.readDir path);
-  in mods;
+  modsFromSubDirs =
+    basename: version: path: filterFn:
+    let
+      mods = map (subdir: modFromSubDir basename version (path + "/${subdir}")) filteredDirs;
+      filteredDirs = filter filterFn modDirs;
+      modDirs = mapAttrsToList (n: v: n) (builtins.readDir path);
+    in
+    mods;
 
-  modFromSubDir = basename: version: path: let
-    dirName = last (splitString "/" path);
-  in pkgs.stdenv.mkDerivation {
-    pname = "${basename}-${dirName}";
-    inherit version;
-    src = path;
-    installPhase = ''
-      moddir="$out/share/cataclysm-dda/mods/"
-      mkdir -p "$moddir"
-      cp -r "$src" "$moddir"/
-    '';
-  };
+  modFromSubDir =
+    basename: version: path:
+    let
+      dirName = last (splitString "/" path);
+    in
+    pkgs.stdenv.mkDerivation {
+      pname = "${basename}-${dirName}";
+      inherit version;
+      src = path;
+      installPhase = ''
+        moddir="$out/share/cataclysm-dda/mods/"
+        mkdir -p "$moddir"
+        cp -r "$src" "$moddir"/
+      '';
+    };
 in
 {
   nixpkgs.overlays = [
     (self: super: {
-      cdda = self.cataclysm-dda-git.withMods [];
-      cataclysm-dda-git = let
-        basePkg = super.cataclysm-dda-git.override(oa: rec {
-          version = "2025-04-28-0936";
-          rev = "cdda-experimental-${version}";
-          sha256 = "sha256-ac71oJOWL2eqikSzoc+JUdoI6szidc6RbaLI8+7yEqg=";
-        });
-        overriddenPkg = basePkg.overrideAttrs(oa: {
-          patches = [
-            ./remove-crowd-suffocation.patch
-            ./power-armor-allow-belted.patch
-          ];
-          NIX_CFLAGS_COMPILE = oa.NIX_CFLAGS_COMPILE or [] ++ [
-            "-Wno-error=unused-parameter"
-          ];
-        });
-      in super.cataclysmDDA.attachPkgs super.cataclysmDDA.pkgs overriddenPkg;
+      cdda = self.cataclysm-dda-git.withMods [ ];
+      cataclysm-dda-git =
+        let
+          basePkg = super.cataclysm-dda-git.override (oa: rec {
+            version = "2025-04-28-0936";
+            rev = "cdda-experimental-${version}";
+            sha256 = "sha256-ac71oJOWL2eqikSzoc+JUdoI6szidc6RbaLI8+7yEqg=";
+          });
+          overriddenPkg = basePkg.overrideAttrs (oa: {
+            patches = [
+              ./remove-crowd-suffocation.patch
+              ./power-armor-allow-belted.patch
+            ];
+            NIX_CFLAGS_COMPILE = oa.NIX_CFLAGS_COMPILE or [ ] ++ [
+              "-Wno-error=unused-parameter"
+            ];
+          });
+        in
+        super.cataclysmDDA.attachPkgs super.cataclysmDDA.pkgs overriddenPkg;
       # cataclysm-dda-git = let
       #   inherit (super.cataclysmDDA) attachPkgs pkgs;
       # in (attachPkgs pkgs (super.cataclysm-dda-git.overrideAttrs (oa: rec {

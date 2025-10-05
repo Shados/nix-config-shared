@@ -1,7 +1,11 @@
-{ stdenv, lib, mkDerivation, fetchFromGitHub
-, qtgraphicaleffects
-, crudini
-, configOverrides ? null
+{
+  stdenv,
+  lib,
+  mkDerivation,
+  fetchFromGitHub,
+  qtgraphicaleffects,
+  crudini,
+  configOverrides ? null,
 }:
 let
   configOverridden = configOverrides != null;
@@ -13,7 +17,8 @@ mkDerivation rec {
   preferLocalBuild = true;
 
   src = fetchFromGitHub {
-    owner = "MarianArlt"; repo = pname;
+    owner = "MarianArlt";
+    repo = pname;
     rev = "v${version}";
     sha256 = "0gx0am7vq1ywaw2rm1p015x90b75ccqxnb1sz3wy8yjl27v82yhb";
   };
@@ -26,15 +31,16 @@ mkDerivation rec {
   installPhase = ''
     mkdir -p "$out/share/sddm/themes/"
     cp -r "$src" "$out/share/sddm/themes/sugar-dark"
-  '' + lib.optionalString configOverridden ''
+  ''
+  + lib.optionalString configOverridden ''
     chmod -R u+w "$out/share/sddm/themes/"
     crudini --merge "$out/share/sddm/themes/"*/theme.conf < "${configOverrides}"
   '';
 
   meta = with lib; {
     description = "The sweetest dark theme around for SDDM, the Simple Desktop Display Manager.";
-    homepage    = "https://github.com/MarianArlt/sddm-sugar-dark";
+    homepage = "https://github.com/MarianArlt/sddm-sugar-dark";
     maintainers = [ maintainers.arobyn ];
-    license     = licenses.gpl3;
+    license = licenses.gpl3;
   };
 }

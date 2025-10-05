@@ -1,12 +1,17 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 with lib;
 let
   cfg = config.networking.wireguard;
   wgInts = attrNames cfg.interfaces;
-  modifyWgService = wgInt: nameValuePair
-    "wireguard-${wgInt}"
-    {
+  modifyWgService =
+    wgInt:
+    nameValuePair "wireguard-${wgInt}" {
       # This can't be done in wireguard's per-int 'preSetup', for some reason.
       # Haven't looked into it very hard.
       preStart = ''
@@ -23,10 +28,12 @@ let
     };
   # NOTE: Taken from nixpkgs module, wish this were exposed somehow as it is
   # slightly involved
-  wgAllPeers = flatten
-    (mapAttrsToList (interfaceName: interfaceCfg:
-      map (peer: { inherit interfaceName interfaceCfg peer;}) interfaceCfg.peers
-    ) cfg.interfaces);
+  wgAllPeers = flatten (
+    mapAttrsToList (
+      interfaceName: interfaceCfg:
+      map (peer: { inherit interfaceName interfaceCfg peer; }) interfaceCfg.peers
+    ) cfg.interfaces
+  );
   mkPeerServiceName = interfaceName: peer: "wireguard-${interfaceName}-peer-${peer.name}";
 in
 {
@@ -38,7 +45,10 @@ in
     (mkIf config.networking.networkmanager.enable {
       systemd.services.NetworkManager-wait-online = {
         serviceConfig = {
-          ExecStart = [ "" "${pkgs.networkmanager}/bin/nm-online -q" ];
+          ExecStart = [
+            ""
+            "${pkgs.networkmanager}/bin/nm-online -q"
+          ];
           Restart = "on-failure";
           RestartSec = 1;
         };
@@ -48,26 +58,40 @@ in
     {
       systemd.services = listToAttrs (map (modifyWgService) wgInts);
     }
-    { # FIXME: Workaround for issue detailed in https://github.com/NixOS/nixpkgs/issues/63869#issuecomment-514655131
-    systemd.services = listToAttrs (map ({ interfaceName, interfaceCfg, peer }: let
-      dynamicRefreshSeconds = interfaceCfg: peer:
-        if peer.dynamicEndpointRefreshSeconds != null
-        then peer.dynamicEndpointRefreshSeconds
-        else interfaceCfg.dynamicEndpointRefreshSeconds;
-    in nameValuePair
-        (mkPeerServiceName interfaceName peer)
-        {
-          serviceConfig = if (dynamicRefreshSeconds interfaceCfg peer != 0) then {
-            Restart = mkDefault "on-failure";
-            RestartSec = mkDefault 3;
-            Type = mkForce "simple";
-            RemainAfterExit = false;
-          } else {
-            Restart = mkDefault "on-failure";
-            RestartSec = mkDefault 5;
-          };
-        }
-      ) wgAllPeers);
+    {
+      # FIXME: Workaround for issue detailed in https://github.com/NixOS/nixpkgs/issues/63869#issuecomment-514655131
+      systemd.services = listToAttrs (
+        map (
+          {
+            interfaceName,
+            interfaceCfg,
+            peer,
+          }:
+          let
+            dynamicRefreshSeconds =
+              interfaceCfg: peer:
+              if peer.dynamicEndpointRefreshSeconds != null then
+                peer.dynamicEndpointRefreshSeconds
+              else
+                interfaceCfg.dynamicEndpointRefreshSeconds;
+          in
+          nameValuePair (mkPeerServiceName interfaceName peer) {
+            serviceConfig =
+              if (dynamicRefreshSeconds interfaceCfg peer != 0) then
+                {
+                  Restart = mkDefault "on-failure";
+                  RestartSec = mkDefault 3;
+                  Type = mkForce "simple";
+                  RemainAfterExit = false;
+                }
+              else
+                {
+                  Restart = mkDefault "on-failure";
+                  RestartSec = mkDefault 5;
+                };
+          }
+        ) wgAllPeers
+      );
     }
   ];
 }

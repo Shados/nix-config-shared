@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 with lib;
 
 let
@@ -26,7 +31,8 @@ in
     rxvt-unicode-unwrapped.terminfo # Only need terminfo by default, as hardly need an X terminal on a server
 
     # VCS
-    git gitAndTools.git-octopus
+    git
+    gitAndTools.git-octopus
 
     # Debugging/sysadmin/System information
     man-pages # Linux kernel dev ones, e.g. man 5 proc
@@ -49,7 +55,8 @@ in
     lsof
     psmisc
     bind.dnsutils # We only care about the client-side DNS utilities, not the server
-    jq.bin jq.man
+    jq.bin
+    jq.man
     usbutils
 
     # Generally-useful file utilities
@@ -57,11 +64,21 @@ in
     axel
     tree
     file
-    zip unzip unrar lzop p7zip lrzip pixz
+    zip
+    unzip
+    unrar
+    lzop
+    p7zip
+    lrzip
+    pixz
     rename # perl-rename
     ripgrep
     fd
-    (moreutils.overrideAttrs (oa: { meta = oa.meta // { priority = 10; }; })) # sponge, but don't override ts or parallel
+    (moreutils.overrideAttrs (oa: {
+      meta = oa.meta // {
+        priority = 10;
+      };
+    })) # sponge, but don't override ts or parallel
     ts # taskspooler
     parallel
     ncdu
@@ -88,18 +105,27 @@ in
   };
 
   programs.steam = mkIf config.programs.steam.enable {
-    package = mkDefault (pkgs.steam.override {
-      extraBwrapArgs = [ "--tmpfs" "/dev/shm" ];
-      extraEnv = {
-        MANGOHUD = true;
-      };
-    });
+    package = mkDefault (
+      pkgs.steam.override {
+        extraBwrapArgs = [
+          "--tmpfs"
+          "/dev/shm"
+        ];
+        extraEnv = {
+          MANGOHUD = true;
+        };
+      }
+    );
     extraPackages = with pkgs; [
-      gsettings-desktop-schemas glib
-      xorg.libxcb dbus nss # Needed for electron-based shit I think
+      gsettings-desktop-schemas
+      glib
+      xorg.libxcb
+      dbus
+      nss # Needed for electron-based shit I think
 
       # Needed for gamescope to work right
-      libkrb5 keyutils
+      libkrb5
+      keyutils
 
       gamemode
 

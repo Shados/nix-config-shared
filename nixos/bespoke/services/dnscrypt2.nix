@@ -1,6 +1,24 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 let
-  inherit (lib) concatMapStringsSep concatStringsSep length listToAttrs literalExpression mapAttrs mkEnableOption mkIf mkOption optional optionalAttrs types;
+  inherit (lib)
+    concatMapStringsSep
+    concatStringsSep
+    length
+    listToAttrs
+    literalExpression
+    mapAttrs
+    mkEnableOption
+    mkIf
+    mkOption
+    optional
+    optionalAttrs
+    types
+    ;
 
   cfg = config.services.dnscrypt-proxy2;
 
@@ -16,18 +34,13 @@ let
   # /var/cache/private/${serviceDirName}, and when running, the process itself
   # will get symlinks to those directories from /var/lib/${serviceDirName} and
   # /var/cache/${serviceDirName} -- see `man systemd.exec` for more.
-  logLocation = logPath:
-    if isAbsolute logPath
-    then logPath
-    else "/var/log/${serviceDirName}/${logPath}";
-  cacheLocation = cachePath:
-    if isAbsolute cachePath
-    then cachePath
-    else "/var/cache/${serviceDirName}/${cachePath}";
+  logLocation =
+    logPath: if isAbsolute logPath then logPath else "/var/log/${serviceDirName}/${logPath}";
+  cacheLocation =
+    cachePath: if isAbsolute cachePath then cachePath else "/var/cache/${serviceDirName}/${cachePath}";
 
   mapAddressesToStrings = addrs: map (a: "${a.address}:${toString a.port}") addrs;
   defaultPortAddrs = builtins.filter (a: a.port == 53) cfg.listenAddresses;
-
 
   # Types and option submodules {{{
   addressType = types.submodule {
@@ -83,11 +96,25 @@ let
   };
 
   schedule = types.submodule {
-    options = mkScheduleOptsFor [ "mon" "tue" "wed" "thu" "fri" "sat" "sun" ];
+    options = mkScheduleOptsFor [
+      "mon"
+      "tue"
+      "wed"
+      "thu"
+      "fri"
+      "sat"
+      "sun"
+    ];
   };
-  mkScheduleOptsFor = dayNames: let
-      dayList = map (name: { inherit name; value = dayOpt; }) dayNames;
-    in listToAttrs dayList;
+  mkScheduleOptsFor =
+    dayNames:
+    let
+      dayList = map (name: {
+        inherit name;
+        value = dayOpt;
+      }) dayNames;
+    in
+    listToAttrs dayList;
   dayOpt = mkOption {
     type = with types; listOf daySchedule;
     default = null;
@@ -112,7 +139,12 @@ let
   };
   timeType = types.strMatching "[0-2]?[[:digit:]]:[[:digit:]]{2}";
 
-  logFormat = with types; enum [ "tsv" "ltsv" ];
+  logFormat =
+    with types;
+    enum [
+      "tsv"
+      "ltsv"
+    ];
   formatOpt = mkOption {
     type = with types; logFormat;
     default = "tsv";
@@ -195,8 +227,14 @@ in
       listenAddresses = mkOption {
         type = with types; listOf addressType;
         default = [
-          { address = "127.0.0.1"; port = 53; }
-          { address = "[::1]"; port = 53; }
+          {
+            address = "127.0.0.1";
+            port = 53;
+          }
+          {
+            address = "[::1]";
+            port = 53;
+          }
         ];
         description = ''
           A list of address + port pairs on which to listen for DNS requests.
@@ -220,7 +258,7 @@ in
       };
       selectedServers = mkOption {
         type = with types; listOf str;
-        default = [];
+        default = [ ];
         description = ''
           List of server names (from registered servers.sources) to use.
 
@@ -230,7 +268,12 @@ in
           The proxy will automatically pick the fastest, working servers from
           the list.
         '';
-        example = [ "scaleway-fr" "google" "yandex" "cloudflare" ];
+        example = [
+          "scaleway-fr"
+          "google"
+          "yandex"
+          "cloudflare"
+        ];
       };
       maxClients = mkOption {
         type = with types; int;
@@ -286,7 +329,12 @@ in
       };
       blockedQueryResponse = mkOption {
         # TODO proper format for the "IP response" instead of just str
-        type = with types; either (enum [ "refused" "hinfo" ]) str;
+        type =
+          with types;
+          either (enum [
+            "refused"
+            "hinfo"
+          ]) str;
         default = "hinfo";
         description = ''
           Response for blocked queries. Options are `refused`, `hinfo`
@@ -298,7 +346,14 @@ in
         '';
       };
       loadBalancingStrategy = mkOption {
-        type = with types; enum [ "p2" "ph" "fastest" "random" ];
+        type =
+          with types;
+          enum [
+            "p2"
+            "ph"
+            "fastest"
+            "random"
+          ];
         default = "p2";
         description = ''
           The load-balancing strategy to use. Available options:
@@ -334,8 +389,15 @@ in
         '';
       };
       tlsCipherSuite = mkOption {
-        type = with types; listOf (enum [ 49199 49195 52392 52393 ]);
-        default = [];
+        type =
+          with types;
+          listOf (enum [
+            49199
+            49195
+            52392
+            52393
+          ]);
+        default = [ ];
         description = ''
           For DNS-over-HTTPS, use a specific suite of ciphers instead of
           following the upstream server's preferences.
@@ -356,7 +418,10 @@ in
       };
       bootstrapResolvers = mkOption {
         type = with types; listOf str;
-        default = [ "9.9.9.9:53" "8.8.8.8:53" ];
+        default = [
+          "9.9.9.9:53"
+          "8.8.8.8:53"
+        ];
         description = ''
           These are normal, non-encrypted DNS resolvers, that will be only used
           for one-shot queries when retrieving the initial resolvers list and
@@ -428,19 +493,29 @@ in
 
       forwardingRules = mkOption {
         type = with types; listOf forwardingRule;
-        default = [];
+        default = [ ];
         description = ''
           Routes queries for specific domains to dedicated sets of servers.
         '';
         example = [
-          { domain = "example.com"; servers = [ "9.9.9.9" ]; }
-          { domain = "example.net"; servers = [ "9.9.9.9" "8.8.8.8" "1.1.1.1" ]; }
+          {
+            domain = "example.com";
+            servers = [ "9.9.9.9" ];
+          }
+          {
+            domain = "example.net";
+            servers = [
+              "9.9.9.9"
+              "8.8.8.8"
+              "1.1.1.1"
+            ];
+          }
         ];
       };
 
       cloakingRules = mkOption {
         type = with types; listOf cloakingRule;
-        default = [];
+        default = [ ];
         description = ''
           Cloaking returns a predefined address for a specific name.
           In addition to acting as a HOSTS file, it can also return the IP
@@ -538,20 +613,63 @@ in
           };
           format = formatOpt;
           ignoredQtypes = mkOption {
-            type = with types; listOf (enum [
-              "A" "AAAA" "AFSDB" "APL" "CAA" "CDNSKEY" "CDS" "CERT" "CNAME"
-              "DHCID" "DLV" "DNAME" "DNSKEY" "DS" "HIP" "IPSECKEY" "KEY" "KX"
-              "LOC" "MX" "NAPTR" "NS" "NSEC" "NSEC3" "NSEC3PARAM" "OPENPGPKEY"
-              "PTR" "RRSIG" "RP" "SIG" "SMIMEA" "SOA" "SRV" "SSHFP" "TA" "TKEY"
-              "TLSA" "TSIG" "TXT" "URI"
-              "*" "AXFR" "IXFR" "OPT"
-            ]);
-            default = [];
+            type =
+              with types;
+              listOf (enum [
+                "A"
+                "AAAA"
+                "AFSDB"
+                "APL"
+                "CAA"
+                "CDNSKEY"
+                "CDS"
+                "CERT"
+                "CNAME"
+                "DHCID"
+                "DLV"
+                "DNAME"
+                "DNSKEY"
+                "DS"
+                "HIP"
+                "IPSECKEY"
+                "KEY"
+                "KX"
+                "LOC"
+                "MX"
+                "NAPTR"
+                "NS"
+                "NSEC"
+                "NSEC3"
+                "NSEC3PARAM"
+                "OPENPGPKEY"
+                "PTR"
+                "RRSIG"
+                "RP"
+                "SIG"
+                "SMIMEA"
+                "SOA"
+                "SRV"
+                "SSHFP"
+                "TA"
+                "TKEY"
+                "TLSA"
+                "TSIG"
+                "TXT"
+                "URI"
+                "*"
+                "AXFR"
+                "IXFR"
+                "OPT"
+              ]);
+            default = [ ];
             description = ''
               Do not log these query types, to reduce verbosity. Leave empty to
               log everything.
             '';
-            example = [ "DNSKEY" "NS" ];
+            example = [
+              "DNSKEY"
+              "NS"
+            ];
           };
         };
 
@@ -723,7 +841,7 @@ in
         };
         schedules = mkOption {
           type = with types; attrsOf schedule;
-          default = {};
+          default = { };
           description = ''
             One or more weekly schedules can be defined here.
             Patterns in the name-based blocklist can optionally be followed
@@ -737,20 +855,80 @@ in
           '';
           example = {
             "time-to-sleep" = {
-              mon = [ { after = "21:00"; before = "7:00"; } ];
-              tue = [ { after = "21:00"; before = "7:00"; } ];
-              wed = [ { after = "21:00"; before = "7:00"; } ];
-              thu = [ { after = "21:00"; before = "7:00"; } ];
-              fri = [ { after = "23:00"; before = "7:00"; } ];
-              sat = [ { after = "23:00"; before = "7:00"; } ];
-              sun = [ { after = "21:00"; before = "7:00"; } ];
+              mon = [
+                {
+                  after = "21:00";
+                  before = "7:00";
+                }
+              ];
+              tue = [
+                {
+                  after = "21:00";
+                  before = "7:00";
+                }
+              ];
+              wed = [
+                {
+                  after = "21:00";
+                  before = "7:00";
+                }
+              ];
+              thu = [
+                {
+                  after = "21:00";
+                  before = "7:00";
+                }
+              ];
+              fri = [
+                {
+                  after = "23:00";
+                  before = "7:00";
+                }
+              ];
+              sat = [
+                {
+                  after = "23:00";
+                  before = "7:00";
+                }
+              ];
+              sun = [
+                {
+                  after = "21:00";
+                  before = "7:00";
+                }
+              ];
             };
             work = {
-              mon = [ { after = "9:00"; before = "18:00"; } ];
-              tue = [ { after = "9:00"; before = "18:00"; } ];
-              wed = [ { after = "9:00"; before = "18:00"; } ];
-              thu = [ { after = "9:00"; before = "18:00"; } ];
-              fri = [ { after = "9:00"; before = "17:00"; } ];
+              mon = [
+                {
+                  after = "9:00";
+                  before = "18:00";
+                }
+              ];
+              tue = [
+                {
+                  after = "9:00";
+                  before = "18:00";
+                }
+              ];
+              wed = [
+                {
+                  after = "9:00";
+                  before = "18:00";
+                }
+              ];
+              thu = [
+                {
+                  after = "9:00";
+                  before = "18:00";
+                }
+              ];
+              fri = [
+                {
+                  after = "9:00";
+                  before = "17:00";
+                }
+              ];
             };
           };
         };
@@ -791,7 +969,7 @@ in
         };
         static = mkOption {
           type = with types; attrsOf stampType;
-          default = {};
+          default = { };
           description = ''
             Optional local, static list of additional servers.
 
@@ -863,7 +1041,7 @@ in
           };
           disabledServerNames = mkOption {
             type = with types; listOf str;
-            default = [];
+            default = [ ];
             description = ''
               Server names to avoid even if they match all criteria.
             '';
@@ -873,7 +1051,7 @@ in
 
       settings = mkOption {
         type = with types; attrs;
-        default = {};
+        default = { };
         description = ''
           JSON representation of the dnscrypt TOML configuration file. This is
           set internally by module options, and can be used directly to
@@ -885,16 +1063,20 @@ in
 
   config = mkIf cfg.enable {
     assertions = [
-      { assertion = length cfg.listenAddresses > 0;
+      {
+        assertion = length cfg.listenAddresses > 0;
         message = "dnscrypt-proxy2: You must specify at least one listen address";
       }
-      { assertion = cfg.socksProxy == null || cfg.forceTcp;
+      {
+        assertion = cfg.socksProxy == null || cfg.forceTcp;
         message = "dnscrypt-proxy2: If a socks proxy is configured, forceTcp must be set to `true`";
       }
-      { assertion = (! cfg.resolveLocalQueries) || cfg.ignoreSystemDns;
+      {
+        assertion = (!cfg.resolveLocalQueries) || cfg.ignoreSystemDns;
         message = "dnscrypt-proxy2: ignoreSystemDns must be `true` if resolveLocalQueries is enabled";
       }
-      { assertion = (! cfg.resolveLocalQueries) || (length defaultPortAddrs > 0);
+      {
+        assertion = (!cfg.resolveLocalQueries) || (length defaultPortAddrs > 0);
         message = "dnscrypt-proxy2: at least one address must be listening on port 53 if resolveLocalQueries is enabled, as libresolv/glibc do not support non-standard DNS ports";
       }
     ];
@@ -905,105 +1087,120 @@ in
       cfg.package
     ];
 
-    services.dnscrypt-proxy2.settings = let
-      forwardingRuleFile = pkgs.writeText "forwarding-rules.txt" (concatMapStringsSep "\n" (fr:
-          "${fr.domain} ${concatStringsSep "," fr.servers}"
-        ) cfg.forwardingRules);
-      cloakingRuleFile = pkgs.writeText "cloaking-rules.txt" (concatMapStringsSep "\n" (cr:
-          "${cr.domain} ${cr.return}"
-        ) cfg.forwardingRules);
-    in {
-      listen_addresses = if cfg.socketActivated
-        then []
-        else mapAddressesToStrings cfg.listenAddresses;
-      max_clients = cfg.maxClients;
-      ipv4_servers = cfg.servers.filters.ipv4;
-      ipv6_servers = cfg.servers.filters.ipv6;
-      dnscrypt_servers = cfg.servers.filters.dnscrypt;
-      doh_servers = cfg.servers.filters.doh;
-      require_dnssec = cfg.servers.filters.requireDnssec;
-      require_nolog = cfg.servers.filters.requireNolog;
-      require_nofilter = cfg.servers.filters.requireNofilter;
-      disabled_server_names = cfg.servers.filters.disabledServerNames;
-      force_tcp = cfg.forceTcp;
-      timeout = cfg.timeout;
-      keepalive = cfg.keepalive;
-      blocked_query_response = cfg.blockedQueryResponse;
-      lb_strategy = cfg.loadBalancingStrategy;
-      log_level = cfg.logging.level;
-      use_syslog = cfg.logging.useSyslog;
-      cert_refresh_delay = cfg.certRefreshDelay;
-      dnscrypt_ephemeral_keys = cfg.dnscryptEphemeralKeys;
-      tls_disable_session_tickets = cfg.tlsDisableSessionTickets;
-      bootstrap_resolvers = cfg.bootstrapResolvers;
-      ignore_system_dns = cfg.ignoreSystemDns;
-      netprobe_timeout = cfg.netprobeTimeout;
-      offline_mode = cfg.offlineMode;
-      log_files_max_size = cfg.logging.logRotation.maxSize;
-      log_files_max_age = cfg.logging.logRotation.maxAge;
-      log_files_max_backups = cfg.logging.logRotation.maxBackups;
-      block_ipv6 = cfg.queryFilters.blockIpv6;
-      cache = cfg.cache.enable;
-      cache_size = cfg.cache.size;
-      cache_min_ttl = cfg.cache.minTtl;
-      cache_max_ttl = cfg.cache.maxTtl;
-      cache_neg_min_ttl = cfg.cache.negMinTtl;
-      cache_neg_max_ttl = cfg.cache.negMaxTtl;
-      query_log = {
-        format = cfg.logging.query.format;
-        ignored_qtypes = cfg.logging.query.ignoredQtypes;
-      } // optionalAttrs (cfg.logging.query.file != null) {
-        file = logLocation cfg.logging.query.file;
+    services.dnscrypt-proxy2.settings =
+      let
+        forwardingRuleFile = pkgs.writeText "forwarding-rules.txt" (
+          concatMapStringsSep "\n" (fr: "${fr.domain} ${concatStringsSep "," fr.servers}") cfg.forwardingRules
+        );
+        cloakingRuleFile = pkgs.writeText "cloaking-rules.txt" (
+          concatMapStringsSep "\n" (cr: "${cr.domain} ${cr.return}") cfg.forwardingRules
+        );
+      in
+      {
+        listen_addresses = if cfg.socketActivated then [ ] else mapAddressesToStrings cfg.listenAddresses;
+        max_clients = cfg.maxClients;
+        ipv4_servers = cfg.servers.filters.ipv4;
+        ipv6_servers = cfg.servers.filters.ipv6;
+        dnscrypt_servers = cfg.servers.filters.dnscrypt;
+        doh_servers = cfg.servers.filters.doh;
+        require_dnssec = cfg.servers.filters.requireDnssec;
+        require_nolog = cfg.servers.filters.requireNolog;
+        require_nofilter = cfg.servers.filters.requireNofilter;
+        disabled_server_names = cfg.servers.filters.disabledServerNames;
+        force_tcp = cfg.forceTcp;
+        timeout = cfg.timeout;
+        keepalive = cfg.keepalive;
+        blocked_query_response = cfg.blockedQueryResponse;
+        lb_strategy = cfg.loadBalancingStrategy;
+        log_level = cfg.logging.level;
+        use_syslog = cfg.logging.useSyslog;
+        cert_refresh_delay = cfg.certRefreshDelay;
+        dnscrypt_ephemeral_keys = cfg.dnscryptEphemeralKeys;
+        tls_disable_session_tickets = cfg.tlsDisableSessionTickets;
+        bootstrap_resolvers = cfg.bootstrapResolvers;
+        ignore_system_dns = cfg.ignoreSystemDns;
+        netprobe_timeout = cfg.netprobeTimeout;
+        offline_mode = cfg.offlineMode;
+        log_files_max_size = cfg.logging.logRotation.maxSize;
+        log_files_max_age = cfg.logging.logRotation.maxAge;
+        log_files_max_backups = cfg.logging.logRotation.maxBackups;
+        block_ipv6 = cfg.queryFilters.blockIpv6;
+        cache = cfg.cache.enable;
+        cache_size = cfg.cache.size;
+        cache_min_ttl = cfg.cache.minTtl;
+        cache_max_ttl = cfg.cache.maxTtl;
+        cache_neg_min_ttl = cfg.cache.negMinTtl;
+        cache_neg_max_ttl = cfg.cache.negMaxTtl;
+        query_log = {
+          format = cfg.logging.query.format;
+          ignored_qtypes = cfg.logging.query.ignoredQtypes;
+        }
+        // optionalAttrs (cfg.logging.query.file != null) {
+          file = logLocation cfg.logging.query.file;
+        };
+        nx_log = {
+          format = cfg.logging.nx.format;
+        }
+        // optionalAttrs (cfg.logging.nx.file != null) {
+          file = logLocation cfg.logging.nx.file;
+        };
+        blacklist = {
+          log_format = cfg.logging.blacklist.format;
+        }
+        // optionalAttrs (cfg.logging.blacklist.file != null) {
+          log_file = logLocation cfg.logging.blacklist.file;
+        }
+        // optionalAttrs (cfg.queryFilters.blacklist != null) {
+          blacklist_file = cfg.queryFilters.blacklist;
+        };
+        ip_blacklist = {
+          log_format = cfg.logging.ipBlacklist.format;
+        }
+        // optionalAttrs (cfg.logging.ipBlacklist.file != null) {
+          log_file = logLocation cfg.logging.ipBlacklist.file;
+        }
+        // optionalAttrs (cfg.queryFilters.ipBlacklist != null) {
+          blacklist_file = cfg.queryFilters.ipBlacklist;
+        };
+        whitelist = {
+          log_format = cfg.logging.whitelist.format;
+        }
+        // optionalAttrs (cfg.logging.whitelist.file != null) {
+          log_file = logLocation cfg.logging.whitelist.file;
+        }
+        // optionalAttrs (cfg.queryFilters.whitelist != null) {
+          whitelist_file = cfg.queryFilters.whitelist;
+        };
+        schedules = cfg.queryFilters.schedules;
+        sources = mapAttrs (name: source: {
+          inherit (source) urls prefix;
+          cache_file = cacheLocation source.cacheFile;
+          minisign_key = source.minisignKey;
+          refresh_delay = source.refreshDelay;
+        }) cfg.servers.sources;
+        static = cfg.servers.static;
+      }
+      // optionalAttrs (cfg.selectedServers != [ ]) {
+        server_names = cfg.selectedServers;
+      }
+      // optionalAttrs (cfg.socksProxy != null) {
+        proxy = cfg.socksProxy;
+      }
+      // optionalAttrs (cfg.httpProxy != null) {
+        http_proxy = cfg.httpProxy;
+      }
+      // optionalAttrs (cfg.logging.useFile != null) {
+        log_file = logLocation cfg.logging.useFile;
+      }
+      // optionalAttrs (cfg.forwardingRules != [ ]) {
+        forwarding_rules = forwardingRuleFile;
+      }
+      // optionalAttrs (cfg.cloakingRules != [ ]) {
+        cloaking_rules = cloakingRuleFile;
+      }
+      // optionalAttrs (cfg.tlsCipherSuite != [ ]) {
+        tls_cipher_suite = cfg.tlsCipherSuite;
       };
-      nx_log = {
-        format = cfg.logging.nx.format;
-      } // optionalAttrs (cfg.logging.nx.file != null) {
-        file = logLocation cfg.logging.nx.file;
-      };
-      blacklist = {
-        log_format = cfg.logging.blacklist.format;
-      } // optionalAttrs (cfg.logging.blacklist.file != null) {
-        log_file = logLocation cfg.logging.blacklist.file;
-      } // optionalAttrs (cfg.queryFilters.blacklist != null) {
-        blacklist_file = cfg.queryFilters.blacklist;
-      };
-      ip_blacklist = {
-        log_format = cfg.logging.ipBlacklist.format;
-      } // optionalAttrs (cfg.logging.ipBlacklist.file != null) {
-        log_file = logLocation cfg.logging.ipBlacklist.file;
-      } // optionalAttrs (cfg.queryFilters.ipBlacklist != null) {
-        blacklist_file = cfg.queryFilters.ipBlacklist;
-      };
-      whitelist = {
-        log_format = cfg.logging.whitelist.format;
-      } // optionalAttrs (cfg.logging.whitelist.file != null) {
-        log_file = logLocation cfg.logging.whitelist.file;
-      } // optionalAttrs (cfg.queryFilters.whitelist != null) {
-        whitelist_file = cfg.queryFilters.whitelist;
-      };
-      schedules = cfg.queryFilters.schedules;
-      sources = mapAttrs (name: source: {
-        inherit (source) urls prefix;
-        cache_file = cacheLocation source.cacheFile;
-        minisign_key = source.minisignKey;
-        refresh_delay = source.refreshDelay;
-      }) cfg.servers.sources;
-      static = cfg.servers.static;
-    } // optionalAttrs (cfg.selectedServers != []) {
-      server_names = cfg.selectedServers;
-    } // optionalAttrs (cfg.socksProxy != null) {
-      proxy = cfg.socksProxy;
-    } // optionalAttrs (cfg.httpProxy != null) {
-      http_proxy = cfg.httpProxy;
-    } // optionalAttrs (cfg.logging.useFile != null) {
-      log_file = logLocation cfg.logging.useFile;
-    } // optionalAttrs (cfg.forwardingRules != []) {
-      forwarding_rules = forwardingRuleFile;
-    } // optionalAttrs (cfg.cloakingRules != []) {
-      cloaking_rules = cloakingRuleFile;
-    } // optionalAttrs (cfg.tlsCipherSuite != []) {
-      tls_cipher_suite = cfg.tlsCipherSuite;
-    };
 
     systemd.services.dnscrypt-proxy2 = {
       after = [ "network.target" ];
@@ -1021,11 +1218,17 @@ in
         ProtectControlGroups = true;
         ProtectKernelModules = true;
         ProtectKernelTunables = true;
-      } // (if cfg.socketActivated then {
-        NonBlocking = true;
-      } else {
-        AmbientCapabilities = "CAP_NET_BIND_SERVICE";
-      });
+      }
+      // (
+        if cfg.socketActivated then
+          {
+            NonBlocking = true;
+          }
+        else
+          {
+            AmbientCapabilities = "CAP_NET_BIND_SERVICE";
+          }
+      );
     };
     systemd.sockets = optionalAttrs cfg.socketActivated {
       dnscrypt-proxy2 = {

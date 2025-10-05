@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 with lib;
 let
   cfg = config.sn;
@@ -18,7 +23,13 @@ in
   options = {
     sn = {
       os = mkOption {
-        type = with types; enum [ "nixos" "darwin" "linux" ];
+        type =
+          with types;
+          enum [
+            "nixos"
+            "darwin"
+            "linux"
+          ];
         default = "nixos";
         description = ''
           The OS platform being deployed on.

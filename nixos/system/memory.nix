@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 with lib;
 let
   cfg = config.sn.memory;
@@ -32,7 +37,7 @@ in
         "vm.oom_dump_tasks" = mkDefault 1;
       };
     })
-    (mkIf (! cfg.enableOvercommit) {
+    (mkIf (!cfg.enableOvercommit) {
       boot.kernel.sysctl = {
         # I don't know why the hell NixOS defaults this to 50? Or maybe it's
         # the kernel default..? To enforce space for the page cache or

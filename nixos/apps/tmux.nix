@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 with lib;
 {
   systemd.user.services.tmux = {
@@ -8,9 +13,10 @@ with lib;
     reloadIfChanged = true;
     # TODO hack on tmux to make it re-execute itself to do upgrades of the tmux
     # server? Would be pretty cool
-    reload = /*ft=sh*/''
-      ${pkgs.tmux}/bin/tmux source-file /etc/tmux.conf
-    '';
+    reload = # ft=sh
+      ''
+        ${pkgs.tmux}/bin/tmux source-file /etc/tmux.conf
+      '';
     serviceConfig = {
       Type = "forking";
       ExecStart = "${pkgs.tmux}/bin/tmux start-server";

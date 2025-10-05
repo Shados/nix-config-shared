@@ -1,6 +1,18 @@
-{ config, inputs, lib, pkgs, ... }:
+{
+  config,
+  inputs,
+  lib,
+  pkgs,
+  ...
+}:
 let
-  inherit (lib) mkBefore mkDefault mkMerge mkOrder singleton;
+  inherit (lib)
+    mkBefore
+    mkDefault
+    mkMerge
+    mkOrder
+    singleton
+    ;
 in
 {
   config = mkMerge [

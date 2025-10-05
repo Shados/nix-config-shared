@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 with lib;
 
@@ -33,7 +38,7 @@ let
       };
       machineSpec = mkOption {
         type = with types; attrs;
-        default = {};
+        default = { };
         description = ''
           Attributes to merge into the configured `nix.buildMachines` option
           for this builder node.
@@ -52,7 +57,7 @@ in
 
       nodes = mkOption {
         type = with types; attrsOf (submodule nodeOpts);
-        default = {};
+        default = { };
         description = ''
           Attribute set of builder nodes.
         '';
@@ -65,7 +70,9 @@ in
               maxJobs = 8;
               speedFactor = 2;
               supportedFeatures = [
-                "kvm" "nixos-test" "big-parallel"
+                "kvm"
+                "nixos-test"
+                "big-parallel"
               ];
             };
           };
@@ -74,43 +81,51 @@ in
     };
   };
 
-  config = mkIf cfg.enable (mkMerge (
-    # Global config
-    singleton {
-      nix.distributedBuilds = true;
-      nix.extraOptions = ''
-        builders-use-substitutes = true
-      '';
-    }
-    ++
-    # Per-builder config
-    singleton {
-      nix.buildMachines = mapAttrsToList (name: node: {
-        hostName = mkSshHostName name;
-        inherit sshUser;
-        sshKey = node.sshKeyFile;
-      } // node.machineSpec) cfg.nodes;
-      programs.ssh.globalHosts = mapAttrs' (name: node: nameValuePair
-        (mkSshHostName name)
-        { hostName = node.address;
-          user = sshUser;
-          port = node.sshPort;
-          keyFile = node.sshKeyFile;
-          extraConfig = ''
-            ControlMaster auto
-            ControlPath /run/user/%i/ssh-control-socket-%C
-            ControlPersist 10m
-            ConnectTimeout 7
-            ServerAliveInterval 5
-          '';
+  config = mkIf cfg.enable (
+    mkMerge (
+      # Global config
+      singleton {
+        nix.distributedBuilds = true;
+        nix.extraOptions = ''
+          builders-use-substitutes = true
+        '';
+      }
+      ++
+        # Per-builder config
+        singleton {
+          nix.buildMachines = mapAttrsToList (
+            name: node:
+            {
+              hostName = mkSshHostName name;
+              inherit sshUser;
+              sshKey = node.sshKeyFile;
+            }
+            // node.machineSpec
+          ) cfg.nodes;
+          programs.ssh.globalHosts = mapAttrs' (
+            name: node:
+            nameValuePair (mkSshHostName name) {
+              hostName = node.address;
+              user = sshUser;
+              port = node.sshPort;
+              keyFile = node.sshKeyFile;
+              extraConfig = ''
+                ControlMaster auto
+                ControlPath /run/user/%i/ssh-control-socket-%C
+                ControlPersist 10m
+                ConnectTimeout 7
+                ServerAliveInterval 5
+              '';
+            }
+          ) cfg.nodes;
+          programs.ssh.knownHosts = mapAttrs' (
+            name: node:
+            nameValuePair (mkSshHostName name) {
+              hostNames = singleton node.address;
+              publicKey = node.sshHostPubKey;
+            }
+          ) cfg.nodes;
         }
-      ) cfg.nodes;
-      programs.ssh.knownHosts = mapAttrs' (name: node: nameValuePair
-        (mkSshHostName name)
-        { hostNames = singleton node.address;
-          publicKey = node.sshHostPubKey;
-        }
-      ) cfg.nodes;
-    }
-  ));
+    )
+  );
 }

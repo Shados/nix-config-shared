@@ -1,6 +1,19 @@
-{ config, inputs, lib, pkgs, system, ... }:
+{
+  config,
+  inputs,
+  lib,
+  pkgs,
+  system,
+  ...
+}:
 let
-  inherit (lib) mkBefore mkMerge mkOption mkOptionDefault singleton;
+  inherit (lib)
+    mkBefore
+    mkMerge
+    mkOption
+    mkOptionDefault
+    singleton
+    ;
   pins = import ../pins;
 in
 {
@@ -19,7 +32,6 @@ in
     # System default configuration changes
     ./system
   ];
-
 
   options = {
     fragments.remote = mkOption {

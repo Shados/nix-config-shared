@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 with lib;
 {
@@ -14,7 +19,8 @@ with lib;
       # config files around with my scripts.
       # TODO assert python version of plugins matches that of flake8
     ];
-    extraConfig = /*dosini*/''
+    extraConfig = # dosini
+      ''
         # vim: set ft=dosini :
         [flake8]
         max-complexity = 12
@@ -26,7 +32,7 @@ with lib;
           E501,E203,W503
           # This one is for nix-shell shebangs
           E265
-    '';
+      '';
   };
   xdg.configFile = {
     "isort.cfg".text = ''

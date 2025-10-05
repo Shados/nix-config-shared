@@ -1,28 +1,40 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 with lib;
 let
   cfg = config.services.syncthing;
 
-  devices = mapAttrsToList
-    (name: device: {
-      deviceID = device.id;
-      inherit (device) name addresses introducer;
-    })
-    (filterAttrs (n: v: n != cfg.thisDevice) cfg.declarative.devices);
+  devices = mapAttrsToList (name: device: {
+    deviceID = device.id;
+    inherit (device) name addresses introducer;
+  }) (filterAttrs (n: v: n != cfg.thisDevice) cfg.declarative.devices);
 
-  folders = mapAttrsToList ( _: folder: {
-    inherit (folder) path id label type;
-    devices = map
-      (device: { deviceId = cfg.declarative.devices.${device}.id; })
-      (filter (d: d != cfg.thisDevice) folder.devices);
-    rescanIntervalS = folder.rescanInterval;
-    fsWatcherEnabled = folder.watch;
-    fsWatcherDelayS = folder.watchDelay;
-    ignorePerms = folder.ignorePerms;
-  }) (filterAttrs (
-    _: folder:
-    folder.enable && builtins.elem cfg.thisDevice folder.devices
-  ) cfg.declarative.folders);
+  folders =
+    mapAttrsToList
+      (_: folder: {
+        inherit (folder)
+          path
+          id
+          label
+          type
+          ;
+        devices = map (device: { deviceId = cfg.declarative.devices.${device}.id; }) (
+          filter (d: d != cfg.thisDevice) folder.devices
+        );
+        rescanIntervalS = folder.rescanInterval;
+        fsWatcherEnabled = folder.watch;
+        fsWatcherDelayS = folder.watchDelay;
+        ignorePerms = folder.ignorePerms;
+      })
+      (
+        filterAttrs (
+          _: folder: folder.enable && builtins.elem cfg.thisDevice folder.devices
+        ) cfg.declarative.folders
+      );
 
   # get the api key by parsing the config.xml
   getApiKey = pkgs.writers.writeDash "getAPIKey" ''
@@ -45,8 +57,12 @@ let
 
     # generate the new config by merging with the nixos config options
     NEW_CFG=$(echo "$OLD_CFG" | ${pkgs.jq}/bin/jq -s '.[] as $in | $in * {
-      "devices": (${builtins.toJSON devices}${optionalString (! cfg.declarative.overrideDevices) " + $in.devices"}),
-      "folders": (${builtins.toJSON folders}${optionalString (! cfg.declarative.overrideFolders) " + $in.folders"})
+      "devices": (${builtins.toJSON devices}${
+        optionalString (!cfg.declarative.overrideDevices) " + $in.devices"
+      }),
+      "folders": (${builtins.toJSON folders}${
+        optionalString (!cfg.declarative.overrideFolders) " + $in.folders"
+      })
     }')
 
     # POST the new config to syncthing
@@ -103,7 +119,7 @@ in
         };
 
         devices = mkOption {
-          default = {};
+          default = { };
           description = ''
             Peers/devices which syncthing should communicate with.
           '';
@@ -113,45 +129,50 @@ in
               addresses = [ "tcp://192.168.0.10:51820" ];
             };
           };
-          type = types.attrsOf (types.submodule ({ config, ... }: {
-            options = {
+          type = types.attrsOf (
+            types.submodule (
+              { config, ... }:
+              {
+                options = {
 
-              name = mkOption {
-                type = types.str;
-                default = config._module.args.name;
-                description = ''
-                  Name of the device
-                '';
-              };
+                  name = mkOption {
+                    type = types.str;
+                    default = config._module.args.name;
+                    description = ''
+                      Name of the device
+                    '';
+                  };
 
-              addresses = mkOption {
-                type = types.listOf types.str;
-                default = [];
-                description = ''
-                  The addresses used to connect to the device.
-                  If this is let empty, dynamic configuration is attempted
-                '';
-              };
+                  addresses = mkOption {
+                    type = types.listOf types.str;
+                    default = [ ];
+                    description = ''
+                      The addresses used to connect to the device.
+                      If this is let empty, dynamic configuration is attempted
+                    '';
+                  };
 
-              id = mkOption {
-                type = types.str;
-                description = ''
-                  The id of the other peer, this is mandatory. It's documented at
-                  https://docs.syncthing.net/dev/device-ids.html
-                '';
-              };
+                  id = mkOption {
+                    type = types.str;
+                    description = ''
+                      The id of the other peer, this is mandatory. It's documented at
+                      https://docs.syncthing.net/dev/device-ids.html
+                    '';
+                  };
 
-              introducer = mkOption {
-                type = types.bool;
-                default = false;
-                description = ''
-                  If the device should act as an introducer and be allowed
-                  to add folders on this computer.
-                '';
-              };
+                  introducer = mkOption {
+                    type = types.bool;
+                    default = false;
+                    description = ''
+                      If the device should act as an introducer and be allowed
+                      to add folders on this computer.
+                    '';
+                  };
 
-            };
-          }));
+                };
+              }
+            )
+          );
         };
 
         overrideFolders = mkOption {
@@ -166,7 +187,7 @@ in
         };
 
         folders = mkOption {
-          default = {};
+          default = { };
           description = ''
             folders which should be shared by syncthing.
           '';
@@ -176,95 +197,104 @@ in
               devices = [ "bigbox" ];
             };
           };
-          type = types.attrsOf (types.submodule ({ config, ... }: {
-            options = {
+          type = types.attrsOf (
+            types.submodule (
+              { config, ... }:
+              {
+                options = {
 
-              enable = mkOption {
-                type = types.bool;
-                default = true;
-                description = ''
-                  share this folder.
-                  This option is useful when you want to define all folders
-                  in one place, but not every machine should share all folders.
-                '';
-              };
+                  enable = mkOption {
+                    type = types.bool;
+                    default = true;
+                    description = ''
+                      share this folder.
+                      This option is useful when you want to define all folders
+                      in one place, but not every machine should share all folders.
+                    '';
+                  };
 
-              path = mkOption {
-                type = types.str;
-                default = config._module.args.name;
-                description = ''
-                  The path to the folder which should be shared.
-                '';
-              };
+                  path = mkOption {
+                    type = types.str;
+                    default = config._module.args.name;
+                    description = ''
+                      The path to the folder which should be shared.
+                    '';
+                  };
 
-              id = mkOption {
-                type = types.str;
-                default = config._module.args.name;
-                description = ''
-                  The id of the folder. Must be the same on all devices.
-                '';
-              };
+                  id = mkOption {
+                    type = types.str;
+                    default = config._module.args.name;
+                    description = ''
+                      The id of the folder. Must be the same on all devices.
+                    '';
+                  };
 
-              label = mkOption {
-                type = types.str;
-                default = config._module.args.name;
-                description = ''
-                  The label of the folder.
-                '';
-              };
+                  label = mkOption {
+                    type = types.str;
+                    default = config._module.args.name;
+                    description = ''
+                      The label of the folder.
+                    '';
+                  };
 
-              devices = mkOption {
-                type = types.listOf types.str;
-                default = [];
-                description = ''
-                  The devices this folder should be shared with. Must be defined
-                  in the <literal>declarative.devices</literal> attribute.
-                '';
-              };
+                  devices = mkOption {
+                    type = types.listOf types.str;
+                    default = [ ];
+                    description = ''
+                      The devices this folder should be shared with. Must be defined
+                      in the <literal>declarative.devices</literal> attribute.
+                    '';
+                  };
 
-              rescanInterval = mkOption {
-                type = types.int;
-                default = 3600;
-                description = ''
-                  How often the folders should be rescaned for changes.
-                '';
-              };
+                  rescanInterval = mkOption {
+                    type = types.int;
+                    default = 3600;
+                    description = ''
+                      How often the folders should be rescaned for changes.
+                    '';
+                  };
 
-              type = mkOption {
-                type = types.enum [ "sendreceive" "sendonly" "receiveonly" ];
-                default = "sendreceive";
-                description = ''
-                  Whether to send only changes from this folder, only receive them
-                  or propagate both.
-                '';
-              };
+                  type = mkOption {
+                    type = types.enum [
+                      "sendreceive"
+                      "sendonly"
+                      "receiveonly"
+                    ];
+                    default = "sendreceive";
+                    description = ''
+                      Whether to send only changes from this folder, only receive them
+                      or propagate both.
+                    '';
+                  };
 
-              watch = mkOption {
-                type = types.bool;
-                default = true;
-                description = ''
-                  Whether the folder should be watched for changes by inotify.
-                '';
-              };
+                  watch = mkOption {
+                    type = types.bool;
+                    default = true;
+                    description = ''
+                      Whether the folder should be watched for changes by inotify.
+                    '';
+                  };
 
-              watchDelay = mkOption {
-                type = types.int;
-                default = 10;
-                description = ''
-                  The delay after an inotify event is triggered.
-                '';
-              };
+                  watchDelay = mkOption {
+                    type = types.int;
+                    default = 10;
+                    description = ''
+                      The delay after an inotify event is triggered.
+                    '';
+                  };
 
-              ignorePerms = mkOption {
-                type = types.bool;
-                default = true;
-                description = ''
-                  Whether to propagate permission changes.
-                '';
-              };
+                  ignorePerms = mkOption {
+                    type = types.bool;
+                    default = true;
+                    description = ''
+                      Whether to propagate permission changes.
+                    '';
+                  };
 
-            };
-          }));
+                };
+              }
+            )
+          );
         };
       };
       guiAddress = mkOption {
@@ -332,16 +362,15 @@ in
     systemd.packages = [ cfg.package ];
 
     users = {
-      users."${cfg.user}" =
-        { group = cfg.group;
-          home  = cfg.dataDir;
-          createHome = true;
-          uid = config.ids.uids.syncthing;
-          description = "Syncthing daemon user";
-        };
+      users."${cfg.user}" = {
+        group = cfg.group;
+        home = cfg.dataDir;
+        createHome = true;
+        uid = config.ids.uids.syncthing;
+        description = "Syncthing daemon user";
+      };
 
-      groups."${cfg.group}".gid =
-        config.ids.gids.syncthing;
+      groups."${cfg.group}".gid = config.ids.gids.syncthing;
     };
 
     systemd.services = {
@@ -361,23 +390,23 @@ in
           RestartForceExitStatus = "3 4";
           User = cfg.user;
           Group = cfg.group;
-          ExecStartPre = mkIf (cfg.declarative.cert != null || cfg.declarative.key != null)
-            "+${pkgs.writers.writeBash "syncthing-copy-keys" ''
-              mkdir -p ${cfg.configDir}
-              chown ${cfg.user}:${cfg.group} ${cfg.configDir}
-              chmod 700 ${cfg.configDir}
-              ${optionalString (cfg.declarative.cert != null) ''
-                cp ${toString cfg.declarative.cert} ${cfg.configDir}/cert.pem
-                chown ${cfg.user}:${cfg.group} ${cfg.configDir}/cert.pem
-                chmod 400 ${cfg.configDir}/cert.pem
-              ''}
-              ${optionalString (cfg.declarative.key != null) ''
-                cp ${toString cfg.declarative.key} ${cfg.configDir}/key.pem
-                chown ${cfg.user}:${cfg.group} ${cfg.configDir}/key.pem
-                chmod 400 ${cfg.configDir}/key.pem
-              ''}
-            ''}"
-          ;
+          ExecStartPre =
+            mkIf (cfg.declarative.cert != null || cfg.declarative.key != null)
+              "+${pkgs.writers.writeBash "syncthing-copy-keys" ''
+                mkdir -p ${cfg.configDir}
+                chown ${cfg.user}:${cfg.group} ${cfg.configDir}
+                chmod 700 ${cfg.configDir}
+                ${optionalString (cfg.declarative.cert != null) ''
+                  cp ${toString cfg.declarative.cert} ${cfg.configDir}/cert.pem
+                  chown ${cfg.user}:${cfg.group} ${cfg.configDir}/cert.pem
+                  chmod 400 ${cfg.configDir}/cert.pem
+                ''}
+                ${optionalString (cfg.declarative.key != null) ''
+                  cp ${toString cfg.declarative.key} ${cfg.configDir}/key.pem
+                  chown ${cfg.user}:${cfg.group} ${cfg.configDir}/key.pem
+                  chmod 400 ${cfg.configDir}/key.pem
+                ''}
+              ''}";
           ExecStart = ''
             ${cfg.package}/bin/syncthing \
               -no-browser \
@@ -386,9 +415,7 @@ in
           '';
         };
       };
-      syncthing-init = mkIf (
-        cfg.declarative.devices != {} || cfg.declarative.folders != {}
-      ) {
+      syncthing-init = mkIf (cfg.declarative.devices != { } || cfg.declarative.folders != { }) {
         after = [ "syncthing.service" ];
         wantedBy = [ "multi-user.target" ];
 

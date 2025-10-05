@@ -1,9 +1,11 @@
-{ nixpkgs ? import <nixpkgs> { }
+{
+  nixpkgs ? import <nixpkgs> { },
 }:
 with nixpkgs;
 mkShell {
   buildInputs = [
-    libxslt libxml2
+    libxslt
+    libxml2
     saxonb_9_1
   ];
 }

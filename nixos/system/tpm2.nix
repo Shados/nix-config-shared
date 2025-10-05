@@ -1,8 +1,18 @@
 # FIXME: Can probably remove once a resolution to nixpkgs #192771 is in
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 let
   cfg = config.security.tpm2;
-  inherit (lib) mkIf mkOption singleton types;
+  inherit (lib)
+    mkIf
+    mkOption
+    singleton
+    types
+    ;
 
   writeJSON = (pkgs.formats.json { }).generate;
 
@@ -33,7 +43,7 @@ in
       tssSystemPcrs = mkOption {
         # TODO: constrain int type down to the actual set of possible PCRs
         type = with types; listOf int;
-        default = [];
+        default = [ ];
         description = ''
           The PCR registers which are used by the system for tpm2-tss.
         '';
@@ -48,52 +58,63 @@ in
       };
     };
   };
-  config = mkIf cfg.enable (lib.mkMerge [
-    {
-      environment.systemPackages = [ pkgs.tpm2-tss ];
+  config = mkIf cfg.enable (
+    lib.mkMerge [
+      {
+        environment.systemPackages = [ pkgs.tpm2-tss ];
 
-      environment.sessionVariables.TSS2_FAPICONF = "/etc/tpm2-tss/fapi-config.json";
+        environment.sessionVariables.TSS2_FAPICONF = "/etc/tpm2-tss/fapi-config.json";
 
-      environment.etc."tpm2-tss/fapi-config.json".source = let
-        tctiOption = if cfg.tctiEnvironment.interface == "tabrmd"
-          then cfg.tctiEnvironment.tabrmdConf
-          else cfg.tctiEnvironment.deviceConf;
-      in writeJSON "fapi-config.json" {
-        profile_name = cfg.tssDefaultProfile;
-        profile_dir = tssProfilesDir;
-        user_dir = "~/.local/share/tpm2-tss/user/keystore";
-        system_dir = cfg.tssSystemKeyStore;
-        tcti = config.environment.variables.TPM2_PKCS11_TCTI;
-        system_pcrs = cfg.tssSystemPcrs;
-        log_dir = cfg.tssLogDirectory;
-      };
+        environment.etc."tpm2-tss/fapi-config.json".source =
+          let
+            tctiOption =
+              if cfg.tctiEnvironment.interface == "tabrmd" then
+                cfg.tctiEnvironment.tabrmdConf
+              else
+                cfg.tctiEnvironment.deviceConf;
+          in
+          writeJSON "fapi-config.json" {
+            profile_name = cfg.tssDefaultProfile;
+            profile_dir = tssProfilesDir;
+            user_dir = "~/.local/share/tpm2-tss/user/keystore";
+            system_dir = cfg.tssSystemKeyStore;
+            tcti = config.environment.variables.TPM2_PKCS11_TCTI;
+            system_pcrs = cfg.tssSystemPcrs;
+            log_dir = cfg.tssLogDirectory;
+          };
 
-      systemd.tmpfiles.rules = [
-        #Type Path                                                    Mode User Group Age         Argument
-        "d    ${cfg.tssSystemKeyStore}                                2775 tss  tss   -           -"
-        "a+   ${cfg.tssSystemKeyStore}                                -    -    -     -           default:group:tss:rwx"
-        "d    ${cfg.tssLogDirectory}                                  2775 tss  tss   -           -"
-        "a+   ${cfg.tssLogDirectory}                                  -    -    -     -           default:group:tss:rwx"
-        "z    /sys/kernel/security/tpm[0-9]/binary_bios_measurements  0440  root tss  -           -"
-        "z    /sys/kernel/security/ima/binary_runtime_measurements    0440  root tss  -           -"
-      ];
+        systemd.tmpfiles.rules = [
+          #Type Path                                                    Mode User Group Age         Argument
+          "d    ${cfg.tssSystemKeyStore}                                2775 tss  tss   -           -"
+          "a+   ${cfg.tssSystemKeyStore}                                -    -    -     -           default:group:tss:rwx"
+          "d    ${cfg.tssLogDirectory}                                  2775 tss  tss   -           -"
+          "a+   ${cfg.tssLogDirectory}                                  -    -    -     -           default:group:tss:rwx"
+          "z    /sys/kernel/security/tpm[0-9]/binary_bios_measurements  0440  root tss  -           -"
+          "z    /sys/kernel/security/ima/binary_runtime_measurements    0440  root tss  -           -"
+        ];
 
-      # NOTE: It'd be nice to have a way to unset `environment.variables`
-      # entries; perhaps by taking a `null`?
-      systemd.services."tpm2-abrmd".serviceConfig.Environment = "G_DEBUG=all";
-    }
-    {
-      environment.sessionVariables = lib.mkIf cfg.tctiEnvironment.enable (
-        lib.attrsets.genAttrs [
-          "TPM2TOOLS_TCTI"
-          "TPM2_PKCS11_TCTI"
-        ] (_: ''${cfg.tctiEnvironment.interface}:${
-          if cfg.tctiEnvironment.interface == "tabrmd" then
-            cfg.tctiEnvironment.tabrmdConf
-          else
-            cfg.tctiEnvironment.deviceConf
-        }'')
-      );
-    }
-  ]);
+        # NOTE: It'd be nice to have a way to unset `environment.variables`
+        # entries; perhaps by taking a `null`?
+        systemd.services."tpm2-abrmd".serviceConfig.Environment = "G_DEBUG=all";
+      }
+      {
+        environment.sessionVariables = lib.mkIf cfg.tctiEnvironment.enable (
+          lib.attrsets.genAttrs
+            [
+              "TPM2TOOLS_TCTI"
+              "TPM2_PKCS11_TCTI"
+            ]
+            (
+              _:
+              ''${cfg.tctiEnvironment.interface}:${
+                if cfg.tctiEnvironment.interface == "tabrmd" then
+                  cfg.tctiEnvironment.tabrmdConf
+                else
+                  cfg.tctiEnvironment.deviceConf
+              }''
+            )
+        );
+      }
+    ]
+  );
 }

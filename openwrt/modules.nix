@@ -1,9 +1,20 @@
 # TODO:
 # - dependencies/ordering for uci-defaults stuff
-{ config, lib, inputs, pkgs, ... }:
+{
+  config,
+  lib,
+  inputs,
+  pkgs,
+  ...
+}:
 let
-  inherit (lib) concatMapStringsSep literalExpression mkOption types;
-  
+  inherit (lib)
+    concatMapStringsSep
+    literalExpression
+    mkOption
+    types
+    ;
+
   profiles = inputs.openwrt-imagebuilder.lib.profiles { inherit pkgs; };
 in
 {
@@ -30,21 +41,21 @@ in
     };
     extraPackages = mkOption {
       type = with types; listOf str;
-      default = [];
+      default = [ ];
       description = ''
         List of additional opkg packages to include in the image.
       '';
     };
     removePackages = mkOption {
       type = with types; listOf str;
-      default = [];
+      default = [ ];
       description = ''
         List of opkg packages to remove from the image.
       '';
     };
     disabledServices = mkOption {
       type = with types; listOf str;
-      default = [];
+      default = [ ];
       description = ''
         List of /etc/init.d services to disable.
       '';
@@ -67,7 +78,7 @@ in
     # Mid-level options, should mostly not be needed in normal use, but employed by modules
     fileTrees = mkOption {
       type = with types; listOf path;
-      default = [];
+      default = [ ];
       description = ''
         List of paths to trees of additional files to include in the image.
         Prefer using the `files` option unless you really just have a local
@@ -76,7 +87,7 @@ in
     };
     # TODO: Add default stuff to lib passed in, instead?
     lib = lib.mkOption {
-      default = {};
+      default = { };
       type = lib.types.attrs;
       description = ''
         This option allows modules to define helper functions, constants, etc.
@@ -202,24 +213,32 @@ in
     # Build the image
     finalImage = inputs.openwrt-imagebuilder.lib.build config.finalImageBuildConfig;
     finalImageBuildConfig = profiles.identifyProfile config.profile // {
-      inherit (config) disabledServices extraImageName pkgs release;
-      packages = (config.extraPackages or [])
-        ++ (map (pkg: "-${pkg}") (config.removePackages or []))
+      inherit (config)
+        disabledServices
+        extraImageName
+        pkgs
+        release
+        ;
+      packages =
+        (config.extraPackages or [ ])
+        ++ (map (pkg: "-${pkg}") (config.removePackages or [ ]))
         # NOTE: Currently we're dependent on luajit for setup-scripting
         # purposes, in future ucode would be a better alternative but it
         # doesn't seem viable right now, too immature.
-        ++ [ "luajit" ]
-        ;
-      files = pkgs.runCommandLocal "image-files" {
-        nativeBuildInputs = [
-          pkgs.rsync
-        ];
-      } ''
-        mkdir -p $out
-        ${concatMapStringsSep "\n" (fileTree: ''
-          rsync --no-inc-recursive -rvhp ${fileTree}/ $out/
-        '') config.fileTrees}
-      '';
+        ++ [ "luajit" ];
+      files =
+        pkgs.runCommandLocal "image-files"
+          {
+            nativeBuildInputs = [
+              pkgs.rsync
+            ];
+          }
+          ''
+            mkdir -p $out
+            ${concatMapStringsSep "\n" (fileTree: ''
+              rsync --no-inc-recursive -rvhp ${fileTree}/ $out/
+            '') config.fileTrees}
+          '';
     };
 
     # Some default files to include
@@ -230,27 +249,33 @@ in
 
     # Default library
     lib = {
-      compileMoonBin = name: moonScript: pkgs.runCommandNoCCLocal "moon-bin-${name}" {
-        inherit name;
-        src = moonScript;
-        nativeBuildInputs = [
-          (pkgs.luajit.withPackages(p: with p; [ moonscript ]))
-        ];
-      } ''
-        echo "#!/usr/bin/env luajit" > $out
-        moonc -p "$src" >> $out
-        chmod +x $out
-      '';
-      writeUCIScript = name: text: pkgs.writeTextFile {
-        inherit name text;
-        executable = true;
-        checkPhase = ''
-          runHook preCheck
-          # use shellcheck which does not include docs
-          ${lib.getExe (pkgs.haskell.lib.compose.justStaticExecutables pkgs.shellcheck.unwrapped)} "$target"
-          runHook postCheck
-        '';
-      };
+      compileMoonBin =
+        name: moonScript:
+        pkgs.runCommandNoCCLocal "moon-bin-${name}"
+          {
+            inherit name;
+            src = moonScript;
+            nativeBuildInputs = [
+              (pkgs.luajit.withPackages (p: with p; [ moonscript ]))
+            ];
+          }
+          ''
+            echo "#!/usr/bin/env luajit" > $out
+            moonc -p "$src" >> $out
+            chmod +x $out
+          '';
+      writeUCIScript =
+        name: text:
+        pkgs.writeTextFile {
+          inherit name text;
+          executable = true;
+          checkPhase = ''
+            runHook preCheck
+            # use shellcheck which does not include docs
+            ${lib.getExe (pkgs.haskell.lib.compose.justStaticExecutables pkgs.shellcheck.unwrapped)} "$target"
+            runHook postCheck
+          '';
+        };
     };
   };
 }

@@ -1,4 +1,10 @@
-{ config, inputs, lib, pkgs, ...}:
+{
+  config,
+  inputs,
+  lib,
+  pkgs,
+  ...
+}:
 let
   inherit (lib) concatStringsSep splitString;
 in
@@ -13,9 +19,12 @@ in
         fsType = "zfs";
         options = [ "zfsutil" ];
       };
-      dsToBootFs = ds: (dsToFs ds) // {
-        neededForBoot = true;
-      };
+      dsToBootFs =
+        ds:
+        (dsToFs ds)
+        // {
+          neededForBoot = true;
+        };
     };
     sn = {
       baseUserPath = [
@@ -28,15 +37,20 @@ in
         "/run/current-system/sw/bin"
       ];
       makePath = concatStringsSep ":";
-      mkPoetryApplication = let
-        poetry2nix = inputs.poetry2nix.lib.mkPoetry2Nix { inherit pkgs; };
-      in import ./poetry2nix.nix {
-        inherit lib;
-        inherit (poetry2nix) mkPoetryApplication;
-      };
-      indentLinesBy = indentLevel: str: let
-        indentStr = lib.strings.replicate indentLevel " ";
-      in concatStringsSep "\n${indentStr}" (splitString "\n" (lib.strings.trim str));
+      mkPoetryApplication =
+        let
+          poetry2nix = inputs.poetry2nix.lib.mkPoetry2Nix { inherit pkgs; };
+        in
+        import ./poetry2nix.nix {
+          inherit lib;
+          inherit (poetry2nix) mkPoetryApplication;
+        };
+      indentLinesBy =
+        indentLevel: str:
+        let
+          indentStr = lib.strings.replicate indentLevel " ";
+        in
+        concatStringsSep "\n${indentStr}" (splitString "\n" (lib.strings.trim str));
     };
   };
 }

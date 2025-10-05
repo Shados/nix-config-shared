@@ -15,60 +15,68 @@
     # currently (see Nix issues #6626 and #7730).
 
     # Baseline inputs
-    nixpkgs.url = github:Shados/nixpkgs/local;
-    home-manager.url = github:nix-community/home-manager;
+    nixpkgs.url = "github:Shados/nixpkgs/local";
+    home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
-    nur.url = github:nix-community/NUR;
+    nur.url = "github:nix-community/NUR";
     nur.inputs.nixpkgs.follows = "nixpkgs";
 
     # Additional NixOS/HM modules
-    sops-nix.url = github:Mic92/sops-nix;
+    sops-nix.url = "github:Mic92/sops-nix";
     sops-nix.inputs.nixpkgs.follows = "nixpkgs";
-    impermanence.url = github:nix-community/impermanence;
-    nix-index-database.url = github:nix-community/nix-index-database;
+    impermanence.url = "github:nix-community/impermanence";
+    nix-index-database.url = "github:nix-community/nix-index-database";
     nix-index-database.inputs.nixpkgs.follows = "nixpkgs";
-    nix-gaming.url = github:fufexan/nix-gaming;
+    nix-gaming.url = "github:fufexan/nix-gaming";
     nix-gaming.inputs.nixpkgs.follows = "nixpkgs";
 
     # Additional nixpkgs overlays
-    neovim-nightly-overlay.url = github:nix-community/neovim-nightly-overlay;
+    neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
     neovim-nightly-overlay.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = { self, ... } @ inputs: {
-    nixosModules.default = { ... }: {
-      imports = [
-        inputs.sops-nix.nixosModules.sops
-        inputs.impermanence.nixosModules.impermanence
-        inputs.nix-index-database.nixosModules.nix-index
-        inputs.nix-gaming.nixosModules.pipewireLowLatency
-        ./nixos/module.nix
-        ./shared/overlays.nix
-        ./shared/lib.nix
+  outputs =
+    { self, ... }@inputs:
+    {
+      nixosModules.default =
+        { ... }:
         {
-          nix.settings = {
-            substituters = [
-              "https://nix-community.cachix.org/"
-            ];
-            trusted-public-keys = [
-              "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
-            ];
-          };
-        }
-      ];
+          imports = [
+            inputs.sops-nix.nixosModules.sops
+            inputs.impermanence.nixosModules.impermanence
+            inputs.nix-index-database.nixosModules.nix-index
+            inputs.nix-gaming.nixosModules.pipewireLowLatency
+            ./nixos/module.nix
+            ./shared/overlays.nix
+            ./shared/lib.nix
+            {
+              nix.settings = {
+                substituters = [
+                  "https://nix-community.cachix.org/"
+                ];
+                trusted-public-keys = [
+                  "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+                ];
+              };
+            }
+          ];
+        };
+      homeModules.default =
+        { ... }:
+        {
+          imports = [
+            ./home-manager/module.nix
+            ./shared/overlays.nix
+            ./shared/lib.nix
+          ];
+        };
+      openWRTModules.default =
+        { ... }:
+        {
+          imports = [
+            # ./openwrt/default.nix
+            ./openwrt/modules.nix
+          ];
+        };
     };
-    homeModules.default = { ... }: {
-      imports = [
-        ./home-manager/module.nix
-        ./shared/overlays.nix
-        ./shared/lib.nix
-      ];
-    };
-    openWRTModules.default = { ... }: {
-      imports = [
-        # ./openwrt/default.nix
-        ./openwrt/modules.nix
-      ];
-    };
-  };
 }

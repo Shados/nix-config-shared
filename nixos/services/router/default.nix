@@ -1,6 +1,11 @@
 # TODO: move to profiles/nixos, rewrite to default-on as the presence of the
 # module will then be explicitly opt-in
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 with lib;
 
@@ -8,52 +13,59 @@ let
 
   cfg = config.fragments.router;
 
-  portRange = { config, ... }: {
-    options = {
-      from = mkOption {
-        example = 10;
-        type = types.int;
-        description = "Start of port range to forward from.";
-      };
-      to = mkOption {
-        example = 20;
-        type = types.int;
-        description = "End of port range to forward from.";
-      };
-    };
-  };
-  portForwardOpts = { config, ... }: {
-    options = {
-      sourcePort = mkOption {
-        example = 25565;
-        type = with types; nullOr int;
-        description = "Source port to be forwarded from.";
-        default = null;
-      };
-      portRange = mkOption {
-        example = { from = 10; to = 20; };
-        type = with types; nullOr (submodule portRange);
-        description = "Port range to forward form.";
-        default = null;
-      };
-      destAddr = mkOption {
-        example = "192.168.0.108";
-        type = types.str;
-        description = "Destination address to be forwarded to.";
-      };
-      destPort = mkOption {
-        example = 25565;
-        type = with types; nullOr int;
-        description = "Destination port to be forwarded to.";
-        default = null;
-      };
-      protocol = mkOption {
-        example = "tcp";
-        type = types.str;
-        description = "Protocol of the port to be forwarded.";
+  portRange =
+    { config, ... }:
+    {
+      options = {
+        from = mkOption {
+          example = 10;
+          type = types.int;
+          description = "Start of port range to forward from.";
+        };
+        to = mkOption {
+          example = 20;
+          type = types.int;
+          description = "End of port range to forward from.";
+        };
       };
     };
-  };
+  portForwardOpts =
+    { config, ... }:
+    {
+      options = {
+        sourcePort = mkOption {
+          example = 25565;
+          type = with types; nullOr int;
+          description = "Source port to be forwarded from.";
+          default = null;
+        };
+        portRange = mkOption {
+          example = {
+            from = 10;
+            to = 20;
+          };
+          type = with types; nullOr (submodule portRange);
+          description = "Port range to forward form.";
+          default = null;
+        };
+        destAddr = mkOption {
+          example = "192.168.0.108";
+          type = types.str;
+          description = "Destination address to be forwarded to.";
+        };
+        destPort = mkOption {
+          example = 25565;
+          type = with types; nullOr int;
+          description = "Destination port to be forwarded to.";
+          default = null;
+        };
+        protocol = mkOption {
+          example = "tcp";
+          type = types.str;
+          description = "Protocol of the port to be forwarded.";
+        };
+      };
+    };
 in
 
 {
@@ -89,7 +101,10 @@ in
         description = ''
           List of internal (LAN) network interfaces, these will be bridged together. Excludes the wifi interface, if any.
         '';
-        example = [ "enp2s0" "enp3s0" ];
+        example = [
+          "enp2s0"
+          "enp3s0"
+        ];
         type = types.listOf types.str;
       };
       intBridge = mkOption {
@@ -140,8 +155,14 @@ in
         description = ''
           LAN DHCP range, specified as a list of two numbers (start and end last-octets).
         '';
-        example = [ 100 150 ];
-        default = [ 100 150 ];
+        example = [
+          100
+          150
+        ];
+        default = [
+          100
+          150
+        ];
         type = types.listOf types.int;
       };
       enableBridge = mkOption {
@@ -161,7 +182,7 @@ in
       portForwards = mkOption {
         description = "List of port forwards to enable.";
         type = with types; listOf (submodule portForwardOpts);
-        default = [];
+        default = [ ];
       };
     };
   };

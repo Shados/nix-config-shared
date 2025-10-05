@@ -1,12 +1,18 @@
-{ stdenv, lib, fetchFromGitHub
-, pkg-config
-, curl, gtkmm3, yajl
+{
+  stdenv,
+  lib,
+  fetchFromGitHub,
+  pkg-config,
+  curl,
+  gtkmm3,
+  yajl,
 }:
 stdenv.mkDerivation rec {
   pname = "SamRewritten";
   version = "unstable-2023-05-23";
   src = fetchFromGitHub {
-    owner = "PaulCombal"; repo = pname;
+    owner = "PaulCombal";
+    repo = pname;
     rev = "39d524a72678a226bf9140db6b97641f554563c3";
     sha256 = "sha256-sS/lVY5EWXdTOg7cDWPbi/n5TNt+pRAF1x7ZEaYG4wM=";
   };
@@ -14,7 +20,9 @@ stdenv.mkDerivation rec {
     pkg-config
   ];
   buildInputs = [
-    curl gtkmm3 yajl
+    curl
+    gtkmm3
+    yajl
   ];
   makeFlags = [
     "DESTDIR=$(out)"
@@ -27,7 +35,7 @@ stdenv.mkDerivation rec {
   '';
   meta = with lib; {
     description = "Steam Achievement Manager For Linux. Rewritten in C++.";
-    homepage = https://github.com/PaulCombal/SamRewritten;
+    homepage = "https://github.com/PaulCombal/SamRewritten";
     license = licenses.gpl3;
     platforms = [ "x86_64-linux" ];
     maintainers = with maintainers; [ arobyn ];

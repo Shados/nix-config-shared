@@ -1,6 +1,23 @@
-{ config, lib, inputs, pkgs, ... }:
+{
+  config,
+  lib,
+  inputs,
+  pkgs,
+  ...
+}:
 let
-  inherit (lib) escapeShellArg mkAfter mkIf mkForce mkMerge mkOption optionalAttrs optionals singleton types;
+  inherit (lib)
+    escapeShellArg
+    mkAfter
+    mkIf
+    mkForce
+    mkMerge
+    mkOption
+    optionalAttrs
+    optionals
+    singleton
+    types
+    ;
   inherit (config.lib.fs) dsToBootFs dsToFs pristineSnapshot;
 
   usingZfs = config.boot.zfs.rootPool != null;
@@ -24,7 +41,8 @@ in
           "/var/cron"
           "/var/lib"
           "/var/log"
-        ] ++ optionals (! usingZfs) [
+        ]
+        ++ optionals (!usingZfs) [
           "/srv"
         ];
         files = [
@@ -40,65 +58,70 @@ in
       '';
     }
     # ZFS-backed setup
-    (mkIf usingZfs (let
-      inherit (config.boot.zfs) rootPool rootDataset;
-      abstractRoot = "${rootPool}/${config.boot.zfs.rootDataset}";
-    in {
-      fileSystems = {
-        "/" = dsToBootFs "${abstractRoot}/root";
-        "/home" = dsToFs "${rootPool}/HOMES";
-        "/home/shados" = dsToFs "${rootPool}/HOMES/shados";
-        "/root" = dsToFs "${rootPool}/HOMES/root";
-        "/nix" = dsToBootFs "${abstractRoot}/nix";
-        "/nix/store" = dsToBootFs "${abstractRoot}/nix/store";
-        "/nix/persist" = dsToBootFs "${abstractRoot}/nix/persist";
-        "/nix/persist/etc" = dsToBootFs "${abstractRoot}/nix/persist/etc";
-        "/nix/persist/var" = dsToBootFs "${abstractRoot}/nix/persist/var";
-        "/nix/persist/var/lib" = dsToBootFs "${abstractRoot}/nix/persist/var/lib";
-        "/nix/persist/var/log" = dsToBootFs "${abstractRoot}/nix/persist/var/log";
-        "/srv" = dsToFs "${abstractRoot}/srv";
-      };
-      boot.initrd.postResumeCommands = mkAfter ''
-        echo "Rolling back root to pristine state"
-        zfs rollback -r ${escapeShellArg config.fileSystems."/".device}@${escapeShellArg pristineSnapshot}
-        echo "Rolling back tmp to pristine state"
-        zfs rollback -r ${escapeShellArg config.fileSystems."/tmp".device}@${escapeShellArg pristineSnapshot}
-      '';
-      disk.fileSystems.zfs.pools.${rootPool}.datasets = {
-        "HOMES/shados".postCreationMountHook = ''
-          chown -R ${toString config.users.users.shados.uid}:${toString config.ids.gids.users} "$mountpoint"
+    (mkIf usingZfs (
+      let
+        inherit (config.boot.zfs) rootPool rootDataset;
+        abstractRoot = "${rootPool}/${config.boot.zfs.rootDataset}";
+      in
+      {
+        fileSystems = {
+          "/" = dsToBootFs "${abstractRoot}/root";
+          "/home" = dsToFs "${rootPool}/HOMES";
+          "/home/shados" = dsToFs "${rootPool}/HOMES/shados";
+          "/root" = dsToFs "${rootPool}/HOMES/root";
+          "/nix" = dsToBootFs "${abstractRoot}/nix";
+          "/nix/store" = dsToBootFs "${abstractRoot}/nix/store";
+          "/nix/persist" = dsToBootFs "${abstractRoot}/nix/persist";
+          "/nix/persist/etc" = dsToBootFs "${abstractRoot}/nix/persist/etc";
+          "/nix/persist/var" = dsToBootFs "${abstractRoot}/nix/persist/var";
+          "/nix/persist/var/lib" = dsToBootFs "${abstractRoot}/nix/persist/var/lib";
+          "/nix/persist/var/log" = dsToBootFs "${abstractRoot}/nix/persist/var/log";
+          "/srv" = dsToFs "${abstractRoot}/srv";
+        };
+        boot.initrd.postResumeCommands = mkAfter ''
+          echo "Rolling back root to pristine state"
+          zfs rollback -r ${escapeShellArg config.fileSystems."/".device}@${escapeShellArg pristineSnapshot}
+          echo "Rolling back tmp to pristine state"
+          zfs rollback -r ${
+            escapeShellArg config.fileSystems."/tmp".device
+          }@${escapeShellArg pristineSnapshot}
         '';
-        "${rootDataset}/tmp".postCreationHook = ''
-          zfs snapshot "$dataset"@${escapeShellArg pristineSnapshot}
-        '';
-        "${rootDataset}/root" = {
-          postCreationHook = ''
+        disk.fileSystems.zfs.pools.${rootPool}.datasets = {
+          "HOMES/shados".postCreationMountHook = ''
+            chown -R ${toString config.users.users.shados.uid}:${toString config.ids.gids.users} "$mountpoint"
+          '';
+          "${rootDataset}/tmp".postCreationHook = ''
             zfs snapshot "$dataset"@${escapeShellArg pristineSnapshot}
           '';
-          properties = {
-            checksum = "skein";
-            compression = "zle";
-            sync = "disabled";
-            "com.sun:auto-snapshot" = "false";
+          "${rootDataset}/root" = {
+            postCreationHook = ''
+              zfs snapshot "$dataset"@${escapeShellArg pristineSnapshot}
+            '';
+            properties = {
+              checksum = "skein";
+              compression = "zle";
+              sync = "disabled";
+              "com.sun:auto-snapshot" = "false";
+            };
           };
         };
-      };
-      boot.tmp.cleanOnBoot = mkForce false;
+        boot.tmp.cleanOnBoot = mkForce false;
 
-      # Integrate with zfs-mount-generator
-      environment.persistence."/nix/persist".directories = [
-        "/etc/zfs/zfs-list.cache"
-      ];
-      # `postBootCommands` run prior to systemd starting, allowing us to ensure
-      # the zfs-list.cache file for the root pool is in place prior to
-      # zfs-mount-generator being invoked by systemd
-      boot.postBootCommands = ''
-        mkdir -p /etc/zfs/zfs-list.cache
-        cp /nix/persist/etc/zfs/zfs-list.cache/* /etc/zfs/zfs-list.cache/
-      '';
-    }))
+        # Integrate with zfs-mount-generator
+        environment.persistence."/nix/persist".directories = [
+          "/etc/zfs/zfs-list.cache"
+        ];
+        # `postBootCommands` run prior to systemd starting, allowing us to ensure
+        # the zfs-list.cache file for the root pool is in place prior to
+        # zfs-mount-generator being invoked by systemd
+        boot.postBootCommands = ''
+          mkdir -p /etc/zfs/zfs-list.cache
+          cp /nix/persist/etc/zfs/zfs-list.cache/* /etc/zfs/zfs-list.cache/
+        '';
+      }
+    ))
     # Integrations with various other modules
-    (mkIf (config.boot.initrd.storeSecrets != {}) {
+    (mkIf (config.boot.initrd.storeSecrets != { }) {
       environment.persistence."/nix/persist".directories = singleton config.boot.initrd.secretsDir;
     })
     (mkIf config.services.openssh.enable {
@@ -110,7 +133,8 @@ in
       ];
     })
     (mkIf config.networking.networkmanager.enable {
-      environment.persistence."/nix/persist".directories = singleton "/etc/NetworkManager/system-connections";
+      environment.persistence."/nix/persist".directories =
+        singleton "/etc/NetworkManager/system-connections";
     })
   ]);
 }

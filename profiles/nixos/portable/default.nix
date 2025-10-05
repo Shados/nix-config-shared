@@ -1,5 +1,11 @@
 # Portable / USB installation setup
-{ config, lib, modulesPath, pkgs, ... }:
+{
+  config,
+  lib,
+  modulesPath,
+  pkgs,
+  ...
+}:
 
 with lib;
 let
@@ -48,14 +54,21 @@ in
         sleep $rootDelay # Force artificial boot delay
       '';
 
-      initrd.kernelModules = [ "ohci_pci" "ehci_pci" "xhci_pci" "uas" "sd_mod" ];
+      initrd.kernelModules = [
+        "ohci_pci"
+        "ehci_pci"
+        "xhci_pci"
+        "uas"
+        "sd_mod"
+      ];
 
       initrd.supportedFilesystems = [ "zfs" ]; # When don't I use zfs these days?
 
       kernelParams = [
         "boot.shell_on_fail"
         "rootdelay=1" # Seems we do actually need some level of root delay for usb enumeration to finish, in the real-world. 1s seems OK thus far...
-      ] ++ optional (cfg.zfsMemoryLimit > 0) "zfs.zfs_arc_max=${toString cfg.zfsMemoryLimit}";
+      ]
+      ++ optional (cfg.zfsMemoryLimit > 0) "zfs.zfs_arc_max=${toString cfg.zfsMemoryLimit}";
 
       loader = {
         # NOTE: Still need to set grub.device elsewhere if we're supporting BIOS booting as well

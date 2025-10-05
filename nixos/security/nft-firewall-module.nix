@@ -2,7 +2,12 @@
 # TODO: checkReversePath support... not entirely clear to be how to do this in nftables, 'fib' statement is somewhat under-documented but appears to be applicable
 # TODO: Modify libvirtd to take libvirt package as a config option, so we can pass it an overrided version that uses iptables-compat and ebtables-compat from nftables package
 # TODO: Look into docker compat issues
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 with lib;
 let
@@ -10,47 +15,53 @@ let
   natcfg = config.networking.nat;
   cfg = config.networking.nft-firewall;
 
-  chainOpts = { config, name, ... }: {
-    options = {
-      name = mkOption {
-        example = "INPUT";
-        type = types.str;
-        description = "Name of the nftables chain.";
+  chainOpts =
+    { config, name, ... }:
+    {
+      options = {
+        name = mkOption {
+          example = "INPUT";
+          type = types.str;
+          description = "Name of the nftables chain.";
+        };
+        definition = mkOption {
+          default = "";
+          example = "type filter hook input priority 0;";
+          type = types.str;
+          description = "Defining properties of the chain.";
+        };
+        rules = mkOption {
+          example = ''
+            ct state established,related accept
+            ct state invalid drop
+          '';
+          type = types.lines;
+          description = "Rules to add to the chain.";
+        };
       };
-      definition = mkOption {
-        default = "";
-        example = "type filter hook input priority 0;";
-        type = types.str;
-        description = "Defining properties of the chain.";
-      };
-      rules = mkOption {
-        example = ''
-          ct state established,related accept
-          ct state invalid drop
-        '';
-        type = types.lines;
-        description = "Rules to add to the chain.";
+      config = {
+        name = mkDefault name;
       };
     };
-    config = { name = mkDefault name; };
-  };
 
-  mkFamilyOption = family: mkOption {
-    default = {};
-    type = with types; attrsOf (loaOf (submodule chainOpts));
-    description = ''
-      This option defines the nftables tables for the
-      ${family} family.
+  mkFamilyOption =
+    family:
+    mkOption {
+      default = { };
+      type = with types; attrsOf (loaOf (submodule chainOpts));
+      description = ''
+        This option defines the nftables tables for the
+        ${family} family.
 
-      Each attribute of this set defines a single nftables
-      table for this family, with the attribute defining
-      the name of the table, and the contents being another
-      attribute set.
+        Each attribute of this set defines a single nftables
+        table for this family, with the attribute defining
+        the name of the table, and the contents being another
+        attribute set.
 
-      Each child attribute set defines a single nftables
-      chain for the given table.
-    '';
-  };
+        Each child attribute set defines a single nftables
+        chain for the given table.
+      '';
+    };
 
   makeChain = name: chain: ''
     chain ${name} {
@@ -74,7 +85,6 @@ let
     '') (mapAttrsToList (makeTable family) tables)}
   '';
 
-
   ruleset = ''
     ${makeFamily "arp" cfg.arp}
     ${makeFamily "ip" cfg.ip}
@@ -86,10 +96,11 @@ let
 
   natDest = if natcfg.externalIP == null then "masquerade" else "snat ${natcfg.externalIP}";
 
-  portsToNftSet = ports: portRanges: lib.concatStringsSep ", " (
-    map (x: toString x) ports
-    ++ map (x: "${toString x.from}-${toString x.to}") portRanges
-  );
+  portsToNftSet =
+    ports: portRanges:
+    lib.concatStringsSep ", " (
+      map (x: toString x) ports ++ map (x: "${toString x.from}-${toString x.to}") portRanges
+    );
 in
 
 # table family > table name > chain name
@@ -137,15 +148,20 @@ in
             '';
             nixos-fw-refuse.rules = ''
               # This chain rejects or drops packets
-              ${if fwcfg.rejectPackets then ''
-                # Send a reset for existing TCP connections
-                tcp flags != syn reject with tcp reset
-                # Send ICMP 'port unreachable' for all else
-                ip reject with icmp type port-unreachable
-                ip6 reject with icmpv6 type port-unreachable
-              '' else ''
-                drop
-              ''}
+              ${
+                if fwcfg.rejectPackets then
+                  ''
+                    # Send a reset for existing TCP connections
+                    tcp flags != syn reject with tcp reset
+                    # Send ICMP 'port unreachable' for all else
+                    ip reject with icmp type port-unreachable
+                    ip6 reject with icmpv6 type port-unreachable
+                  ''
+                else
+                  ''
+                    drop
+                  ''
+              }
             '';
             nixos-fw-log-refuse.rules = ''
               # This chain optionally performs logging, then jumps to the
@@ -164,8 +180,10 @@ in
             '';
             nixos-fw.rules = mkMerge [
               (mkBefore ''
-                ${optionalString (fwcfg.trustedInterfaces != []) ''
-                  iifname { ${concatMapStringsSep ", " (int: "\"${int}\"") fwcfg.trustedInterfaces} } accept comment "trusted interfaces"
+                ${optionalString (fwcfg.trustedInterfaces != [ ]) ''
+                  iifname { ${
+                    concatMapStringsSep ", " (int: "\"${int}\"") fwcfg.trustedInterfaces
+                  } } accept comment "trusted interfaces"
                 ''}
 
                 # Rate-limited ICMPv6 ping; has to be done prior to accepting
@@ -184,20 +202,27 @@ in
                 }
               '')
               ''
-                ${lib.concatStrings (lib.mapAttrsToList (iface: cfg:
-                  let
-                    ifaceExpr = lib.optionalString (iface != "default") "iifname ${iface}";
-                    tcpSet = portsToNftSet fwcfg.allowedTCPPorts fwcfg.allowedTCPPortRanges;
-                    udpSet = portsToNftSet fwcfg.allowedUDPPorts fwcfg.allowedUDPPortRanges;
-                  in
-                  ''
-                    ${lib.optionalString (tcpSet != "") "${ifaceExpr} tcp dport { ${tcpSet} } accept"}
-                    ${lib.optionalString (udpSet != "") "${ifaceExpr} udp dport { ${udpSet} } accept"}
-                  ''
-                ) fwcfg.allInterfaces)}
+                ${lib.concatStrings (
+                  lib.mapAttrsToList (
+                    iface: cfg:
+                    let
+                      ifaceExpr = lib.optionalString (iface != "default") "iifname ${iface}";
+                      tcpSet = portsToNftSet fwcfg.allowedTCPPorts fwcfg.allowedTCPPortRanges;
+                      udpSet = portsToNftSet fwcfg.allowedUDPPorts fwcfg.allowedUDPPortRanges;
+                    in
+                    ''
+                      ${lib.optionalString (tcpSet != "") "${ifaceExpr} tcp dport { ${tcpSet} } accept"}
+                      ${lib.optionalString (udpSet != "") "${ifaceExpr} udp dport { ${udpSet} } accept"}
+                    ''
+                  ) fwcfg.allInterfaces
+                )}
 
                 ${lib.optionalString fwcfg.allowPing ''
-                  icmp type echo-request ${optionalString (fwcfg.pingLimit != null) "meter icmpv4-echo { ip saddr limit rate ${fwcfg.pingLimit} }"} accept comment "allow ping"
+                  icmp type echo-request ${
+                    optionalString (
+                      fwcfg.pingLimit != null
+                    ) "meter icmpv4-echo { ip saddr limit rate ${fwcfg.pingLimit} }"
+                  } accept comment "allow ping"
                 ''}
 
                 # ICMPv6 handling based on RFC 4890, generic for both transit
@@ -239,7 +264,7 @@ in
           '';
           nixos-nat-post.rules = ''
             # NAT marked packets
-            ${optionalString (natcfg.internalInterfaces != []) ''
+            ${optionalString (natcfg.internalInterfaces != [ ]) ''
               meta mark 0x01 oifname ${natcfg.externalInterface} ${natDest}
             ''}
 
@@ -271,7 +296,10 @@ in
     })
     (mkIf (cfg.enable && config.virtualisation.libvirtd.enable) {
       assertions = [
-        { assertion = config.boot.kernel.sysctl."net.ipv4.conf.all.forwarding" && config.boot.kernel.sysctl."net.ipv4.conf.default.forwarding";
+        {
+          assertion =
+            config.boot.kernel.sysctl."net.ipv4.conf.all.forwarding"
+            && config.boot.kernel.sysctl."net.ipv4.conf.default.forwarding";
           message = ''boot.kernel.sysctl."net.ipv4.conf.all.forwarding" and boot.kernel.sysctl."net.ipv4.conf.default.forwarding" must both be enabled if you want to use libvirtd NAT networking'';
         }
       ];
@@ -282,7 +310,7 @@ in
           systemctl restart libvirtd.service || true
         fi
       '';
-      systemd.services.nftables.serviceConfig.ExecReload =  mkForce pkgs.writeScript "nftables-reload" ''
+      systemd.services.nftables.serviceConfig.ExecReload = mkForce pkgs.writeScript "nftables-reload" ''
         #!${pkgs.runtimeShell} -e
         ${config.systemd.services.nftables.serviceConfig.ExecStart}
 

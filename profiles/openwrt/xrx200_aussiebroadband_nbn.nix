@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 let
   inherit (lib) mapAttrs;
   inherit (config.lib) writeUCIScript;
@@ -29,45 +34,55 @@ let
     /etc/init.d/network restart
   '';
 
-
   # Download and extract NBN-compatible XRX200 modem firmware
   currentFirmwareVersion = "07.29";
   firmwarePath = "/lib/firmware/${firmwareFilename}";
   firmwareFilename = "${firmwarePackage.outputPrefix}-vr9-B-dsl.bin";
 
-  firmwarePackage = pkgs.runCommandNoCCLocal "netgear_dm200_modem_firmware" {
-    src = firmwareImages.${currentFirmwareVersion};
-    nativeBuildInputs = with pkgs; [
-      p7zip squashfsAvmBe
-    ];
-    passthru.outputPrefix = "FRITZ.Box_7490-${currentFirmwareVersion}";
-  } ''
-    mkdir -p $out
-    7z e "$src" -r filesystem.image
+  firmwarePackage =
+    pkgs.runCommandNoCCLocal "netgear_dm200_modem_firmware"
+      {
+        src = firmwareImages.${currentFirmwareVersion};
+        nativeBuildInputs = with pkgs; [
+          p7zip
+          squashfsAvmBe
+        ];
+        passthru.outputPrefix = "FRITZ.Box_7490-${currentFirmwareVersion}";
+      }
+      ''
+        mkdir -p $out
+        7z e "$src" -r filesystem.image
 
-    unsquashfs filesystem.image -e filesystem_core.squashfs
-    mv squashfs-root/filesystem_core.squashfs ./
-    rmdir squashfs-root
+        unsquashfs filesystem.image -e filesystem_core.squashfs
+        mv squashfs-root/filesystem_core.squashfs ./
+        rmdir squashfs-root
 
-    unsquashfs filesystem_core.squashfs -e lib/modules/dsp_vr9/
-    for name in vr9-B-dsl.bin vr9-A-dsl.bin.bsdiff vr9-A-dsl.bin.md5sum; do
-      cp "squashfs-root/lib/modules/dsp_vr9/$name" "$out/FRITZ.Box_7490-${currentFirmwareVersion}-$name"
-    done
-  '';
+        unsquashfs filesystem_core.squashfs -e lib/modules/dsp_vr9/
+        for name in vr9-B-dsl.bin vr9-A-dsl.bin.bsdiff vr9-A-dsl.bin.md5sum; do
+          cp "squashfs-root/lib/modules/dsp_vr9/$name" "$out/FRITZ.Box_7490-${currentFirmwareVersion}-$name"
+        done
+      '';
   squashfsAvmBe = pkgs.callPackage ./squashfs4-avm-be.nix { };
-  firmwareImages = mapAttrs (version: { archiveStamp, sha256 }: pkgs.fetchurl {
-    url = "https://web.archive.org/web/${archiveStamp}/https://download.avm.de/fritzbox/fritzbox-7490/other/fritz.os/FRITZ.Box_7490-${version}.image";
-    inherit sha256;
-  }) {
-    "07.29" = {
-      archiveStamp = "20221219142803";
-      sha256 = "17zvswfs4fdfcmiqccbr5fwn1h5w5w5absqdnz36l10y4mrmv18j";
-    };
-    "07.56" = {
-      archiveStamp = "20230725133212";
-      sha256 = "13rn1z592ibihs5w6mbyflahzyjm03qbff7s8b77p1rfrq30iaw6";
-    };
-  };
+  firmwareImages =
+    mapAttrs
+      (
+        version:
+        { archiveStamp, sha256 }:
+        pkgs.fetchurl {
+          url = "https://web.archive.org/web/${archiveStamp}/https://download.avm.de/fritzbox/fritzbox-7490/other/fritz.os/FRITZ.Box_7490-${version}.image";
+          inherit sha256;
+        }
+      )
+      {
+        "07.29" = {
+          archiveStamp = "20221219142803";
+          sha256 = "17zvswfs4fdfcmiqccbr5fwn1h5w5w5absqdnz36l10y4mrmv18j";
+        };
+        "07.56" = {
+          archiveStamp = "20230725133212";
+          sha256 = "13rn1z592ibihs5w6mbyflahzyjm03qbff7s8b77p1rfrq30iaw6";
+        };
+      };
 in
 {
   files.${firmwarePath}.source = "${firmwarePackage}/${firmwareFilename}";

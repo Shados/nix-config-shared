@@ -1,4 +1,9 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 {
   imports = [
     ./module.nix
@@ -30,7 +35,8 @@
   };
 
   programs.ssh.knownHosts = {
-    "git.shados.net".publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIO0oGzy9ylQHKEYaH4jJ38QM9nFxiQTF+flQUYbpqbF6";
+    "git.shados.net".publicKey =
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIO0oGzy9ylQHKEYaH4jJ38QM9nFxiQTF+flQUYbpqbF6";
   };
 
   security.pam.sshAgentAuth.enable = true;

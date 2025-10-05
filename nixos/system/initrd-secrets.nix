@@ -8,16 +8,34 @@
 # only use this for initrd SSH host keys, and the upstream issue should
 # hopefully be fixed at some point...
 # FIXME: Scrap this once nixpkgs issue #98100 is resolved
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 let
   cfg = config.boot.initrd;
-  inherit (lib) all attrValues concatMapStringsSep escapeShellArg hasPrefix mkIf mkOption optional types;
+  inherit (lib)
+    all
+    attrValues
+    concatMapStringsSep
+    escapeShellArg
+    hasPrefix
+    mkIf
+    mkOption
+    optional
+    types
+    ;
   # NOTE: This is *not* equivalent to nixpkgs.lib.isStorePath, because that
   # only returns true for top-level store paths, not files contained *within*
   # store paths.
-  isInNixStore = pathlike: let
+  isInNixStore =
+    pathlike:
+    let
       pathStr = "${pathlike}";
-    in builtins.substring 0 1 pathStr == "/" && hasPrefix builtins.storeDir pathStr;
+    in
+    builtins.substring 0 1 pathStr == "/" && hasPrefix builtins.storeDir pathStr;
 
   storePathType = (types.addCheck types.path (v: !builtins.isPath v && isInNixStore v)) // {
     description = "A *string* representation of a path contained within the Nix store";
@@ -31,46 +49,48 @@ let
     description = "A base-16 representation of a sha256 hash";
   };
 
-  storeSecretType = types.submodule ({ config, ... }: {
-    options = {
-      source = mkOption {
-        type = with types; nullOr (either sopsSecretType storePathType);
-        default = null;
-        description = ''
-          Path or string coercible to path, for a file contained within the Nix
-          store, or for a sops-nix secret file.
-        '';
-      };
-      hash = mkOption {
-        type = types.nullOr sha256HashType;
-        description = ''
-          The sha256 hash of the source file. Will be calculated on the fly if
-          the source is a Nix store path, otherwise must be supplied manually.
+  storeSecretType = types.submodule (
+    { config, ... }:
+    {
+      options = {
+        source = mkOption {
+          type = with types; nullOr (either sopsSecretType storePathType);
+          default = null;
+          description = ''
+            Path or string coercible to path, for a file contained within the Nix
+            store, or for a sops-nix secret file.
+          '';
+        };
+        hash = mkOption {
+          type = types.nullOr sha256HashType;
+          description = ''
+            The sha256 hash of the source file. Will be calculated on the fly if
+            the source is a Nix store path, otherwise must be supplied manually.
 
-          Can be calculated using `sha256sum`.
-        '';
-        default = if storePathType.check config.source
-          then builtins.hashFile "sha256" config.source
-          else null;
+            Can be calculated using `sha256sum`.
+          '';
+          default =
+            if storePathType.check config.source then builtins.hashFile "sha256" config.source else null;
+        };
+        path = mkOption {
+          type = with types; nullOr path;
+          description = ''
+            The non-store path the file will be copied to during activation.
+            Cannot be set manually, this attribute is used to reference the path
+            that will be used.
+          '';
+          default = if config.hash != null then "${cfg.secretsDir}/${config.hash}" else null;
+          readOnly = true;
+        };
       };
-      path = mkOption {
-        type = with types; nullOr path;
-        description = ''
-          The non-store path the file will be copied to during activation.
-          Cannot be set manually, this attribute is used to reference the path
-          that will be used.
-        '';
-        default = if config.hash != null then "${cfg.secretsDir}/${config.hash}" else null;
-        readOnly = true;
-      };
-    };
-  });
+    }
+  );
 in
 {
   options = {
     boot.initrd.storeSecrets = mkOption {
       type = types.attrsOf storeSecretType;
-      default = {};
+      default = { };
       description = ''
         Secrets to be copied to a persistent content-addressed location.
       '';
@@ -86,12 +106,14 @@ in
     };
   };
 
-  config = mkIf (cfg.storeSecrets != {}) {
+  config = mkIf (cfg.storeSecrets != { }) {
     assertions = [
-      { assertion = all (secret: secret.source != null) (attrValues cfg.storeSecrets);
+      {
+        assertion = all (secret: secret.source != null) (attrValues cfg.storeSecrets);
         message = "boot.initrd.storeSecrets.<name>.source cannot be null";
       }
-      { assertion = all (secret: secret.hash != null) (attrValues cfg.storeSecrets);
+      {
+        assertion = all (secret: secret.hash != null) (attrValues cfg.storeSecrets);
         message = "boot.initrd.storeSecrets.<name>.hash cannot be null";
       }
     ];
@@ -104,7 +126,14 @@ in
         chmod 0700 "$initrdSecretsDir"
         local source
         local dest
-    '' + (concatMapStringsSep "\n" ({source, path, hash}: ''
+    ''
+    + (concatMapStringsSep "\n" (
+      {
+        source,
+        path,
+        hash,
+      }:
+      ''
         source="$(${pkgs.coreutils}/bin/realpath ${escapeShellArg source})"
         dest=${escapeShellArg path}
         if [[ ! -e "$dest" ]]; then
@@ -117,12 +146,13 @@ in
         else
           printf "%s already exists\n" "$dest"
         fi
-    '') (attrValues cfg.storeSecrets)) + ''
+      ''
+    ) (attrValues cfg.storeSecrets))
+    + ''
       }
       populateInitrdStoreSecretsDir
     '';
-    system.activationScripts.initrdStoreSecrets.deps = []
-      ++ optional (config.system.activationScripts ? setupSecrets) "setupSecrets"
-      ;
+    system.activationScripts.initrdStoreSecrets.deps =
+      [ ] ++ optional (config.system.activationScripts ? setupSecrets) "setupSecrets";
   };
 }

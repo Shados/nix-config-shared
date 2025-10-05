@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 let
   # TODO pin from github + use cachix cache for it?
   neuronPkg = pkgs.neuron-notes;

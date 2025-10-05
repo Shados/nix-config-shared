@@ -1,11 +1,14 @@
-{ stdenv, fetchFromGitHub
-, cmake
+{
+  stdenv,
+  fetchFromGitHub,
+  cmake,
 }:
 stdenv.mkDerivation rec {
   pname = "openfec";
   version = "v1.4.2.4";
   src = fetchFromGitHub {
-    owner = "roc-streaming"; repo = pname;
+    owner = "roc-streaming";
+    repo = pname;
     rev = version;
     sha256 = "sha256-o8ar+hBB4Da4d4rziLnnDmZh0dQyiBxxz8lVj5dqQCo=";
   };

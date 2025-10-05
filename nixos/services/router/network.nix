@@ -1,6 +1,11 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
-let 
+let
   cfg = config.fragments.router;
 in
 with lib;
@@ -35,10 +40,12 @@ with lib;
     (mkIf (cfg.enable && cfg.enableBridge) {
       networking = {
         bridges.${cfg.intBridge}.interfaces = cfg.intInts;
-        interfaces.${cfg.intBridge}.ipv4.addresses = [{
-          address = cfg.intSubnet + ".1";
-          prefixLength = 24;
-        }];
+        interfaces.${cfg.intBridge}.ipv4.addresses = [
+          {
+            address = cfg.intSubnet + ".1";
+            prefixLength = 24;
+          }
+        ];
       };
     })
   ];

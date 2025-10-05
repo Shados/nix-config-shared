@@ -1,17 +1,69 @@
-{ config, lib, options, pkgs, utils, ... }:
+{
+  config,
+  lib,
+  options,
+  pkgs,
+  utils,
+  ...
+}:
 let
-  inherit (lib) attrNames attrValues concatLists concatMapStrings concatMapStringsSep concatStringsSep elem elemAt escapeShellArg escapeShellArgs filter filterAttrs findFirst flip foldl' foldAttrs isAttrs hasPrefix head imap0 length listToAttrs mapAttrs mapAttrs' mapAttrsToList nameValuePair mkEnableOption mkIf mkMerge mkOption optionals optionalString recursiveUpdate splitString stringLength sublist substring types unique zipAttrsWith;
+  inherit (lib)
+    attrNames
+    attrValues
+    concatLists
+    concatMapStrings
+    concatMapStringsSep
+    concatStringsSep
+    elem
+    elemAt
+    escapeShellArg
+    escapeShellArgs
+    filter
+    filterAttrs
+    findFirst
+    flip
+    foldl'
+    foldAttrs
+    isAttrs
+    hasPrefix
+    head
+    imap0
+    length
+    listToAttrs
+    mapAttrs
+    mapAttrs'
+    mapAttrsToList
+    nameValuePair
+    mkEnableOption
+    mkIf
+    mkMerge
+    mkOption
+    optionals
+    optionalString
+    recursiveUpdate
+    splitString
+    stringLength
+    sublist
+    substring
+    types
+    unique
+    zipAttrsWith
+    ;
   inherit (utils) escapeSystemdPath;
   cfg = config.disk.fileSystems.zfs;
   opt = options.disk.fileSystems.zfs;
   cfgZfs = config.boot.zfs;
   # TODO a sizeSpec type instead of types.str for things like quota/reservation
 
-  getDatasetMounts = dataset: map
-    (fs: let
-      name = if fs.mountPoint == "/" then "-" else escapeSystemdPath fs.mountPoint;
-    in "${name}.mount")
-    (filter (x: x.device == dataset) zfsFilesystems);
+  getDatasetMounts =
+    dataset:
+    map (
+      fs:
+      let
+        name = if fs.mountPoint == "/" then "-" else escapeSystemdPath fs.mountPoint;
+      in
+      "${name}.mount"
+    ) (filter (x: x.device == dataset) zfsFilesystems);
 
   zfsFsDatasets = map (fs: fs.device) zfsFilesystems;
   zfsFsByDataset = listToAttrs (map (fs: nameValuePair fs.device fs) zfsFilesystems);
@@ -38,273 +90,385 @@ let
   #   intended as an escape hatch from managing ZFS pools & datasets via NixOS
   #   configuration
 
-  bashBinScript = name: text: let
-    baseScript = pkgs.writers.writeBashBin name text;
-  in baseScript.overrideAttrs (oa: {
-    passthru = oa.passthru or {} // {
-      binPath = "${baseScript}/bin/${name}";
-    };
-  });
+  bashBinScript =
+    name: text:
+    let
+      baseScript = pkgs.writers.writeBashBin name text;
+    in
+    baseScript.overrideAttrs (oa: {
+      passthru = oa.passthru or { } // {
+        binPath = "${baseScript}/bin/${name}";
+      };
+    });
 
   # TODO remove / migrate to lib? {{{
-  scriptToDerivation = name: script: runtimeDeps: pkgs.runCommandNoCC name {
-    src = script;
-    nativeBuildInputs = with pkgs; [
-      makeWrapper
-    ];
-    buildInputs = runtimeDeps;
-    inherit runtimeDeps;
-    passthru.scriptPath = "bin/${name}";
-  } ''
-    set -v
-    mkdir -p $out/bin
-    cp $src $out/bin/$name
-    chmod +x $out/bin/$name
-    patchShebangs $out/bin
-    wrapProgram $out/bin/$name \
-      --prefix PATH : $out/bin:${lib.makeBinPath runtimeDeps}
-  '';
+  scriptToDerivation =
+    name: script: runtimeDeps:
+    pkgs.runCommandNoCC name
+      {
+        src = script;
+        nativeBuildInputs = with pkgs; [
+          makeWrapper
+        ];
+        buildInputs = runtimeDeps;
+        inherit runtimeDeps;
+        passthru.scriptPath = "bin/${name}";
+      }
+      ''
+        set -v
+        mkdir -p $out/bin
+        cp $src $out/bin/$name
+        chmod +x $out/bin/$name
+        patchShebangs $out/bin
+        wrapProgram $out/bin/$name \
+          --prefix PATH : $out/bin:${lib.makeBinPath runtimeDeps}
+      '';
   # }}}
 
   # Lexicographically sorted, so we create them in a valid order
-  datasetList = builtins.sort (a: b: a < b) (concatLists (flip mapAttrsToList cfg.finalPools (name: poolSpec:
-    flip mapAttrsToList poolSpec.datasets (_: datasetSpec: datasetPath poolSpec.name datasetSpec.path)
-  )));
-  sortedDatasets = builtins.sort (a: b: a.path < b.path) (concatLists (flip mapAttrsToList cfg.finalPools (name: poolSpec:
-    flip mapAttrsToList poolSpec.datasets (_: datasetSpec: { pool = poolSpec; dataset = datasetSpec; path = datasetPath poolSpec.name datasetSpec.path; })
-  )));
+  datasetList = builtins.sort (a: b: a < b) (
+    concatLists (
+      flip mapAttrsToList cfg.finalPools (
+        name: poolSpec:
+        flip mapAttrsToList poolSpec.datasets (_: datasetSpec: datasetPath poolSpec.name datasetSpec.path)
+      )
+    )
+  );
+  sortedDatasets = builtins.sort (a: b: a.path < b.path) (
+    concatLists (
+      flip mapAttrsToList cfg.finalPools (
+        name: poolSpec:
+        flip mapAttrsToList poolSpec.datasets (
+          _: datasetSpec: {
+            pool = poolSpec;
+            dataset = datasetSpec;
+            path = datasetPath poolSpec.name datasetSpec.path;
+          }
+        )
+      )
+    )
+  );
   # Take list of pools, generate list of (list of datasets for a pool, with the full path substituted in)
   # Concatenate the lists
   # Convert to attribute set where the keys are the full paths
-  datasetAttrs = listToAttrs (map ({path, ...}@attrs: nameValuePair path attrs) (
-    concatLists (flip mapAttrsToList cfg.finalPools (name: poolSpec:
-      flip mapAttrsToList poolSpec.datasets (_: datasetSpec: datasetSpec // rec {
-        pool = poolSpec.name;
-        path = datasetPath poolSpec.name datasetSpec.path;
-      })
-    ))
-  ));
+  datasetAttrs = listToAttrs (
+    map ({ path, ... }@attrs: nameValuePair path attrs) (
+      concatLists (
+        flip mapAttrsToList cfg.finalPools (
+          name: poolSpec:
+          flip mapAttrsToList poolSpec.datasets (
+            _: datasetSpec:
+            datasetSpec
+            // rec {
+              pool = poolSpec.name;
+              path = datasetPath poolSpec.name datasetSpec.path;
+            }
+          )
+        )
+      )
+    )
+  );
 
-  datasetPath = poolName: datasetPath: if stringLength datasetPath > 0
-    then "${poolName}/${datasetPath}"
-    else poolName;
+  datasetPath =
+    poolName: datasetPath:
+    if stringLength datasetPath > 0 then "${poolName}/${datasetPath}" else poolName;
 
   escapePathForName = path: lib.replaceStrings [ "/" " " ] [ "-" "_" ] (lib.removePrefix "/" path);
 
   boolToStr = bool: if bool then "on" else "off";
   boolStrType = with types; coercedTo bool boolToStr str;
   boolMatchingStrType = pat: with types; coercedTo bool boolToStr (strMatching "(on)|(off)|(${pat})");
-  boolEnumType = enumList: with types; coercedTo bool boolToStr
-    (types.enum (enumList ++ [ "on" "off" ]));
-  mkNullDefaultProp = attrs: mkOption (attrs // { default = null; type = types.nullOr attrs.type; });
+  boolEnumType =
+    enumList:
+    with types;
+    coercedTo bool boolToStr (
+      types.enum (
+        enumList
+        ++ [
+          "on"
+          "off"
+        ]
+      )
+    );
+  mkNullDefaultProp =
+    attrs:
+    mkOption (
+      attrs
+      // {
+        default = null;
+        type = types.nullOr attrs.type;
+      }
+    );
 
   propDescription = ''
     See `man zfsprops`.
   '';
 
-  zfsPoolType = types.submodule ({ config, name, ... }: {
-    options.name = mkOption {
-      type = with types; str;
-      default = name;
-      description = ''
-        Name of the pool;
-      '';
-    };
-    # TODO
-    # options.vdevs = ...;
-    options.properties = mkOption {
-      default = {};
-      description = ''
-        Declaratively-specified properties for this pool.
-      '';
-      type = types.submodule {
-        freeformType = with types; attrsOf (nullOr str);
+  zfsPoolType = types.submodule (
+    { config, name, ... }:
+    {
+      options.name = mkOption {
+        type = with types; str;
+        default = name;
+        description = ''
+          Name of the pool;
+        '';
       };
-    };
-    options.datasets = mkOption {
-      default = {};
-      description = ''
-        Declaratively-specified ZFS datasets for this pool.
-
-        NOTE: You can configure the root dataset by setting the path to an
-        empty string ("").
-      '';
-      type = types.attrsOf zfsDatasetType;
-    };
-  });
-
-  zfsDatasetType = types.submodule ({ config, name, ...}: {
-    options.path = mkOption {
-      type = with types; str;
-      default = name;
-      description = ''
-        Path of the dataset, within the pool.
-
-        e.g. if the pool is named "tank", and this value is set to
-        "DB/prod", then the resulting dataset will be "tank/DB/prod"
-
-        Defaults to the attribute name of this dataset option item.
-      '';
-    };
-    # FIXME: Migrate these to a disko-like tool when I get around to that
-    options.postCreationHook = mkOption {
-      type = with types; nullOr lines;
-      default = null;
-      description = ''
-        Shell script fragments to run after creation of the dataset. The
-        `$dataset` variable will be set to the full zpool/dataset name/path.
-      '';
-    };
-    options.postCreationMountHook = mkOption {
-      type = with types; nullOr lines;
-      default = null;
-      description = ''
-        Shell script fragments to run after creation & initial mounting of the
-        dataset. The `$dataset` variable will be set to the full zpool/dataset
-        name/path, the `$mountpoint` variable will be set to the location the
-        dataset is mounted at.
-      '';
-    };
-    options.properties = mkOption {
-      default = {};
-      description = ''
-        Declaratively-specified properties for this dataset.
-      '';
-      type = types.submodule {
-        freeformType = with types; attrsOf (nullOr str);
-        options.acltype = mkNullDefaultProp {
-          type = with types; enum [ "off" "nfsv4" "posix" "noacl" "posixacl" ];
-          description = propDescription;
-        };
-        options.atime = mkNullDefaultProp {
-          type = boolStrType;
-          description = propDescription;
-        };
-        options.checksum = mkNullDefaultProp {
-          type = boolEnumType [
-            "fletcher2" "fletcher4" "sha256" "noparity" "sha512" "skein" "edonr"
-          ];
-          description = propDescription;
-        };
-        options.compression = mkNullDefaultProp {
-          type = boolMatchingStrType
-            ("(gzip(-[1-9])?)|"
-            +"(lz4)|"
-            +"(lzjb)|"
-            +"(zle)|"
-            +"(zstd(-([1-9])|(1[0-9]))?)|" # TODO verify/sanitise these last two
-            +"(zstd-fast(-(1000|[1-9][0-9]?[0-9]?))?)")
-          ;
-          description = propDescription;
-        };
-        options.copies = mkNullDefaultProp {
-          type = with types; ints.between 1 3;
-          description = propDescription;
-        };
-        options.devices = mkNullDefaultProp {
-          type = boolStrType;
-          description = propDescription;
-        };
-        options.dedup = mkNullDefaultProp {
-          type = boolEnumType [
-            "verify" "sha256" "sha256,verify" "sha512" "sha512,verify" "skein" "skein,verify" "edonr,verify"
-          ];
-          description = propDescription;
-        };
-        # TODO: encryption is pretty much the only creation-time dataset
-        # property I'm interested in
-        # options.encryption = mkNullDefaultProp {
-        #   type = boolEnumType [
-        #     "aes-128-ccm" "aes-192-ccm" "aes-256-ccm" "aes-128-gcm" "aes-192-gcm" "aes-256-gcm"
-        #   ];
-        # };
-        # options.keyformat = mkNullDefaultProp {
-        #   type = with types; enum [
-        #     "raw" "hex" "passphrase"
-        #   ];
-        # };
-        # options.keylocation = mkNullDefaultProp {
-        #   type = with types; either (enum [ "prompt" ]) path;
-        # };
-        options.exec = mkNullDefaultProp {
-          type = boolStrType;
-          description = propDescription;
-        };
-        options.logbias = mkNullDefaultProp {
-          type = with types; enum [ "latency" "throughput" ];
-          description = propDescription;
-        };
-        options.mountpoint = mkNullDefaultProp {
-          type = with types; either (enum [ "none" "legacy" ]) path;
-          description = propDescription;
-        };
-        options.primarycache = mkNullDefaultProp {
-          type = with types; enum [ "all" "none" "metadata" ];
-          description = propDescription;
-        };
-        options.quota = mkNullDefaultProp {
-          type = with types; either (enum [ "none" ]) str;
-          description = propDescription;
-        };
-        options.recordsize = mkNullDefaultProp {
-          type = with types; str;
-          description = propDescription;
-        };
-        options.refreservation = mkNullDefaultProp {
-          type = with types; either (enum [ "none" "auto" ]) str;
-          description = propDescription;
-        };
-        options.relatime = mkNullDefaultProp {
-          type = boolStrType;
-          description = propDescription;
-        };
-        options.reservation = mkNullDefaultProp {
-          type = with types; either (enum [ "none" ]) str;
-          description = propDescription;
-        };
-        options.secondarycache = mkNullDefaultProp {
-          type = with types; enum [ "all" "none" "metadata" ];
-          description = propDescription;
-        };
-        options.setuid = mkNullDefaultProp {
-          type = boolStrType;
-          description = propDescription;
-        };
-        options.sync = mkNullDefaultProp {
-          type = with types; enum [ "standard" "always" "disabled" ];
-          description = propDescription;
-        };
-        # TODO should only be configured for volume datasets, and can't be unset
-        # options.volsize = mkNullDefaultProp {
-        #   type = with types; str;
-        # };
-        options.xattr = mkNullDefaultProp {
-          type = boolEnumType [ "sa" ];
-          description = propDescription;
+      # TODO
+      # options.vdevs = ...;
+      options.properties = mkOption {
+        default = { };
+        description = ''
+          Declaratively-specified properties for this pool.
+        '';
+        type = types.submodule {
+          freeformType = with types; attrsOf (nullOr str);
         };
       };
-    };
-  });
+      options.datasets = mkOption {
+        default = { };
+        description = ''
+          Declaratively-specified ZFS datasets for this pool.
+
+          NOTE: You can configure the root dataset by setting the path to an
+          empty string ("").
+        '';
+        type = types.attrsOf zfsDatasetType;
+      };
+    }
+  );
+
+  zfsDatasetType = types.submodule (
+    { config, name, ... }:
+    {
+      options.path = mkOption {
+        type = with types; str;
+        default = name;
+        description = ''
+          Path of the dataset, within the pool.
+
+          e.g. if the pool is named "tank", and this value is set to
+          "DB/prod", then the resulting dataset will be "tank/DB/prod"
+
+          Defaults to the attribute name of this dataset option item.
+        '';
+      };
+      # FIXME: Migrate these to a disko-like tool when I get around to that
+      options.postCreationHook = mkOption {
+        type = with types; nullOr lines;
+        default = null;
+        description = ''
+          Shell script fragments to run after creation of the dataset. The
+          `$dataset` variable will be set to the full zpool/dataset name/path.
+        '';
+      };
+      options.postCreationMountHook = mkOption {
+        type = with types; nullOr lines;
+        default = null;
+        description = ''
+          Shell script fragments to run after creation & initial mounting of the
+          dataset. The `$dataset` variable will be set to the full zpool/dataset
+          name/path, the `$mountpoint` variable will be set to the location the
+          dataset is mounted at.
+        '';
+      };
+      options.properties = mkOption {
+        default = { };
+        description = ''
+          Declaratively-specified properties for this dataset.
+        '';
+        type = types.submodule {
+          freeformType = with types; attrsOf (nullOr str);
+          options.acltype = mkNullDefaultProp {
+            type =
+              with types;
+              enum [
+                "off"
+                "nfsv4"
+                "posix"
+                "noacl"
+                "posixacl"
+              ];
+            description = propDescription;
+          };
+          options.atime = mkNullDefaultProp {
+            type = boolStrType;
+            description = propDescription;
+          };
+          options.checksum = mkNullDefaultProp {
+            type = boolEnumType [
+              "fletcher2"
+              "fletcher4"
+              "sha256"
+              "noparity"
+              "sha512"
+              "skein"
+              "edonr"
+            ];
+            description = propDescription;
+          };
+          options.compression = mkNullDefaultProp {
+            type = boolMatchingStrType (
+              "(gzip(-[1-9])?)|"
+              + "(lz4)|"
+              + "(lzjb)|"
+              + "(zle)|"
+              + "(zstd(-([1-9])|(1[0-9]))?)|" # TODO verify/sanitise these last two
+              + "(zstd-fast(-(1000|[1-9][0-9]?[0-9]?))?)"
+            );
+            description = propDescription;
+          };
+          options.copies = mkNullDefaultProp {
+            type = with types; ints.between 1 3;
+            description = propDescription;
+          };
+          options.devices = mkNullDefaultProp {
+            type = boolStrType;
+            description = propDescription;
+          };
+          options.dedup = mkNullDefaultProp {
+            type = boolEnumType [
+              "verify"
+              "sha256"
+              "sha256,verify"
+              "sha512"
+              "sha512,verify"
+              "skein"
+              "skein,verify"
+              "edonr,verify"
+            ];
+            description = propDescription;
+          };
+          # TODO: encryption is pretty much the only creation-time dataset
+          # property I'm interested in
+          # options.encryption = mkNullDefaultProp {
+          #   type = boolEnumType [
+          #     "aes-128-ccm" "aes-192-ccm" "aes-256-ccm" "aes-128-gcm" "aes-192-gcm" "aes-256-gcm"
+          #   ];
+          # };
+          # options.keyformat = mkNullDefaultProp {
+          #   type = with types; enum [
+          #     "raw" "hex" "passphrase"
+          #   ];
+          # };
+          # options.keylocation = mkNullDefaultProp {
+          #   type = with types; either (enum [ "prompt" ]) path;
+          # };
+          options.exec = mkNullDefaultProp {
+            type = boolStrType;
+            description = propDescription;
+          };
+          options.logbias = mkNullDefaultProp {
+            type =
+              with types;
+              enum [
+                "latency"
+                "throughput"
+              ];
+            description = propDescription;
+          };
+          options.mountpoint = mkNullDefaultProp {
+            type =
+              with types;
+              either (enum [
+                "none"
+                "legacy"
+              ]) path;
+            description = propDescription;
+          };
+          options.primarycache = mkNullDefaultProp {
+            type =
+              with types;
+              enum [
+                "all"
+                "none"
+                "metadata"
+              ];
+            description = propDescription;
+          };
+          options.quota = mkNullDefaultProp {
+            type = with types; either (enum [ "none" ]) str;
+            description = propDescription;
+          };
+          options.recordsize = mkNullDefaultProp {
+            type = with types; str;
+            description = propDescription;
+          };
+          options.refreservation = mkNullDefaultProp {
+            type =
+              with types;
+              either (enum [
+                "none"
+                "auto"
+              ]) str;
+            description = propDescription;
+          };
+          options.relatime = mkNullDefaultProp {
+            type = boolStrType;
+            description = propDescription;
+          };
+          options.reservation = mkNullDefaultProp {
+            type = with types; either (enum [ "none" ]) str;
+            description = propDescription;
+          };
+          options.secondarycache = mkNullDefaultProp {
+            type =
+              with types;
+              enum [
+                "all"
+                "none"
+                "metadata"
+              ];
+            description = propDescription;
+          };
+          options.setuid = mkNullDefaultProp {
+            type = boolStrType;
+            description = propDescription;
+          };
+          options.sync = mkNullDefaultProp {
+            type =
+              with types;
+              enum [
+                "standard"
+                "always"
+                "disabled"
+              ];
+            description = propDescription;
+          };
+          # TODO should only be configured for volume datasets, and can't be unset
+          # options.volsize = mkNullDefaultProp {
+          #   type = with types; str;
+          # };
+          options.xattr = mkNullDefaultProp {
+            type = boolEnumType [ "sa" ];
+            description = propDescription;
+          };
+        };
+      };
+    }
+  );
 
   # Properties that have restrictions on un/setting them
   propertyRestrictions = {
     mountpoint = "unmounted";
   };
-  restrictionCheck = dataset: prop: action: let
-    checks = {
-      unmounted = action: ''
-        mounted=$(zfs get -H -o value mounted ${escapeShellArg dataset})
-        if [[ $mounted != "yes" ]]; then
-          ${action}
-        else
-          echo "WARNING: Not changing '${prop}' property for ${dataset}; cannot be changed while dataset is mounted without a remount"
-        fi
-      '';
-      setNone = action: ''
-      '';
-      unrestricted = action: action;
-    };
-  in checks.${propertyRestrictions.${prop} or "unrestricted"} action;
+  restrictionCheck =
+    dataset: prop: action:
+    let
+      checks = {
+        unmounted = action: ''
+          mounted=$(zfs get -H -o value mounted ${escapeShellArg dataset})
+          if [[ $mounted != "yes" ]]; then
+            ${action}
+          else
+            echo "WARNING: Not changing '${prop}' property for ${dataset}; cannot be changed while dataset is mounted without a remount"
+          fi
+        '';
+        setNone = action: '''';
+        unrestricted = action: action;
+      };
+    in
+    checks.${propertyRestrictions.${prop} or "unrestricted"} action;
 
   # Properties that require something other than `zfs inherit` to default them
   propertyInheritActions = {
@@ -312,21 +476,26 @@ let
     refreservation = "setNone";
     reservation = "setNone";
   };
-  inheritAction = dataset: prop: let
-    actions = {
-      setNone = ''
-        zfs set ${escapeShellArg prop}=none ${escapeShellArg dataset}
-      '';
-      "inherit" = ''
-        zfs inherit ${escapeShellArg prop} ${escapeShellArg dataset}
-      '';
-    };
-  in actions.${propertyInheritActions.${prop} or "inherit"};
+  inheritAction =
+    dataset: prop:
+    let
+      actions = {
+        setNone = ''
+          zfs set ${escapeShellArg prop}=none ${escapeShellArg dataset}
+        '';
+        "inherit" = ''
+          zfs inherit ${escapeShellArg prop} ${escapeShellArg dataset}
+        '';
+      };
+    in
+    actions.${propertyInheritActions.${prop} or "inherit"};
 in
 {
-  options.disk.fileSystems.zfs.enable = mkEnableOption "declarative ZFS pool and dataset creation and configuration";
+  options.disk.fileSystems.zfs.enable =
+    mkEnableOption "declarative ZFS pool and dataset creation and configuration";
   # TODO option to implicitly pull in minimal pool/dataset specs from `config.fileSystems`
-  options.disk.fileSystems.zfs.defineFromMounts = mkEnableOption "automatically defining dataset entries based on `fsType=zfs` `fileSystems` config items";
+  options.disk.fileSystems.zfs.defineFromMounts =
+    mkEnableOption "automatically defining dataset entries based on `fsType=zfs` `fileSystems` config items";
   options.disk.fileSystems.zfs.verbose = mkEnableOption "verbose log output";
   options.disk.fileSystems.zfs.dryRun = mkOption {
     type = with types; bool;
@@ -335,7 +504,7 @@ in
     visible = false;
   };
   options.disk.fileSystems.zfs.pools = mkOption {
-    default = {};
+    default = { };
     description = ''
       Declaratively-specified ZFS pools and datasets.
     '';
@@ -354,15 +523,21 @@ in
   # TODO replace with system.build usage?
   options.disk.fileSystems.zfs.reify-datasets = mkOption {
     type = types.path;
-    readOnly = true; internal = true; visible = false;
+    readOnly = true;
+    internal = true;
+    visible = false;
   };
   options.disk.fileSystems.zfs.reify-all-dataset-properties = mkOption {
     type = types.path;
-    readOnly = true; internal = true; visible = false;
+    readOnly = true;
+    internal = true;
+    visible = false;
   };
   options.disk.fileSystems.zfs.reify-dataset-properties-for = mkOption {
     type = with types; attrsOf path;
-    readOnly = true; internal = true; visible = false;
+    readOnly = true;
+    internal = true;
+    visible = false;
   };
   # TODO implement zpool creation
   # TODO implement zpool property management
@@ -374,68 +549,102 @@ in
       #   `defineFromMounts` is enabled
       # - Implicitly-defined datasets (e.g. parent datasets of
       #   explicitly-defined child datasets)
-      disk.fileSystems.zfs.finalPools = let
-        basePools = (if !cfg.defineFromMounts
-          then cfg.pools
-          # Add in automatically-defined datasets from `fileSystems` config
-          # items, replacing mountpoint with the fileSystems-sourced one if it
-          # is not otherwise specified
-          else let
-            combineDsAttrs = sets: zipAttrsWith
-              (name: vs: if isAttrs (head vs)
-                then combineDsAttrs vs
-                else if name == "mountpoint"
-                  then findFirst (val: val != null) null vs
-                  else head vs
-              ) sets;
-          in combineDsAttrs [(mapDsToPools mountpointForFsDs zfsFsDatasets) cfg.pools]);
-
-        mountpointForFsDs = ds: let
-          fsSpec = zfsFsByDataset.${ds};
-        in {
-          properties.mountpoint = if elem "zfsutil" fsSpec.options
-            then fsSpec.mountPoint
-            else "legacy";
-        };
-        mapDsToPools = dsUpdateFn: dsList:
-          listToAttrs (flip map allPools (pool: nameValuePair
-            pool
-            {
-              datasets = let
-                poolFs = filter (ds: hasPrefix poolPrefix ds) dsList;
-                poolPrefix = "${pool}/";
-                prefixLen = stringLength poolPrefix;
-              in listToAttrs (flip map poolFs (ds: nameValuePair
-                (substring prefixLen (stringLength ds - prefixLen) ds)
-                (dsUpdateFn ds)
-              ));
-            }
-          ));
-
-        # Includes all the datasets that aren't configured but are implied
-        # based on configured child datasets
-        # e.g. takes "ocvm-pool/ROOTS/nixos/tmp", generates: [
-        #   "ocvm-pool/ROOTS/nixos/tmp"
-        #   "ocvm-pool/ROOTS/nixos"
-        #   "ocvm-pool/ROOTS"
-        #   "ocvm-pool"
-        # ]
-        allDatasets = concatLists (flip map configuredDatasets (ds: let
-          impliedDs = flip imap0 pathElems (i: e: concatStringsSep "/" (sublist 0 (pathLength - i) pathElems));
-          pathElems = splitString "/" ds;
-          pathLength = length pathElems;
-        in impliedDs));
-        configuredDatasets = let
-          fsDatasets = map (fs: fs.device) zfsFilesystems;
-          explicitDatsets = concatLists (
-            flip mapAttrsToList cfg.pools (name: poolSpec: flip mapAttrsToList poolSpec.datasets (name: ds: if ds.path == ""
-            then "${poolSpec.name}"
-            else "${poolSpec.name}/${ds.path}"))
+      disk.fileSystems.zfs.finalPools =
+        let
+          basePools = (
+            if !cfg.defineFromMounts then
+              cfg.pools
+            # Add in automatically-defined datasets from `fileSystems` config
+            # items, replacing mountpoint with the fileSystems-sourced one if it
+            # is not otherwise specified
+            else
+              let
+                combineDsAttrs =
+                  sets:
+                  zipAttrsWith (
+                    name: vs:
+                    if isAttrs (head vs) then
+                      combineDsAttrs vs
+                    else if name == "mountpoint" then
+                      findFirst (val: val != null) null vs
+                    else
+                      head vs
+                  ) sets;
+              in
+              combineDsAttrs [
+                (mapDsToPools mountpointForFsDs zfsFsDatasets)
+                cfg.pools
+              ]
           );
-        in unique (explicitDatsets ++ optionals cfg.defineFromMounts fsDatasets);
-      in recursiveUpdate (mapDsToPools (ds: {}) allDatasets) basePools;
+
+          mountpointForFsDs =
+            ds:
+            let
+              fsSpec = zfsFsByDataset.${ds};
+            in
+            {
+              properties.mountpoint = if elem "zfsutil" fsSpec.options then fsSpec.mountPoint else "legacy";
+            };
+          mapDsToPools =
+            dsUpdateFn: dsList:
+            listToAttrs (
+              flip map allPools (
+                pool:
+                nameValuePair pool {
+                  datasets =
+                    let
+                      poolFs = filter (ds: hasPrefix poolPrefix ds) dsList;
+                      poolPrefix = "${pool}/";
+                      prefixLen = stringLength poolPrefix;
+                    in
+                    listToAttrs (
+                      flip map poolFs (
+                        ds: nameValuePair (substring prefixLen (stringLength ds - prefixLen) ds) (dsUpdateFn ds)
+                      )
+                    );
+                }
+              )
+            );
+
+          # Includes all the datasets that aren't configured but are implied
+          # based on configured child datasets
+          # e.g. takes "ocvm-pool/ROOTS/nixos/tmp", generates: [
+          #   "ocvm-pool/ROOTS/nixos/tmp"
+          #   "ocvm-pool/ROOTS/nixos"
+          #   "ocvm-pool/ROOTS"
+          #   "ocvm-pool"
+          # ]
+          allDatasets = concatLists (
+            flip map configuredDatasets (
+              ds:
+              let
+                impliedDs = flip imap0 pathElems (
+                  i: e: concatStringsSep "/" (sublist 0 (pathLength - i) pathElems)
+                );
+                pathElems = splitString "/" ds;
+                pathLength = length pathElems;
+              in
+              impliedDs
+            )
+          );
+          configuredDatasets =
+            let
+              fsDatasets = map (fs: fs.device) zfsFilesystems;
+              explicitDatsets = concatLists (
+                flip mapAttrsToList cfg.pools (
+                  name: poolSpec:
+                  flip mapAttrsToList poolSpec.datasets (
+                    name: ds: if ds.path == "" then "${poolSpec.name}" else "${poolSpec.name}/${ds.path}"
+                  )
+                )
+              );
+            in
+            unique (explicitDatsets ++ optionals cfg.defineFromMounts fsDatasets);
+        in
+        recursiveUpdate (mapDsToPools (ds: { }) allDatasets) basePools;
     })
-    { # ZFS dataset creation
+    {
+      # ZFS dataset creation
       disk.fileSystems.zfs.reify-datasets = bashBinScript "zfs-reify-datasets" ''
         set -e
 
@@ -464,31 +673,42 @@ in
         declare -A new_datasets
 
         # Ensure any missing, specified datasets are created
-        ${flip concatMapStrings sortedDatasets ({dataset, pool, path}: ''
-        debug_log "Checking for dataset ${path}"
-        pool="${pool.name}"
-        if ! [ ''${pools[$pool]+_} ]; then
-          echo "Pool '$pool' has not been imported / not found!"
-          exit 1
-        fi
-        if ! [ ''${datasets[${path}]+_} ]; then
-          # TODO Should set other creation-time-only properties here, too
-          echo "Creating dataset ${path}"
-          dataset=${escapeShellArg path}
-          ${if dataset.properties.mountpoint != null then ''
-          $DRY_RUN_CMD zfs create -u -o mountpoint=${escapeShellArg dataset.properties.mountpoint} "$dataset"
+        ${flip concatMapStrings sortedDatasets (
+          {
+            dataset,
+            pool,
+            path,
+          }:
           ''
-          else ''
-          $DRY_RUN_CMD zfs create -u "$dataset"
-          ''}
-          ${optionalString (dataset.postCreationHook != null) ''
-          echo "Running post-creation hook for dataset $dataset"
-          ${dataset.postCreationHook}
-          ''}
-          new_datasets[$dataset]=1
-          changed=1
-        fi
-        '')}
+            debug_log "Checking for dataset ${path}"
+            pool="${pool.name}"
+            if ! [ ''${pools[$pool]+_} ]; then
+              echo "Pool '$pool' has not been imported / not found!"
+              exit 1
+            fi
+            if ! [ ''${datasets[${path}]+_} ]; then
+              # TODO Should set other creation-time-only properties here, too
+              echo "Creating dataset ${path}"
+              dataset=${escapeShellArg path}
+              ${
+                if dataset.properties.mountpoint != null then
+                  ''
+                    $DRY_RUN_CMD zfs create -u -o mountpoint=${escapeShellArg dataset.properties.mountpoint} "$dataset"
+                  ''
+                else
+                  ''
+                    $DRY_RUN_CMD zfs create -u "$dataset"
+                  ''
+              }
+              ${optionalString (dataset.postCreationHook != null) ''
+                echo "Running post-creation hook for dataset $dataset"
+                ${dataset.postCreationHook}
+              ''}
+              new_datasets[$dataset]=1
+              changed=1
+            fi
+          ''
+        )}
 
         if [[ $changed == 0 ]]; then
           echo "All specified datasets already exist, no changes made"
@@ -496,25 +716,38 @@ in
           echo "Mounting datasets"
           zfs mount -av
 
-          ${flip concatMapStrings sortedDatasets ({dataset, pool, path}: optionalString (dataset.postCreationMountHook != null)''
-          dataset=${escapeShellArg path}
-          if [ ''${new_datasets[$dataset]+_} ]; then
-            dataset=${escapeShellArg path}
-            mountpoint="$(zfs get -H -o value mountpoint "$dataset")"
-            echo "Running post-creation-and-mount hook for dataset $dataset"
-            ${dataset.postCreationMountHook}
-          fi
-          '')}
+          ${flip concatMapStrings sortedDatasets (
+            {
+              dataset,
+              pool,
+              path,
+            }:
+            optionalString (dataset.postCreationMountHook != null) ''
+              dataset=${escapeShellArg path}
+              if [ ''${new_datasets[$dataset]+_} ]; then
+                dataset=${escapeShellArg path}
+                mountpoint="$(zfs get -H -o value mountpoint "$dataset")"
+                echo "Running post-creation-and-mount hook for dataset $dataset"
+                ${dataset.postCreationMountHook}
+              fi
+            ''
+          )}
         fi
       '';
 
       systemd.services.zfs-reify-datasets = rec {
         description = "Ensures declaratively-specified ZFS datasets exist";
-        after = [ "zfs-import.target" ]; wants = after;
-        before = [ "zfs-mount.service" "zfs.target" ] ++ (concatLists (map getDatasetMounts datasetList));
+        after = [ "zfs-import.target" ];
+        wants = after;
+        before = [
+          "zfs-mount.service"
+          "zfs.target"
+        ]
+        ++ (concatLists (map getDatasetMounts datasetList));
         wantedBy = before;
         path = with pkgs; [
-          bash cfgZfs.package
+          bash
+          cfgZfs.package
         ];
         environment.VERBOSE = if cfg.verbose then "1" else "0";
         environment.DRY_RUN_CMD = if cfg.dryRun then "echo" else "";
@@ -525,87 +758,103 @@ in
         unitConfig.DefaultDependencies = "no";
       };
     }
-    { # ZFS dataset property management
-      disk.fileSystems.zfs.reify-dataset-properties-for = flip mapAttrs datasetAttrs (datasetPath: datasetSpec: let
-        dataset = datasetSpec.path;
-        inheritPropsList = flip mapAttrsToList inheritProps (prop: _: prop);
-        inheritProps = flip filterAttrs datasetSpec.properties (_: val: val == null);
+    {
+      # ZFS dataset property management
+      disk.fileSystems.zfs.reify-dataset-properties-for = flip mapAttrs datasetAttrs (
+        datasetPath: datasetSpec:
+        let
+          dataset = datasetSpec.path;
+          inheritPropsList = flip mapAttrsToList inheritProps (prop: _: prop);
+          inheritProps = flip filterAttrs datasetSpec.properties (_: val: val == null);
 
-        setPropsList = flip mapAttrsToList setProps (prop: val: "${prop}=${val}");
-        setPropsAttrsList = mapAttrsToList nameValuePair setProps;
-        setProps =  flip filterAttrs datasetSpec.properties (_: val: val != null);
-      in bashBinScript "zfs-reify-dataset-properties-${escapePathForName dataset}" ''
-        set -e
+          setPropsList = flip mapAttrsToList setProps (prop: val: "${prop}=${val}");
+          setPropsAttrsList = mapAttrsToList nameValuePair setProps;
+          setProps = flip filterAttrs datasetSpec.properties (_: val: val != null);
+        in
+        bashBinScript "zfs-reify-dataset-properties-${escapePathForName dataset}" ''
+          set -e
 
-        changed=0
+          changed=0
 
-        function debug_log() {
-          if [[ $VERBOSE == 1 ]]; then
-            echo DEBUG: "$@"
-          fi
-        }
+          function debug_log() {
+            if [[ $VERBOSE == 1 ]]; then
+              echo DEBUG: "$@"
+            fi
+          }
 
-        echo "Setting properties for ZFS dataset ${dataset}"
+          echo "Setting properties for ZFS dataset ${dataset}"
 
-        ${optionalString (inheritPropsList != []) ''
-        # Default/un-set/inherit propreties that have a 'null'
-        # declaratively-specified value, if not already done
-        ${flip concatMapStrings inheritPropsList (name: ''
-        debug_log "Checking if property ${escapeShellArg name} is default..."
-        source=$(zfs get -H -o source ${escapeShellArg name} ${escapeShellArg dataset})
-        if [[ $source != inherit* ]] && [[ $source != "default" ]]; then
-          ${restrictionCheck dataset name ''
-          echo "Inheriting/defaulting property" ${escapeShellArg name}
-          $DRY_RUN_CMD ${inheritAction dataset name}
-          changed=1
+          ${optionalString (inheritPropsList != [ ]) ''
+            # Default/un-set/inherit propreties that have a 'null'
+            # declaratively-specified value, if not already done
+            ${flip concatMapStrings inheritPropsList (name: ''
+              debug_log "Checking if property ${escapeShellArg name} is default..."
+              source=$(zfs get -H -o source ${escapeShellArg name} ${escapeShellArg dataset})
+              if [[ $source != inherit* ]] && [[ $source != "default" ]]; then
+                ${restrictionCheck dataset name ''
+                  echo "Inheriting/defaulting property" ${escapeShellArg name}
+                  $DRY_RUN_CMD ${inheritAction dataset name}
+                  changed=1
+                ''}
+              fi
+            '')}
           ''}
-        fi
-        '')}
-        ''}
 
-        ${optionalString (setPropsList != []) ''
-        # Set properties that have a non-null declaratively-specified value
-        dataset=${escapeShellArg dataset}
-        pool="''${dataset%%/*}"
-        altroot=$(zpool get -H -o value altroot "$pool")
-        ${flip concatMapStrings setPropsAttrsList ({name, value}: ''
-        debug_log "Checking if property ${escapeShellArg name} is set to ${escapeShellArg value}..."
-        source=$(zfs get -H -o source ${escapeShellArg name} ${escapeShellArg dataset})
-        value=$(zfs get -H -o value ${escapeShellArg name} ${escapeShellArg dataset})
-        if [[ $altroot != "-" ]]; then
-          # Strip altroot prefix for comparison purposes
-          value=''${value#"$altroot"}
-        fi
-        if [[ $source != "local" ]] || [[ $value != ${escapeShellArg value} ]]; then
-          ${restrictionCheck dataset name ''
-          echo "Setting property ${escapeShellArg name}=${escapeShellArg value}"
-          $DRY_RUN_CMD zfs set ${escapeShellArg name}=${escapeShellArg value} ${escapeShellArg dataset}
-          changed=1
+          ${optionalString (setPropsList != [ ]) ''
+            # Set properties that have a non-null declaratively-specified value
+            dataset=${escapeShellArg dataset}
+            pool="''${dataset%%/*}"
+            altroot=$(zpool get -H -o value altroot "$pool")
+            ${flip concatMapStrings setPropsAttrsList (
+              { name, value }:
+              ''
+                debug_log "Checking if property ${escapeShellArg name} is set to ${escapeShellArg value}..."
+                source=$(zfs get -H -o source ${escapeShellArg name} ${escapeShellArg dataset})
+                value=$(zfs get -H -o value ${escapeShellArg name} ${escapeShellArg dataset})
+                if [[ $altroot != "-" ]]; then
+                  # Strip altroot prefix for comparison purposes
+                  value=''${value#"$altroot"}
+                fi
+                if [[ $source != "local" ]] || [[ $value != ${escapeShellArg value} ]]; then
+                  ${restrictionCheck dataset name ''
+                    echo "Setting property ${escapeShellArg name}=${escapeShellArg value}"
+                    $DRY_RUN_CMD zfs set ${escapeShellArg name}=${escapeShellArg value} ${escapeShellArg dataset}
+                    changed=1
+                  ''}
+                fi
+              ''
+            )}
+
+            if [[ $changed == 0 ]]; then
+              echo "Dataset properties already match specification, no changes made"
+            fi
           ''}
-        fi
-        '')}
-
-        if [[ $changed == 0 ]]; then
-          echo "Dataset properties already match specification, no changes made"
-        fi
-        ''}
-      '');
+        ''
+      );
 
       disk.fileSystems.zfs.reify-all-dataset-properties = bashBinScript "zfs-reify-all-dataset-properties" ''
         ${concatMapStringsSep "\n" (drv: drv.binPath) (attrValues cfg.reify-dataset-properties-for)}
       '';
 
-      systemd.services = flip mapAttrs' datasetAttrs (datasetPath: datasetSpec: let
-        dataset = datasetSpec.path;
-      in nameValuePair
-        "zfs-reify-dataset-properties-${escapeSystemdPath dataset}"
-        rec {
+      systemd.services = flip mapAttrs' datasetAttrs (
+        datasetPath: datasetSpec:
+        let
+          dataset = datasetSpec.path;
+        in
+        nameValuePair "zfs-reify-dataset-properties-${escapeSystemdPath dataset}" rec {
           description = "Ensures declaratively-specified ZFS dataset properties are configured";
-          after = [ "zfs-reify-datasets.service" ]; wants = after;
-          before = [ "zfs-mount.service" "zfs.target" ] ++ getDatasetMounts dataset;
+          after = [ "zfs-reify-datasets.service" ];
+          wants = after;
+          before = [
+            "zfs-mount.service"
+            "zfs.target"
+          ]
+          ++ getDatasetMounts dataset;
           wantedBy = before;
           path = with pkgs; [
-            bash cfgZfs.package gnugrep
+            bash
+            cfgZfs.package
+            gnugrep
           ];
           environment.VERBOSE = if cfg.verbose then "1" else "0";
           environment.DRY_RUN_CMD = if cfg.dryRun then "echo" else "";

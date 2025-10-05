@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 with lib;
 {
   config = mkMerge [
@@ -29,7 +34,8 @@ with lib;
         '';
       };
     }
-    { # Neovim integration TODO mkIf
+    {
+      # Neovim integration TODO mkIf
       programs.fish.functions.v = ''
         # nvim wrapper function
         # Un/reloads direnv prior to starting nvim, if needed
@@ -41,7 +47,8 @@ with lib;
       '';
       programs.zsh.shellAliases.v = "direnv exec $PWD nvim $argv";
     }
-    { # Tmux integration TODO mkIf
+    {
+      # Tmux integration TODO mkIf
       programs.fish.functions.tmux = ''
         # tmux wrapper function
         if set cmd (command -s tmux) > /dev/null
@@ -57,10 +64,11 @@ with lib;
       '';
       programs.zsh.shellAliases.tmux = ''direnv exec / "${config.programs.tmux.package}/bin/tmux" $argv'';
     }
-    { # layout_python with custom venv directory
-    programs.direnv.stdlib = ''
-      source ${./layout_python_venv.sh}
-    '';
+    {
+      # layout_python with custom venv directory
+      programs.direnv.stdlib = ''
+        source ${./layout_python_venv.sh}
+      '';
     }
   ];
 }

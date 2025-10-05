@@ -1,25 +1,52 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 let
-  inherit (lib) concatMapStringsSep concatStringsSep escapeShellArg generators isList isString listToAttrs literalExpression mkEnableOption mkIf mkOption nameValuePair optionalString types;
+  inherit (lib)
+    concatMapStringsSep
+    concatStringsSep
+    escapeShellArg
+    generators
+    isList
+    isString
+    listToAttrs
+    literalExpression
+    mkEnableOption
+    mkIf
+    mkOption
+    nameValuePair
+    optionalString
+    types
+    ;
   cfg = config.sn.programs.pqiv;
 
-  toOptionsIni = attrs: generators.toINI {
-    mkKeyValue = generators.mkKeyValueDefault {
-      mkValueString = v:
-             if v == true then "1"
-        else if v == false then "0"
-        else if isString v then "\"${v}\""
-        else generators.mkValueStringDefault { } v;
-    } "=";
-  } { options = attrs; };
+  toOptionsIni =
+    attrs:
+    generators.toINI {
+      mkKeyValue = generators.mkKeyValueDefault {
+        mkValueString =
+          v:
+          if v == true then
+            "1"
+          else if v == false then
+            "0"
+          else if isString v then
+            "\"${v}\""
+          else
+            generators.mkValueStringDefault { } v;
+      } "=";
+    } { options = attrs; };
 
-  toKeyBindingsIni = attrs: generators.toINI {
-    mkKeyValue = generators.mkKeyValueDefault {
-      mkValueString = v:
-      if isString v then "{ ${v}; }"
-      else "{ ${concatStringsSep "; " v} }";
-    } " ";
-  } { keybindings = attrs; };
+  toKeyBindingsIni =
+    attrs:
+    generators.toINI {
+      mkKeyValue = generators.mkKeyValueDefault {
+        mkValueString = v: if isString v then "{ ${v}; }" else "{ ${concatStringsSep "; " v} }";
+      } " ";
+    } { keybindings = attrs; };
 
   toActionsSection = actions: ''
     [actions]
@@ -39,7 +66,13 @@ in
       };
       mimeTypesFromBackends = mkOption {
         type = with types; either bool (listOf str);
-        default = [ "archive_cbx" "gdkpixbuf" "spectre" "wand" "webp" ];
+        default = [
+          "archive_cbx"
+          "gdkpixbuf"
+          "spectre"
+          "wand"
+          "webp"
+        ];
         description = ''
           Can be set to either a boolean, or a list of the backends whose mime
           types pqiv should be associated with, by using `xdg.mimeApps`.
@@ -49,7 +82,7 @@ in
         '';
       };
       settings = mkOption {
-        default = {};
+        default = { };
         description = ''
           pqiv configuration options. All long-form parameters to pqiv are
           valid settings keys.
@@ -66,14 +99,23 @@ in
       };
       # TODO recursively-defined keybind value type?
       keyBindings = mkOption {
-        default = {};
+        default = { };
         example = literalExpression {
           z = "goto_file_relative(-1)";
           x = "goto_file_relative(1)";
           q = "send_keys(#1)";
-          "<numbersign>1" = [ "set_scale_level_absolute(1.)" "bind_key(q {send_keys(#2\\); })" ];
-          "<numbersign>2" = [ "set_scale_level_absolute(.5)" "bind_key(q {send_keys(#3\\); })" ];
-          "<numbersign>3" = [ "set_scale_level_absolute(0.25)" "bind_key(q {send_keys(#1\\); })" ];
+          "<numbersign>1" = [
+            "set_scale_level_absolute(1.)"
+            "bind_key(q {send_keys(#2\\); })"
+          ];
+          "<numbersign>2" = [
+            "set_scale_level_absolute(.5)"
+            "bind_key(q {send_keys(#3\\); })"
+          ];
+          "<numbersign>3" = [
+            "set_scale_level_absolute(0.25)"
+            "bind_key(q {send_keys(#1\\); })"
+          ];
           Page_Up = "goto_file_relative(-1)";
           Page_Down = "goto_file_relative(1)";
         };
@@ -89,7 +131,7 @@ in
         type = with types; attrsOf (either str (listOf str));
       };
       actions = mkOption {
-        default = [];
+        default = [ ];
         example = literalExpression [
           "flip_vertically()"
         ];
@@ -104,30 +146,41 @@ in
     home.packages = [
       cfg.package
     ];
-    xdg.mimeApps.defaultApplications = listToAttrs (map (mime: nameValuePair mime "pqiv.desktop") (builtins.fromJSON (
-      builtins.readFile (pkgs.runCommandNoCC "pqiv-backend-mimetypes" {
-        pqivSrc = cfg.package.src;
-        nativeBuildInputs = [ pkgs.jq ];
-      } (let
-        mimeFiles = concatMapStringsSep " " (fileName: "\"$pqivSrc\"/backends/${fileName}") baseMimeFiles;
-        baseMimeFiles = if isList cfg.mimeTypesFromBackends then
-            map (mimeType: escapeShellArg "${mimeType}.mime") cfg.mimeTypesFromBackends
-          else
-            [ "*.mime" ];
-      in ''
-        touch "$out"
-        set -x
-        ${optionalString (cfg.mimeTypesFromBackends != false) ''
-        cat ${mimeFiles} | sort -u | jq -R . | jq -s . > "$out"
-        ''}
-      '')
-    ))));
+    xdg.mimeApps.defaultApplications = listToAttrs (
+      map (mime: nameValuePair mime "pqiv.desktop") (
+        builtins.fromJSON (
+          builtins.readFile (
+            pkgs.runCommandNoCC "pqiv-backend-mimetypes"
+              {
+                pqivSrc = cfg.package.src;
+                nativeBuildInputs = [ pkgs.jq ];
+              }
+              (
+                let
+                  mimeFiles = concatMapStringsSep " " (fileName: "\"$pqivSrc\"/backends/${fileName}") baseMimeFiles;
+                  baseMimeFiles =
+                    if isList cfg.mimeTypesFromBackends then
+                      map (mimeType: escapeShellArg "${mimeType}.mime") cfg.mimeTypesFromBackends
+                    else
+                      [ "*.mime" ];
+                in
+                ''
+                  touch "$out"
+                  set -x
+                  ${optionalString (cfg.mimeTypesFromBackends != false) ''
+                    cat ${mimeFiles} | sort -u | jq -R . | jq -s . > "$out"
+                  ''}
+                ''
+              )
+          )
+        )
+      )
+    );
     xdg.configFile."pqivrc".text =
-        optionalString (cfg.settings != {}) (toOptionsIni cfg.settings)
-      + optionalString (cfg.actions != []) (toActionsSection cfg.actions)
+      optionalString (cfg.settings != { }) (toOptionsIni cfg.settings)
+      + optionalString (cfg.actions != [ ]) (toActionsSection cfg.actions)
       # NOTE: The keybindings section must be last in the file, or pqiv will
       # attempt to interpret the other section entries as keybindings
-      + optionalString (cfg.keyBindings != {}) (toKeyBindingsIni cfg.keyBindings)
-      ;
+      + optionalString (cfg.keyBindings != { }) (toKeyBindingsIni cfg.keyBindings);
   };
 }

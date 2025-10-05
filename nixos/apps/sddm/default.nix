@@ -1,14 +1,22 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 with lib;
 let
-  sddmAvatarFor = username: icon: pkgs.runCommand "sddm-avatar-${username}"
-    { preferLocalBuild = true;
-      inherit icon username;
-    }
-    ''
-      mkdir -p "$out/share/sddm/faces/"
-      cp "$icon" "$out/share/sddm/faces/$username.face.icon"
-    '';
+  sddmAvatarFor =
+    username: icon:
+    pkgs.runCommand "sddm-avatar-${username}"
+      {
+        preferLocalBuild = true;
+        inherit icon username;
+      }
+      ''
+        mkdir -p "$out/share/sddm/faces/"
+        cp "$icon" "$out/share/sddm/faces/$username.face.icon"
+      '';
 in
 {
   config = mkIf config.services.displayManager.sddm.enable {

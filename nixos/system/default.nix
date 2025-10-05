@@ -1,5 +1,11 @@
 # System configuration changes
-{ config, lib, pkgs, system, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  system,
+  ...
+}:
 with lib;
 let
   cfg = config.fragments;
@@ -29,7 +35,7 @@ in
 
   config = mkMerge [
     {
-      boot.kernelParams = mkIf (! config.fragments.remote) [ "boot.shell_on_fail" ];
+      boot.kernelParams = mkIf (!config.fragments.remote) [ "boot.shell_on_fail" ];
       environment.sessionVariables.TERMINFO = pkgs.lib.mkDefault "/run/current-system/sw/share/terminfo"; # TODO: the fish bug that needed this may now be fixed, should test
       environment.sessionVariables.EDITOR = "nvim";
       services.locate.enable = false;
@@ -60,7 +66,8 @@ in
         nixpkgs-help
       ];
     })
-    { # Disable coredump creation, collection, and storage
+    {
+      # Disable coredump creation, collection, and storage
       # Main with systemd-coredumpd: it doesn't¹ do streaming compression, it
       # first writes out the dump file in full and then reads that to write a
       # compressed version. Given it is passed the coredump from the kernel as
@@ -101,7 +108,7 @@ in
       boot.tmp.cleanOnBoot = true;
 
       # Internationalisation & localization properties.
-      console.font   = mkOverride 999 "lat9w-16";
+      console.font = mkOverride 999 "lat9w-16";
       i18n = {
         defaultLocale = "en_AU.UTF-8";
         extraLocaleSettings = {
@@ -124,53 +131,57 @@ in
     (mkIf config.boot.loader.systemd-boot.enable {
       fileSystems.${config.boot.loader.efi.efiSysMountPoint}.options = [ "umask=0077" ];
     })
-    (let
-      memSize = "2M";
-      memLabel = "pstore";
-      # NOTE: We don't setup pstore if crashdump is enabled: pstore code runs
-      # in the context of the crashed kernel, and thus is in a known-bad state
-      # and may further alter the system state. This isn't an issue normally
-      # (given it's already in a crashed state), but with crashdump enabled you
-      # ideally want to preserve the state of the system as it was when the
-      # crash was triggered, for debugging purposes. crashdump also largely
-      # obviates the utility of pstore panic logs anyway.
-    in mkIf ((system == "x86_64-linux") && (!config.boot.crashDump.enable)) {
-      boot.kernelParams = [
-        # Get the kernel to reserve a 2M region of memory for use as the
-        # backing pstore; it wil avoid wiping the RAM or otherwise writing to
-        # it, and will *attempt* to allocate the same physical region on each
-        # boot, but may fail (e.g. due to KASLR dropping the kernel itself in
-        # that region, or due to hardware changes affecting the system memory
-        # map).
-        # See:
-        # https://www.kernel.org/doc/Documentation/admin-guide/kernel-parameters.txt
-        # NOTE 1: It is also possible to use memmap to mark a *specific* range of
-        # physical memory as reserved or protected, and use that as the backing
-        # RAM for pstore, but this is a more hardware-specific approach and is
-        # insensitive to changes in hardware configuration. OTOH you'd
-        # *probably* be fine doing `memmap=2M!8M` on typical x86_64 hardware.
-        # NOTE 2: Persistence of typical DRAM isn't great; generally things do
-        # survive *hot* reboots pretty well, but your BIOS/UEFI may screw you
-        # on this by wiping or write-testing RAM during bootup.
-        "reserve_mem=${memSize}:4096:${memLabel}"
-        # Configure ramoops pstore backend
-        "ramoops.mem_name=${memLabel}"
-        # You might want to set ramoops.ecc=1 to enable its software ECC mechanism
+    (
+      let
+        memSize = "2M";
+        memLabel = "pstore";
+        # NOTE: We don't setup pstore if crashdump is enabled: pstore code runs
+        # in the context of the crashed kernel, and thus is in a known-bad state
+        # and may further alter the system state. This isn't an issue normally
+        # (given it's already in a crashed state), but with crashdump enabled you
+        # ideally want to preserve the state of the system as it was when the
+        # crash was triggered, for debugging purposes. crashdump also largely
+        # obviates the utility of pstore panic logs anyway.
+      in
+      mkIf ((system == "x86_64-linux") && (!config.boot.crashDump.enable)) {
+        boot.kernelParams = [
+          # Get the kernel to reserve a 2M region of memory for use as the
+          # backing pstore; it wil avoid wiping the RAM or otherwise writing to
+          # it, and will *attempt* to allocate the same physical region on each
+          # boot, but may fail (e.g. due to KASLR dropping the kernel itself in
+          # that region, or due to hardware changes affecting the system memory
+          # map).
+          # See:
+          # https://www.kernel.org/doc/Documentation/admin-guide/kernel-parameters.txt
+          # NOTE 1: It is also possible to use memmap to mark a *specific* range of
+          # physical memory as reserved or protected, and use that as the backing
+          # RAM for pstore, but this is a more hardware-specific approach and is
+          # insensitive to changes in hardware configuration. OTOH you'd
+          # *probably* be fine doing `memmap=2M!8M` on typical x86_64 hardware.
+          # NOTE 2: Persistence of typical DRAM isn't great; generally things do
+          # survive *hot* reboots pretty well, but your BIOS/UEFI may screw you
+          # on this by wiping or write-testing RAM during bootup.
+          "reserve_mem=${memSize}:4096:${memLabel}"
+          # Configure ramoops pstore backend
+          "ramoops.mem_name=${memLabel}"
+          # You might want to set ramoops.ecc=1 to enable its software ECC mechanism
 
-        # Dump dmesg into pstore even on non-panic shutdowns; this is useful to
-        # help diagnose issues that occur mid-shutdown but aren't a full panic,
-        # and it doesn't really cost us anything to do
-        "printk.always_kmsg_dump=Y"
-      ];
-      boot.initrd.kernelModules = [
-        "ramoops"
-      ];
-      boot.kernelPatches = [
-        { name = "pstore_console_logs";
-          structuredExtraConfig.PSTORE_CONSOLE = lib.kernel.yes;
-          patch = null;
-        }
-      ];
-    })
+          # Dump dmesg into pstore even on non-panic shutdowns; this is useful to
+          # help diagnose issues that occur mid-shutdown but aren't a full panic,
+          # and it doesn't really cost us anything to do
+          "printk.always_kmsg_dump=Y"
+        ];
+        boot.initrd.kernelModules = [
+          "ramoops"
+        ];
+        boot.kernelPatches = [
+          {
+            name = "pstore_console_logs";
+            structuredExtraConfig.PSTORE_CONSOLE = lib.kernel.yes;
+            patch = null;
+          }
+        ];
+      }
+    )
   ];
 }

@@ -1,7 +1,21 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 let
   cfg = config.programs.eww;
-  inherit (lib) concatStringsSep literalExpression mkEnableOption mkIf mkMerge mkOption optionalString types;
+  inherit (lib)
+    concatStringsSep
+    literalExpression
+    mkEnableOption
+    mkIf
+    mkMerge
+    mkOption
+    optionalString
+    types
+    ;
 in
 {
   disabledModules = [
@@ -43,7 +57,7 @@ in
 
     runtimeDeps = mkOption {
       type = with types; listOf package;
-      default = [];
+      default = [ ];
       description = ''
         A list of the packages that your eww configuration will make use of at
         runtime.
@@ -52,51 +66,58 @@ in
 
     windows = mkOption {
       type = with types; listOf str;
-      default = [];
+      default = [ ];
       description = ''
         A list of eww windows to open on startup;
       '';
     };
   };
 
-  config = let
-    eww = "${config.programs.eww.package}/bin/eww";
-  in mkMerge [
-    (mkIf cfg.enable {
-      home.packages = [ cfg.package ];
-      xdg.configFile."eww".source = if !cfg.devMode
-        then cfg.configDir
-        else config.lib.file.mkOutOfStoreSymlink cfg.configDir;
-      systemd.user.services.eww = {
-        Unit = {
-          Description = "ElKowars Wacky Widgets daemon";
-          PartOf = [ "hm-graphical-session.target" ];
+  config =
+    let
+      eww = "${config.programs.eww.package}/bin/eww";
+    in
+    mkMerge [
+      (mkIf cfg.enable {
+        home.packages = [ cfg.package ];
+        xdg.configFile."eww".source =
+          if !cfg.devMode then cfg.configDir else config.lib.file.mkOutOfStoreSymlink cfg.configDir;
+        systemd.user.services.eww = {
+          Unit = {
+            Description = "ElKowars Wacky Widgets daemon";
+            PartOf = [ "hm-graphical-session.target" ];
+          };
+          Service = {
+            Environment =
+              let
+                runtimePackages = [
+                  cfg.package # Not sure this is needed, given EWW_COMMANd 'magic variable' should expand to the full path of the running binary?
+                  pkgs.bash # eww depends on having a `sh` available at runtime
+                ]
+                ++ cfg.runtimeDeps;
+              in
+              if !cfg.devMode then
+                "PATH=/run/wrappers/bin:${lib.makeBinPath runtimePackages}"
+              else
+                "PATH=/run/wrappers/bin:${lib.makeBinPath runtimePackages}:${config.lib.sn.makePath config.lib.sn.baseUserPath}";
+            ExecStart = "${eww} daemon --no-daemonize" + optionalString cfg.devMode " --debug";
+            Restart = "on-abnormal";
+            Slice = "session.slice";
+          };
+          Install.WantedBy = [ "hm-graphical-session.target" ];
         };
-        Service = {
-          Environment = let
-            runtimePackages = [
-              cfg.package # Not sure this is needed, given EWW_COMMANd 'magic variable' should expand to the full path of the running binary?
-              pkgs.bash # eww depends on having a `sh` available at runtime
-            ] ++ cfg.runtimeDeps;
-          in if !cfg.devMode
-            then "PATH=/run/wrappers/bin:${lib.makeBinPath runtimePackages}"
-            else "PATH=/run/wrappers/bin:${lib.makeBinPath runtimePackages}:${config.lib.sn.makePath config.lib.sn.baseUserPath}";
-          ExecStart = "${eww} daemon --no-daemonize" + optionalString cfg.devMode " --debug";
-          Restart = "on-abnormal";
-          Slice = "session.slice";
-        };
-        Install.WantedBy = [ "hm-graphical-session.target" ];
-      };
-    })
-    # Openbox window-opening implementation
-    (mkIf (cfg.enable && config.xsession.windowManager.openbox.enable && (cfg.windows != [])) {
-      xsession.windowManager.openbox.startupApps = with config.lib.openbox; listToAttrs [
-        (launchApp "eww-windows" ''
-          if ${pkgs.systemd}/bin/systemctl --user is-active eww.service >/dev/null; then
-            ${eww} open-many ${concatStringsSep " " cfg.windows}
-          fi
-        '')
-      ];
-    })
-  ];
+      })
+      # Openbox window-opening implementation
+      (mkIf (cfg.enable && config.xsession.windowManager.openbox.enable && (cfg.windows != [ ])) {
+        xsession.windowManager.openbox.startupApps =
+          with config.lib.openbox;
+          listToAttrs [
+            (launchApp "eww-windows" ''
+              if ${pkgs.systemd}/bin/systemctl --user is-active eww.service >/dev/null; then
+                ${eww} open-many ${concatStringsSep " " cfg.windows}
+              fi
+            '')
+          ];
+      })
+    ];
 }

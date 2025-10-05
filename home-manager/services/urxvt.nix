@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 with lib;
 let
   cfg = config.programs.urxvt;
@@ -47,36 +52,43 @@ in
     };
   };
   config = mkIf cfg.enable {
-    nixpkgs.overlays = singleton (self: super: {
-      rxvt-unicode-unwrapped-truecolor-emoji = super.rxvt-unicode-unwrapped-emoji.overrideAttrs(oa: rec {
-        name = "${pname}-${oa.version}";
-        pname = "rxvt-unicode-unwrapped-truecolor";
-        patches = oa.patches or [] ++ [
-          (super.fetchpatch {
-            name = "24-bit-color.patch";
-            url = "https://aur.archlinux.org/cgit/aur.git/plain/24-bit-color.patch?h=rxvt-unicode-truecolor-wide-glyphs";
-            sha256 = "sha256-HYBe2s4vVgiLnShaZmYps17sd46u9d7qp9xTPshsz4Q=";
-          })
-        ];
-        configureFlags = oa.configureFlags or [] ++ [
-          "--enable-24-bit-color"
-        ];
-      });
-    });
+    nixpkgs.overlays = singleton (
+      self: super: {
+        rxvt-unicode-unwrapped-truecolor-emoji = super.rxvt-unicode-unwrapped-emoji.overrideAttrs (oa: rec {
+          name = "${pname}-${oa.version}";
+          pname = "rxvt-unicode-unwrapped-truecolor";
+          patches = oa.patches or [ ] ++ [
+            (super.fetchpatch {
+              name = "24-bit-color.patch";
+              url = "https://aur.archlinux.org/cgit/aur.git/plain/24-bit-color.patch?h=rxvt-unicode-truecolor-wide-glyphs";
+              sha256 = "sha256-HYBe2s4vVgiLnShaZmYps17sd46u9d7qp9xTPshsz4Q=";
+            })
+          ];
+          configureFlags = oa.configureFlags or [ ] ++ [
+            "--enable-24-bit-color"
+          ];
+        });
+      }
+    );
     programs.urxvt = {
-      package = pkgs.rxvt-unicode.override(oa: {
+      package = pkgs.rxvt-unicode.override (oa: {
         rxvt-unicode-unwrapped = pkgs.rxvt-unicode-unwrapped-truecolor-emoji;
-        configure = { availablePlugins, ... }: {
-          plugins = with availablePlugins; [
-            autocomplete-all-the-things
-            perl
-            perls
-            tabbedex
-            font-size
-            theme-switch
-            vtwheel
-          ] ++ attrValues (filterAttrs (n: v: v != null) cfg.plugins);
-        };
+        configure =
+          { availablePlugins, ... }:
+          {
+            plugins =
+              with availablePlugins;
+              [
+                autocomplete-all-the-things
+                perl
+                perls
+                tabbedex
+                font-size
+                theme-switch
+                vtwheel
+              ]
+              ++ attrValues (filterAttrs (n: v: v != null) cfg.plugins);
+          };
       });
       fonts = [
         "xft:${cfg.font}:size=${toString cfg.fontSize}:antialias=true"
@@ -99,7 +111,10 @@ in
       urxvtd = {
         Unit = {
           Description = "Urxvt Terminal Daemon";
-          Documentation = [ "man:urxvtd(1)" "man:urxvt(1)" ];
+          Documentation = [
+            "man:urxvtd(1)"
+            "man:urxvt(1)"
+          ];
           # Avoid killing active terminals; newer urxvtc versions can generally
           # talk to older urxvtd instances anyway
           X-RestartIfChanged = false;
@@ -109,8 +124,7 @@ in
         # backwards-compatible with older daemons?
         Service = {
           ExecStart = "${cfg.package}/bin/urxvtd -q -m";
-          ExecReload = mkIf (cfg.plugins ? config-reload)
-            "${pkgs.utillinux}/bin/kill -HUP $MAINPID";
+          ExecReload = mkIf (cfg.plugins ? config-reload) "${pkgs.utillinux}/bin/kill -HUP $MAINPID";
           Restart = "always";
         };
 

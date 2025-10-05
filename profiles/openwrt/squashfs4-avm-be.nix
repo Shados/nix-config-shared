@@ -1,16 +1,25 @@
-{ lib, stdenv, fetchurl, fetchFromGitHub
-, which, help2man
-, zlib, xz
+{
+  lib,
+  stdenv,
+  fetchurl,
+  fetchFromGitHub,
+  which,
+  help2man,
+  zlib,
+  xz,
 }:
 let
   inherit (lib) attrNames filterAttrs;
 
   patches = map (name: patchDir + "/${name}") patchFileNames;
 
-  patchFileNames = attrNames (filterAttrs (_path: pathType: pathType == "regular") (builtins.readDir patchDir));
+  patchFileNames = attrNames (
+    filterAttrs (_path: pathType: pathType == "regular") (builtins.readDir patchDir)
+  );
   patchDir = freetz-ng.outPath + "/make/host-tools/squashfs4-be-host/patches";
   freetz-ng = fetchFromGitHub {
-    owner = "Freetz-NG"; repo = "freetz-ng";
+    owner = "Freetz-NG";
+    repo = "freetz-ng";
     rev = "6eb5d1892dc72dd35d50d4de273d15bc72a570d8";
     sha256 = "1x2nd7ymyi3nysgxp8yf18aixqys1nq7nrd6ri4wxsm95r5h17j5";
   };
@@ -30,16 +39,21 @@ stdenv.mkDerivation rec {
   ];
 
   strictDeps = true;
-  nativeBuildInputs = [ which ]
-    # when cross-compiling help2man cannot run the cross-compiled binary
-    ++ lib.optionals (stdenv.hostPlatform == stdenv.buildPlatform) [ help2man ];
-  buildInputs = [ zlib xz ];
+  nativeBuildInputs = [
+    which
+  ]
+  # when cross-compiling help2man cannot run the cross-compiled binary
+  ++ lib.optionals (stdenv.hostPlatform == stdenv.buildPlatform) [ help2man ];
+  buildInputs = [
+    zlib
+    xz
+  ];
 
   preBuild = ''
     cd squashfs-tools
     # TODO figure out how to pass this in makeFlags without shit breaking?
     makeFlagsArray+=("EXTRA_CFLAGS=-fcommon -DTARGET_FORMAT=AVM_BE")
-  '' ;
+  '';
 
   installFlags = [
     "INSTALL_DIR=${placeholder "out"}/bin"
@@ -55,7 +69,6 @@ stdenv.mkDerivation rec {
     "XATTR_SUPPORT=0"
     "XATTR_DEFAULT=0"
   ];
-
 
   meta = with lib; {
     homepage = "https://github.com/plougher/squashfs-tools";

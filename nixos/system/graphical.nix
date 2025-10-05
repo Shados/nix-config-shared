@@ -1,4 +1,9 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 with lib;
 let
   cfg = config.fragments.graphical;
@@ -93,36 +98,40 @@ in
         ];
         portal.config.common.default = "gtk";
       };
-      environment.systemPackages = with pkgs; with pkgs.xorg; [
-        xmodmap
+      environment.systemPackages =
+        with pkgs;
+        with pkgs.xorg;
+        [
+          xmodmap
 
-        # Baseline themes / theme engines
-        tango-icon-theme
-        hicolor-icon-theme
-        gnome-icon-theme
-        kdePackages.oxygen
-        gtk2
-        gtk_engines
-        gtk-engine-murrine
-        gnome-themes-extra
-        adwaita-icon-theme
+          # Baseline themes / theme engines
+          tango-icon-theme
+          hicolor-icon-theme
+          gnome-icon-theme
+          kdePackages.oxygen
+          gtk2
+          gtk_engines
+          gtk-engine-murrine
+          gnome-themes-extra
+          adwaita-icon-theme
 
-        arc-theme
-        arc-icon-theme
+          arc-theme
+          arc-icon-theme
 
-        glxinfo
-        lxappearance
+          glxinfo
+          lxappearance
 
-        snap
+          snap
 
-        # Spellchecking dictionary
-        hunspellDicts.en-gb-ise
-      ];
-      nixpkgs.config.packageOverrides = pkgs: with pkgs; {
-        # qt48 = pkgs.qt48.override { gtkStyle = true; };
-        # qt55 = pkgs.qt55.override { gtkStyle = true; };
-        # qt56 = pkgs.qt56.override { gtkStyle = true; };
-      };
+          # Spellchecking dictionary
+          hunspellDicts.en-gb-ise
+        ];
+      nixpkgs.config.packageOverrides =
+        pkgs: with pkgs; {
+          # qt48 = pkgs.qt48.override { gtkStyle = true; };
+          # qt55 = pkgs.qt55.override { gtkStyle = true; };
+          # qt56 = pkgs.qt56.override { gtkStyle = true; };
+        };
 
       # Convenient `/etc` symlink so I can easily reload from my defaults
       environment.etc.default_xresources.source = default_xresources;
@@ -145,9 +154,11 @@ in
         glib # for gsettings itself
         gsettings-desktop-schemas
       ];
-      environment.sessionVariables.XDG_DATA_DIRS = let
-        schema = pkgs.gsettings-desktop-schemas;
-      in singleton "${schema}/share/gsettings-schemas/${schema.name}";
+      environment.sessionVariables.XDG_DATA_DIRS =
+        let
+          schema = pkgs.gsettings-desktop-schemas;
+        in
+        singleton "${schema}/share/gsettings-schemas/${schema.name}";
     }
     # Further Gnome compat crap
     {
