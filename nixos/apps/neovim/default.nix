@@ -213,11 +213,6 @@ in
           ];
         }
         { extraConfig = mkAfter ''
-            -- Nix
-            register_ale_tool(ale_linters, "nix", "nix-instantiate", "nix")
-          '';
-        }
-        { extraConfig = mkAfter ''
             -- YAML
             register_ale_tool(ale_linters, "yaml", "yamllint")
           '';
@@ -261,11 +256,6 @@ in
           ${optionalString plugCfg.vim-toml.enable ''g.vim_markdown_toml_frontmatter = 1''}
           ${optionalString plugCfg.vim-json.enable ''g.vim_markdown_json_frontmatter = 1''}
         '';
-      };
-      # Nix syntax highlighting, error checking/linting is handled by ALE
-      vim-nix = {
-        enable = true;
-        source = vimPlugins.vim-nix;
       };
       vim-systemd-syntax = {
         enable = true;

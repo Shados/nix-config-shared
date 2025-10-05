@@ -12,6 +12,9 @@ in
     # ./neuron.nix
     ./python.nix
   ];
+  home.packages = with pkgs; [
+    nixfmt-rfc-style
+  ];
   sn.programs.neovim = {
     mergePlugins = true;
     extraBinPackages = with pkgs; [
@@ -55,9 +58,9 @@ in
 
               -- Set some keybinds conditional on server capabilities
               if client.server_capabilities.documentFormattingProvider
-                local_map "n", "<leader>F", "<cmd>lua vim.lsp.buf.formatting()<CR>", { noremap: true, silent: true }
+                local_map "n", "<leader>F", "<cmd>lua vim.lsp.buf.format()<CR>", { noremap: true, silent: true }
               if client.server_capabilities.documentRangeFormattingProvider
-                local_map "v", "<leader>F", "<cmd>lua vim.lsp.buf.range_formatting()<CR>", { noremap: true, silent: true }
+                local_map "v", "<leader>F", "<cmd>lua vim.lsp.buf.format()<CR>", { noremap: true, silent: true }
 
               -- Set autocommands conditional on server_capabilities
               if client.server_capabilities.documentHighlightProvider
@@ -111,6 +114,31 @@ in
             pkgs.gopls
           ];
         }
+        # Nix
+        { extraConfig = mkAfter ''
+            lspconfig.nil_ls.setup
+              on_attach: lsp_on_attach
+              settings:
+                nil:
+                  formatting:
+                    command: { "nixfmt" }
+            nix_fixer_cb = (event) -> (autocmd) ->
+              autocmd {"BufWritePre"}, {
+                buffer: event.buf,
+                callback: -> vim.lsp.buf.format!
+              }
+            vim.api.nvim_create_autocmd {"FileType"}, {
+              group: "vimrc",
+              pattern: { "nix" },
+              callback: (event) -> augroup "Fixers", (nix_fixer_cb event), { clear: true }
+            }
+            ale_linters.nix = {}
+          '';
+          binDeps = [
+            pkgs.nil
+            pkgs.nixfmt-rfc-style
+          ];
+        }
         # # OCaml
         # { extraConfig = mkAfter ''
         #     lspconfig.ocamllsp.setup
@@ -149,7 +177,7 @@ in
               vim.api.nvim_create_autocmd {"FileType"}, {
                 group: "vimrc",
                 pattern: { "rust" },
-                callback: (event) -> augroup "RustFixers", (rust_fixer_cb event), { clear: true }
+                callback: (event) -> augroup "Fixers", (rust_fixer_cb event), { clear: true }
               }
           '';
         }
