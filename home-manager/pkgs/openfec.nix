@@ -5,12 +5,12 @@
 }:
 stdenv.mkDerivation rec {
   pname = "openfec";
-  version = "v1.4.2.4";
+  version = "v1.4.2.12";
   src = fetchFromGitHub {
     owner = "roc-streaming";
     repo = pname;
     rev = version;
-    sha256 = "sha256-o8ar+hBB4Da4d4rziLnnDmZh0dQyiBxxz8lVj5dqQCo=";
+    sha256 = "sha256-KOP3LqCZHdEgm+XhzBdNxnJipGC4gpvA57T7mIeSyaE=";
   };
   cmakeFlags = [
     "-DBUILD_STATIC_LIBS=ON"

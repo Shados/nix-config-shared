@@ -8,6 +8,7 @@
   doxygen,
   libuv,
   libunwind,
+  libsndfile,
   openfec,
   pulseaudio,
   sox,
@@ -17,12 +18,12 @@
 }:
 stdenv.mkDerivation rec {
   pname = "roc-toolkit";
-  version = "unstable-2023-05-30";
+  version = "unstable-2025-06-11";
   src = fetchFromGitHub {
     owner = "roc-streaming";
     repo = pname;
-    rev = "13da01d5a82b5c61e34aaa11865134d7371810f4";
-    sha256 = "1bl81x2biw939cczfvasbnxb0nsys8sxcipz1cji601fvirwysai";
+    rev = "7d7d73cd1cf4a7cc019b6491d45b9eb772dbf4e6";
+    sha256 = "sha256-YlG1oDMl+yo7RL9aNUGK8YHnp9/4eahNOSeWiXLE7og=";
   };
   sconsFlags = [
     "--with-openfec-includes=${openfec}/include"
@@ -40,6 +41,7 @@ stdenv.mkDerivation rec {
   buildInputs = [
     libuv
     libunwind
+    libsndfile
     openfec
     pulseaudio
     sox
