@@ -29,6 +29,14 @@
     nix-index-database.inputs.nixpkgs.follows = "nixpkgs";
     nix-gaming.url = "github:fufexan/nix-gaming";
     nix-gaming.inputs.nixpkgs.follows = "nixpkgs";
+    # FIXME: replace with my own bwrapper, as everything after this commit doesn't work with x11 host
+    nix-bwrapper.url = "github:Naxdy/nix-bwrapper/0b6a5531cf174d9fe3734c6cd726ffbe03cc8058";
+    nix-bwrapper.inputs.nixpkgs.follows = "nixpkgs";
+    # TODO: is it *possible* to move something like this to a Niv pin, instead?
+    # Not considering whether it is desirable or not, I'd like to know if it's
+    # doable...
+    wired-notify.url = "github:Toqozz/wired-notify";
+    wired-notify.inputs.nixpkgs.follows = "nixpkgs";
 
     # Additional nixpkgs overlays
     neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
@@ -68,6 +76,10 @@
             ./home-manager/module.nix
             ./shared/overlays.nix
             ./shared/lib.nix
+          ];
+          nixpkgs.overlays = [
+            inputs.nix-bwrapper.overlays.default
+            inputs.wired-notify.overlays.default
           ];
         };
       openWRTModules.default =
