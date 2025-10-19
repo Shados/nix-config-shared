@@ -25,7 +25,6 @@ in
     ./nix.nix
     ./smtp.nix
     ./ssh
-    ./tpm2.nix
     ./users.nix
     ./zfs.nix
   ];
@@ -39,9 +38,7 @@ in
       environment.sessionVariables.TERMINFO = pkgs.lib.mkDefault "/run/current-system/sw/share/terminfo"; # TODO: the fish bug that needed this may now be fixed, should test
       environment.sessionVariables.EDITOR = "nvim";
       services.locate.enable = false;
-      services.logind.extraConfig = ''
-        KillUserProcesses=no
-      '';
+      services.logind.settings.Login.KillUserProcesses = false;
       systemd.enableEmergencyMode = mkDefault false;
       # TODO: hm equivalent config, for darwin only
       programs.command-not-found.enable = false;
