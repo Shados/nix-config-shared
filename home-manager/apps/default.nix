@@ -55,7 +55,7 @@ in
       });
 
       pidgin-wrapped = super.pidgin.override {
-        plugins = with super; [ pidgin-opensteamworks ];
+        plugins = with super; [];
       };
     })
   ];
