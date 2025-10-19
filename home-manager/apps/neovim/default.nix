@@ -39,7 +39,6 @@ in
             "ale" # As we modify some ALE settings :O
           ];
           extraConfig = ''
-            lspconfig = require "lspconfig"
             lsp_on_attach = (client, bufnr) ->
               -- bo.omnifunc = "v:lua.vim.lsp.omnifunc"
               local_map = (...) -> api.nvim_buf_set_keymap bufnr, ...
@@ -85,13 +84,15 @@ in
                     callback: -> vim.lsp.buf.clear_references!
                   }),
                   { clear: true }
+            vim.lsp.config "*", {
+              on_attach: lsp_on_attach
+            }
           '';
         }
         # Bash/Shell
         {
           extraConfig = mkAfter ''
-            lspconfig.bashls.setup
-              on_attach: lsp_on_attach
+            vim.lsp.enable "bashls"
             ale_linters.sh = {}
           '';
           binDeps = [
@@ -101,8 +102,7 @@ in
         # CSS
         {
           extraConfig = mkAfter ''
-            lspconfig.cssls.setup
-              on_attach: lsp_on_attach
+            vim.lsp.enable "cssls"
             ale_linters.css = {}
             ale_linters.less = {}
             ale_linters.sass = {}
@@ -115,8 +115,7 @@ in
         # Go
         {
           extraConfig = mkAfter ''
-            lspconfig.gopls.setup
-              on_attach: lsp_on_attach
+            vim.lsp.enable "gopls"
             ale_linters.go = {}
           '';
           binDeps = [
@@ -126,12 +125,13 @@ in
         # Nix
         {
           extraConfig = mkAfter ''
-            lspconfig.nil_ls.setup
-              on_attach: lsp_on_attach
+            vim.lsp.config "nil_ls", {
               settings:
                 nil:
                   formatting:
                     command: { "nixfmt" }
+            }
+            vim.lsp.enable "nil_ls"
             nix_fixer_cb = (event) -> (autocmd) ->
               autocmd {"BufWritePre"}, {
                 buffer: event.buf,
@@ -162,8 +162,7 @@ in
         # Ruby
         {
           extraConfig = mkAfter ''
-            lspconfig.solargraph.setup
-              on_attach: lsp_on_attach
+            vim.lsp.enable "solargraph"
             ale_linters.ruby = {}
           '';
           binDeps = [
@@ -177,8 +176,7 @@ in
         {
           extraConfig = mkAfter ''
             if (fn.executable "cargo") != 0
-              lspconfig.rust_analyzer.setup
-                on_attach: lsp_on_attach
+              vim.lsp.enable "rust_analyzer"
               ale_fixers.rust = {}
               ale_linters.rust = {}
               rust_fixer_cb = (event) -> (autocmd) ->
@@ -198,8 +196,7 @@ in
         {
           extraConfig = mkAfter ''
             if (fn.executable "typescript-language-server") != 0
-              lspconfig.ts_ls.setup
-                on_attach: lsp_on_attach
+              vim.lsp.enable "ts_ls"
           '';
         }
       ];
