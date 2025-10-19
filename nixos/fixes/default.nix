@@ -33,6 +33,12 @@ in
       '';
     }
     {
+      # Needed for ts3 client
+      nixpkgs.config.permittedInsecurePackages = [
+        "qtwebengine-5.15.19"
+      ];
+    }
+    {
       # Testing workaround for nixpkgs issue #375376
       systemd.package = pkgs.systemd.overrideAttrs (oa: {
         patches = oa.patches or [ ] ++ [
