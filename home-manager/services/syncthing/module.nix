@@ -1,3 +1,5 @@
+# FIXME ditch using a custom module for this, just retain thisDevice and use it
+# when reading in my JSON config data
 {
   config,
   lib,
@@ -359,9 +361,11 @@ in
         Service = {
           ExecStart = ''
             ${pkgs.syncthing}/bin/syncthing \
-                        -no-browser \
-                        -gui-address=${cfg.guiAddress} \
-                        -logflags=0'';
+              serve \
+              --no-browser \
+              --no-restart \
+              --no-upgrade \
+              --gui-address=${cfg.guiAddress}'';
           Restart = "on-failure";
           SuccessExitStatus = [
             2

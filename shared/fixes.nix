@@ -36,15 +36,6 @@ in
 
   pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
     (pyfinal: pyprev: {
-      # Fix for nixpkgs issue #437077
-      pyliblo3 = pyprev.pyliblo3.overridePythonAttrs (oa: {
-        patches = oa.patches or [ ] ++ [
-          (prev.fetchpatch {
-            url = "https://github.com/gesellkammer/pyliblo3/pull/15.patch";
-            sha256 = "sha256-scyc68Kkd5oftw8tV/U5kFnuN06MHNhtroHSpnB33sA=";
-          })
-        ];
-      });
       # Fix for uncaught issue in PR #341434
       pastedeploy = pyprev.pastedeploy.overridePythonAttrs (oa: {
         src =
