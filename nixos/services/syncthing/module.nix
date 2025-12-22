@@ -1,3 +1,5 @@
+# FIXME ditch using a custom module for this, just retain thisDevice and use it
+# when reading in my JSON config data
 {
   config,
   lib,
@@ -409,9 +411,12 @@ in
               ''}";
           ExecStart = ''
             ${cfg.package}/bin/syncthing \
-              -no-browser \
-              -gui-address=${cfg.guiAddress} \
-              -home=${cfg.configDir}
+              serve \
+              --no-browser \
+              --no-restart \
+              --no-upgrade \
+              --gui-address=${cfg.guiAddress} \
+              --home=${cfg.configDir}
           '';
         };
       };
