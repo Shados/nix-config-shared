@@ -2,6 +2,7 @@
   stdenv,
   lib,
   writeScriptBin,
+  writers,
   fish,
   maim,
   xdotool,
@@ -10,7 +11,7 @@
 }:
 
 let
-  screenshot_dir = "~/technotheca/artifacts/media/images/screenshots";
+  screenshot_dir = "$HOME/technotheca/artifacts/media/images/screenshots";
   bin = {
     maim = "${maim}/bin/maim";
     pb = "${pastebin}/bin/pastebin";
@@ -34,7 +35,7 @@ let
         if test (count $argv) -gt 0
           if test $argv[1] = "-l"
             set -l ss_path ${screenshot_dir}/(hostname)-(date +%F-%T).png
-            ${mkSnapLine args} $ss_path | ${bin.notify} -t 3000 "Screenshot saved to $ss_path"
+            ${mkSnapLine args} $ss_path && ${bin.notify} -t 3000 "Screenshot saved to $ss_path"
           else
             echo "Unrecognized argument $argv[1]"
           end
@@ -47,6 +48,33 @@ let
   scripts = [
     (mkSnapScript "snap" { i = "(${bin.xdot} getactivewindow)"; })
     (mkSnapScript "snapregion" { s = null; })
+    (writers.writeBashBin "snapscreen" ''
+      ss_path="${screenshot_dir}/$(hostname)-$(date +%F-%T).png"
+      MONITORS=$(xrandr | grep -o '[0-9]*x[0-9]*[+-][0-9]*[+-][0-9]*')
+      # Get the location of the mouse
+      XMOUSE=$(xdotool getmouselocation | awk -F "[: ]" '{print $2}')
+      YMOUSE=$(xdotool getmouselocation | awk -F "[: ]" '{print $4}')
+
+      for mon in ''${MONITORS}; do
+        # Parse the geometry of the monitor
+        MONW=$(echo ''${mon} | awk -F "[x+]" '{print $1}')
+        MONH=$(echo ''${mon} | awk -F "[x+]" '{print $2}')
+        MONX=$(echo ''${mon} | awk -F "[x+]" '{print $3}')
+        MONY=$(echo ''${mon} | awk -F "[x+]" '{print $4}')
+        # Use a simple collision check
+        if (( ''${XMOUSE} >= ''${MONX} )); then
+          if (( ''${XMOUSE} <= ''${MONX}+''${MONW} )); then
+            if (( ''${YMOUSE} >= ''${MONY} )); then
+              if (( ''${YMOUSE} <= ''${MONY}+''${MONH} )); then
+                # We have found our monitor!
+                ${bin.maim} -g "''${MONW}x''${MONH}+''${MONX}+''${MONY}" "$ss_path" && ${bin.notify} -t 3000 "Screenshot saved to $ss_path"
+                exit 0
+              fi
+            fi
+          fi
+        fi
+      done
+    '')
   ];
 in
 stdenv.mkDerivation rec {
