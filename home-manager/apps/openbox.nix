@@ -59,7 +59,9 @@ in
       xorg.xset
       xorg.xrdb
       nitrogen
-      tint2
+      xfce.xfconf
+      xfce.xfce4-panel
+      xfce.xfce4-panel-profiles
       networkmanagerapplet
       pidgin-wrapped
       libnotify
@@ -77,11 +79,11 @@ in
           (launchTray "nitrogen" ''
             ${pkgs.nitrogen}/bin/nitrogen --restore &
           '')
-          (launchTray "tint2" ''
-            ${pkgs.tint2}/bin/tint2 &
-          '')
           (launchApp "pidgin" ''
             ${pkgs.pidgin-wrapped}/bin/pidgin &
+          '')
+          (launchTray "xfce4-panel" ''
+            ${pkgs.xfce.xfce4-panel}/bin/xfce4-panel &
           '')
         ];
 
