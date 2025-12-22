@@ -123,33 +123,33 @@ in
 
       # Custom toggle-mute keybind, seeing as discord can't manage to do either cusotm keybinds or global keybinds itself
       (mkIf (dCfg.enable || vCfg.enable) {
-        xsession.windowManager.openbox.mouse.mousebind =
-          let
-            toggleVesktopMute = {
-              # NOTE: I found which mouse Button# was correct using xev
-              button = "C-Button9";
-              action = "press";
-              actions = [
-                {
-                  action = "execute";
-                  command = "${pkgs.writeScript "discord-toggle-mute" ''
-                    #!${pkgs.stdenv.shell}
-                    orig_winid=$(${xdotool} getwindowfocus)
-                    ${xdotool} search --classname '^(discord|vesktop)$' | while read -r winid; do
-                      ${xdotool} windowfocus --sync "$winid"
-                      ${xdotool} key --delay 1 'ctrl+shift+m'
-                    done
-                    ${xdotool} windowfocus --sync "$orig_winid"
-                  ''}";
-                }
-              ];
-            };
-            xdotool = getExe pkgs.xdotool;
-          in
-          {
-            "frame" = singleton toggleVesktopMute;
-            "desktop" = singleton toggleVesktopMute;
-          };
+        #xsession.windowManager.openbox.mouse.mousebind =
+        #  let
+        #    toggleVesktopMute = {
+        #      # NOTE: I found which mouse Button# was correct using xev
+        #      button = "C-Button9";
+        #      action = "press";
+        #      actions = [
+        #        {
+        #          action = "execute";
+        #          command = "${pkgs.writeScript "discord-toggle-mute" ''
+        #            #!${pkgs.stdenv.shell}
+        #            orig_winid=$(${xdotool} getwindowfocus)
+        #            ${xdotool} search --classname '^(discord|vesktop)$' | while read -r winid; do
+        #              ${xdotool} windowfocus --sync "$winid"
+        #              ${xdotool} key --delay 1 'ctrl+shift+m'
+        #            done
+        #            ${xdotool} windowfocus --sync "$orig_winid"
+        #          ''}";
+        #        }
+        #      ];
+        #    };
+        #    xdotool = getExe pkgs.xdotool;
+        #  in
+        #  {
+        #    "frame" = singleton toggleVesktopMute;
+        #    "desktop" = singleton toggleVesktopMute;
+        #  };
       })
     ];
 }
