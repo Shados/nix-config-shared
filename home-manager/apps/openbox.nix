@@ -79,9 +79,6 @@ in
           (launchTray "nitrogen" ''
             ${pkgs.nitrogen}/bin/nitrogen --restore &
           '')
-          (launchApp "pidgin" ''
-            ${pkgs.pidgin-wrapped}/bin/pidgin &
-          '')
           (launchTray "xfce4-panel" ''
             ${pkgs.xfce.xfce4-panel}/bin/xfce4-panel &
           '')
