@@ -71,7 +71,7 @@ in
       }
       // optionalAttrs (config.sshHostEd25519Key != null) {
         "/etc/dropbear/dropbear_ed25519_host_key".source =
-          pkgs.runCommandNoCCLocal "openwrt-ed25519-key"
+          pkgs.runCommandLocal "openwrt-ed25519-key"
             {
               nativeBuildInputs = [
                 pkgs.dropbear

@@ -251,7 +251,7 @@ in
     lib = {
       compileMoonBin =
         name: moonScript:
-        pkgs.runCommandNoCCLocal "moon-bin-${name}"
+        pkgs.runCommandLocal "moon-bin-${name}"
           {
             inherit name;
             src = moonScript;

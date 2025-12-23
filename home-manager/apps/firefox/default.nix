@@ -9,7 +9,7 @@ with lib;
 let
   pins = import ../../../pins;
   ff-hardened-userjs =
-    pkgs.runCommandNoCC "ff-hardened-user.js"
+    pkgs.runCommand "ff-hardened-user.js"
       {
         src = pins.ff-hardened-userjs;
         nativeBuildInputs = with pkgs; [ gnused ];

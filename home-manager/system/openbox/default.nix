@@ -149,9 +149,8 @@ let
     let
       baseType = types.attrsOf elemType;
     in
-    baseType
+    (types.addCheck baseType (x: isAttrs x && (all (nameCheck) (attrNames x))))
     // {
-      check = x: isAttrs x && (all (nameCheck) (attrNames x));
       substSubModules = m: nameCheckAttrsOf nameCheck (elemType.substSubModules m);
     };
 in

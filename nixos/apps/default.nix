@@ -32,7 +32,7 @@ in
 
     # VCS
     git
-    gitAndTools.git-octopus
+    git-octopus
 
     # Debugging/sysadmin/System information
     man-pages # Linux kernel dev ones, e.g. man 5 proc

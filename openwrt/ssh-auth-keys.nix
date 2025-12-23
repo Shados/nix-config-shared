@@ -9,7 +9,7 @@
 let
   inherit (lib) concatMapStringsSep escapeShellArg;
 
-  fileTree = pkgs.runCommandNoCCLocal "openwrt-baseline-filetree" { } ''
+  fileTree = pkgs.runCommandLocal "openwrt-baseline-filetree" { } ''
     mkdir -p $out
 
     echo "Adding authorized SSH keys"

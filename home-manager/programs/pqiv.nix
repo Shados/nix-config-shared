@@ -150,7 +150,7 @@ in
       map (mime: nameValuePair mime "pqiv.desktop") (
         builtins.fromJSON (
           builtins.readFile (
-            pkgs.runCommandNoCC "pqiv-backend-mimetypes"
+            pkgs.runCommand "pqiv-backend-mimetypes"
               {
                 pqivSrc = cfg.package.src;
                 nativeBuildInputs = [ pkgs.jq ];

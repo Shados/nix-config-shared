@@ -84,7 +84,6 @@ in
                 perls
                 tabbedex
                 font-size
-                theme-switch
                 vtwheel
               ]
               ++ attrValues (filterAttrs (n: v: v != null) cfg.plugins);
@@ -124,7 +123,7 @@ in
         # backwards-compatible with older daemons?
         Service = {
           ExecStart = "${cfg.package}/bin/urxvtd -q -m";
-          ExecReload = mkIf (cfg.plugins ? config-reload) "${pkgs.utillinux}/bin/kill -HUP $MAINPID";
+          ExecReload = mkIf (cfg.plugins ? config-reload) "${pkgs.util-linux}/bin/kill -HUP $MAINPID";
           Restart = "always";
         };
 

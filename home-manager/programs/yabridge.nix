@@ -65,7 +65,7 @@ in
         paths =
           cfg.pluginDirs
           ++ singleton (
-            pkgs.runCommandNoCC "hm-yabridge-pluginfiles-dir"
+            pkgs.runCommand "hm-yabridge-pluginfiles-dir"
               {
                 preferLocalBuild = true;
               }

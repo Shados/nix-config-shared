@@ -40,7 +40,7 @@ let
   firmwareFilename = "${firmwarePackage.outputPrefix}-vr9-B-dsl.bin";
 
   firmwarePackage =
-    pkgs.runCommandNoCCLocal "netgear_dm200_modem_firmware"
+    pkgs.runCommandLocal "netgear_dm200_modem_firmware"
       {
         src = firmwareImages.${currentFirmwareVersion};
         nativeBuildInputs = with pkgs; [

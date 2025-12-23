@@ -128,7 +128,7 @@ in
   config =
     let
       fileTree =
-        pkgs.runCommandNoCCLocal "openwrt-file-tree"
+        pkgs.runCommandLocal "openwrt-file-tree"
           {
             nativeBuildInputs = [
               (pkgs.luajit.withPackages (

@@ -26,10 +26,6 @@ let
     pkg = config.programs.urxvt.package;
     bin = "${pkg}/bin/urxvtc";
   };
-  music = rec {
-    pkg = pkgs.mpc_cli;
-    bin = "${pkg}/bin/mpc";
-  };
 in
 {
   config = mkIf config.xsession.windowManager.openbox.enable {
@@ -54,7 +50,6 @@ in
     home.packages = with pkgs; [
       explorer.pkg
       runner.pkg
-      music.pkg
 
       xorg.xset
       xorg.xrdb

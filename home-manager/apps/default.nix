@@ -55,15 +55,17 @@ in
       });
 
       pidgin-wrapped = super.pidgin.override {
-        plugins = with super; [];
+        plugins = with super; [ ];
       };
     })
   ];
   programs.git = {
     enable = true;
-    userName = "Alexei Robyn";
-    userEmail = "shados@shados.net";
-    extraConfig = {
+    settings = {
+      user = {
+        name = "Alexei Robyn";
+        email = "shados@shados.net";
+      };
       push = {
         default = "simple";
       };

@@ -64,7 +64,7 @@ in
         with pkgs;
         let
           product-sans = (
-            runCommandNoCC "font-product-sans"
+            runCommand "font-product-sans"
               {
                 src = lib.cleanSourceWith {
                   filter = name: _: (lib.hasSuffix ".ttf" (baseNameOf (toString name)));

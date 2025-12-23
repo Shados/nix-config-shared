@@ -104,7 +104,7 @@ let
   # TODO remove / migrate to lib? {{{
   scriptToDerivation =
     name: script: runtimeDeps:
-    pkgs.runCommandNoCC name
+    pkgs.runCommand name
       {
         src = script;
         nativeBuildInputs = with pkgs; [

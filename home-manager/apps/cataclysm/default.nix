@@ -38,7 +38,7 @@ let
     let
       name = removeSuffix ".zip" (last (splitString "/" zipPath));
     in
-    pkgs.runCommandNoCCLocal name
+    pkgs.runCommandLocal name
       {
         src = zipPath;
         nativeBuildInputs = with pkgs; [

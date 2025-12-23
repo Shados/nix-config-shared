@@ -63,7 +63,7 @@ in
       in
       {
         source =
-          pkgs.runCommandNoCC "pipewire-config-overrides"
+          pkgs.runCommand "pipewire-config-overrides"
             {
               preferLocalBuild = true;
               nativeBuildInputs = [ pkgs.jq ];

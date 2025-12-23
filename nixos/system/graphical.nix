@@ -118,7 +118,7 @@ in
           arc-theme
           arc-icon-theme
 
-          glxinfo
+          mesa-demos
           lxappearance
 
           snap
