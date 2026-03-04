@@ -200,7 +200,7 @@ in
       };
       security.rtkit.enable = true;
       environment.variables.AE_SINK = "alsa";
-      environment.variables.SDL_AUDIODRIVER = "pipewire";
+      environment.variables.SDL_AUDIODRIVER = "pipewire,pulseaudio,alsa";
       environment.variables.ALSOFT_DRIVERS = "pipewire";
     }
 
