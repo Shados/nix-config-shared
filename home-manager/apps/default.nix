@@ -148,6 +148,7 @@ in
         else:
             print(quote(sys.stdin.read()))
       '')
+      ripgrep-all
     ]
     # TODO More precise "graphical-only" check would be nice, so as to not
     # presume X11/xorg usage

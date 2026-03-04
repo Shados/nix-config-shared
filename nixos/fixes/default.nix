@@ -39,7 +39,7 @@ in
       ];
     }
     {
-      # Testing workaround for nixpkgs issue #375376
+      # Workaround for nixpkgs issue #375376
       systemd.package = pkgs.systemd.overrideAttrs (oa: {
         patches = oa.patches or [ ] ++ [
           ./systemd-fstab-generator-timeout.patch
