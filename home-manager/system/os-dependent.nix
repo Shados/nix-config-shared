@@ -5,15 +5,28 @@
   ...
 }:
 let
-  inherit (lib) mkAfter mkBefore;
+  inherit (lib) mkAfter mkBefore mkMerge mkOrder;
   prefixEnvPath = varName: elems: (lib.concatStringsSep ":" elems) + "\${${varName}:+:}\$${varName}";
 in
 {
   config = lib.mkMerge [
     (lib.mkIf (config.sn.os == "darwin") {
-      home.sessionPath = mkBefore [
-        "${config.home.profileDirectory}/bin"
-        "/nix/var/nix/profiles/default/bin"
+      home.sessionPath = mkMerge [
+        (mkOrder 400 [
+          # mkBefore is 500, so this is slightly higher-priority than it
+          "${config.home.profileDirectory}/bin"
+          "/nix/var/nix/profiles/default/bin"
+        ])
+        [
+          "/usr/local/bin"
+          "/System/Cryptexes/App/usr/bin"
+          "/usr/bin"
+          "/bin"
+          "/usr/sbin"
+          "/sbin"
+          "/Library/Apple/usr/bin"
+          "/opt/X11/bin"
+        ]
       ];
       sn.programs.neovim.extraConfig = ''
         g.netrw_browsex_viewer = "/usr/bin/open -a \"/Applications/Google Chrome.app\""
