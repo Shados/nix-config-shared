@@ -32,6 +32,7 @@
         extended = true;
         save = 1000000000;
         size = save;
+        path = "${config.xdg.dataHome}/zsh/history";
       };
       initContent = ''
         # TODO check for interactive session
