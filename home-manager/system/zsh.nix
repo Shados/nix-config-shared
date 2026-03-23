@@ -23,7 +23,7 @@
         custom = toString (
           pkgs.runCommand "oh-my-zsh-custom" { } ''
             mkdir -p "$out/themes"
-            cp -r ${pkgs.zsh-powerlevel10k}/share/zsh-powerlevel10k "$out/themes/powerlevel10k"
+            ln -s ${pkgs.zsh-powerlevel10k}/share/zsh-powerlevel10k "$out/themes/powerlevel10k"
           ''
         );
         theme = "powerlevel10k/powerlevel10k";
