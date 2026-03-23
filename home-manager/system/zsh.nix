@@ -7,6 +7,7 @@
 {
   config = lib.mkIf config.programs.zsh.enable {
     programs.zsh = {
+      dotDir = "${config.xdg.configHome}/zsh";
       autosuggestion.enable = true;
       autocd = true;
       defaultKeymap = "viins";
