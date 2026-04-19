@@ -46,5 +46,9 @@ in
         ];
       });
     }
+    {
+      # TODO: remove once we have nixpkgs pr #495347
+      security.pam.services.login.updateWtmp = lib.mkForce false;
+    }
   ];
 }
