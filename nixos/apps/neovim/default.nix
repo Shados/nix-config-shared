@@ -308,7 +308,7 @@ in
                 }
               '';
               binDeps = [
-                pkgs.nodePackages.prettier
+                pkgs.prettier
               ];
             }
             {

@@ -96,7 +96,7 @@ in
             ale_linters.sh = {}
           '';
           binDeps = [
-            pkgs.nodePackages.bash-language-server
+            pkgs.bash-language-server
           ];
         }
         # CSS
@@ -109,7 +109,7 @@ in
             ale_linters.scss = {}
           '';
           binDeps = [
-            pkgs.nodePackages.vscode-langservers-extracted
+            pkgs.vscode-langservers-extracted
           ];
         }
         # Go
@@ -236,7 +236,7 @@ in
               register_ale_tool(ale_linters, "javascript", "eslint")
               register_ale_tool(ale_linters, "javascript", "jshint")
             '';
-            binDeps = with pkgs.nodePackages; [
+            binDeps = with pkgs; [
               eslint
               jshint
             ];
