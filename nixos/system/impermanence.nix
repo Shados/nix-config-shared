@@ -78,14 +78,25 @@ in
           "/nix/persist/var/log" = dsToBootFs "${abstractRoot}/nix/persist/var/log";
           "/srv" = dsToFs "${abstractRoot}/srv";
         };
-        boot.initrd.postResumeCommands = mkAfter ''
-          echo "Rolling back root to pristine state"
-          zfs rollback -r ${escapeShellArg config.fileSystems."/".device}@${escapeShellArg pristineSnapshot}
-          echo "Rolling back tmp to pristine state"
-          zfs rollback -r ${
-            escapeShellArg config.fileSystems."/tmp".device
-          }@${escapeShellArg pristineSnapshot}
-        '';
+        boot.initrd.systemd.initrdBin = [ config.boot.zfs.package ];
+        boot.initrd.systemd.services.rollback = {
+          description = "Rollback ZFS datasets to pristine state";
+          wantedBy = [ "initrd.target" ];
+          after = [ "zfs-import.target" ];
+          before = [ "sysroot.mount" ];
+          unitConfig.DefaultDependencies = "no";
+          serviceConfig.Type = "oneshot";
+          script = ''
+            echo "Rolling back root to pristine state"
+            ${lib.getExe' config.boot.zfs.package "zfs"} rollback -r ${
+              escapeShellArg config.fileSystems."/".device
+            }@${escapeShellArg pristineSnapshot}
+            echo "Rolling back tmp to pristine state"
+            ${lib.getExe' config.boot.zfs.package "zfs"} rollback -r ${
+              escapeShellArg config.fileSystems."/tmp".device
+            }@${escapeShellArg pristineSnapshot}
+          '';
+        };
         disk.fileSystems.zfs.pools.${rootPool}.datasets = {
           "HOMES/shados".postCreationMountHook = ''
             chown -R ${toString config.users.users.shados.uid}:${toString config.ids.gids.users} "$mountpoint"
