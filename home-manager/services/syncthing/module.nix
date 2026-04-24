@@ -45,7 +45,7 @@ let
       ${cfg.configDir}/config.xml
   '';
 
-  updateConfig = pkgs.writers.writeDash "merge-syncthing-config" ''
+  updateConfig = pkgs.writers.writeBash "merge-syncthing-config" ''
     set -efu
     # wait for syncthing port to open
     until ${pkgs.curl}/bin/curl -Ss ${cfg.guiAddress} -o /dev/null; do
@@ -404,6 +404,7 @@ in
         Unit = {
           Description = "Syncthing - Declarative Config Initialisation/Merging";
           After = [ "syncthing.service" ];
+          Requires = [ "syncthing.service" ];
         };
         Install = {
           WantedBy = [ "default.target" ];
@@ -411,6 +412,7 @@ in
         Service = {
           RemainAfterExit = true;
           Type = "oneshot";
+          RuntimeDirectory = "syncthing-init";
           ExecStart = toString updateConfig;
         };
       };
