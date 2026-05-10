@@ -367,6 +367,7 @@ in
               --no-upgrade \
               --gui-address=${cfg.guiAddress}'';
           Restart = "on-failure";
+          RestartSec = 1;
           SuccessExitStatus = [
             2
             3
@@ -404,7 +405,7 @@ in
         Unit = {
           Description = "Syncthing - Declarative Config Initialisation/Merging";
           After = [ "syncthing.service" ];
-          Requires = [ "syncthing.service" ];
+          Wants = [ "syncthing.service" ];
         };
         Install = {
           WantedBy = [ "default.target" ];

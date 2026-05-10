@@ -388,6 +388,7 @@ in
         wantedBy = [ "multi-user.target" ];
         serviceConfig = {
           Restart = "on-failure";
+          RestartSec = 1;
           SuccessExitStatus = "2 3 4";
           RestartForceExitStatus = "3 4";
           User = cfg.user;
@@ -422,7 +423,7 @@ in
       };
       syncthing-init = mkIf (cfg.declarative.devices != { } || cfg.declarative.folders != { }) {
         after = [ "syncthing.service" ];
-        requires = [ "syncthing.service" ];
+        wants = [ "syncthing.service" ];
         wantedBy = [ "multi-user.target" ];
 
         serviceConfig = {
