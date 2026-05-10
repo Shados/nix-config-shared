@@ -65,4 +65,37 @@ in
           hash = "sha256-/JMk1ZzcVDdgvTYC+HQL09CiFDmQYWcu6/uDNgYDfdM=";
         };
       });
+
+  makemkv = prev.makemkv.overrideAttrs(oa: {
+    prePatch = oa.prePatch or "" + ''
+      sed -i Makefile.in \
+        -e 's/ldconfig/true/g'
+    '';
+    installFlags = oa.installFlags or [] ++ [ "DESTDIR=" "PREFIX=$(out)" ];
+    installPhase = ''
+      runHook preInstall
+
+      local flagsArray=(
+          ''${enableParallelInstalling:+-j''${NIX_BUILD_CORES}}
+          SHELL="$SHELL"
+      )
+
+      concatTo flagsArray makeFlags makeFlagsArray installFlags installFlagsArray installTargets=install
+
+      echoCmd 'install flags' "''${flagsArray[@]}"
+
+      pushd ../makemkv-oss-"$version"
+      make ''${makefile:+-f $makefile} "''${flagsArray[@]}"
+      popd
+      pushd ../makemkv-bin-"$version"
+      mkdir tmp
+      echo accepted > tmp/eula_accepted
+      make ''${makefile:+-f $makefile} "''${flagsArray[@]}"
+      popd
+
+      unset flagsArray
+
+      runHook postInstall
+    '';
+  });
 }
