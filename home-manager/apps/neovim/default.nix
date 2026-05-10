@@ -39,7 +39,10 @@ in
             "ale" # As we modify some ALE settings :O
           ];
           extraConfig = ''
-            lsp_on_attach = (client, bufnr) ->
+            lsp_on_attach = (args) ->
+              client = assert vim.lsp.get_client_by_id(args.data.client_id)
+              bufnr = args.buf
+
               -- bo.omnifunc = "v:lua.vim.lsp.omnifunc"
               local_map = (...) -> api.nvim_buf_set_keymap bufnr, ...
 
@@ -84,8 +87,9 @@ in
                     callback: -> vim.lsp.buf.clear_references!
                   }),
                   { clear: true }
-            vim.lsp.config "*", {
-              on_attach: lsp_on_attach
+
+            vim.api.nvim_create_autocmd "LspAttach", {
+              callback: lsp_on_attach
             }
           '';
         }
@@ -132,16 +136,6 @@ in
                     command: { "nixfmt" }
             }
             vim.lsp.enable "nil_ls"
-            nix_fixer_cb = (event) -> (autocmd) ->
-              autocmd {"BufWritePre"}, {
-                buffer: event.buf,
-                callback: -> vim.lsp.buf.format!
-              }
-            vim.api.nvim_create_autocmd {"FileType"}, {
-              group: "vimrc",
-              pattern: { "nix" },
-              callback: (event) -> augroup "Fixers", (nix_fixer_cb event), { clear: true }
-            }
             ale_linters.nix = {}
           '';
           binDeps = [
@@ -179,16 +173,6 @@ in
               vim.lsp.enable "rust_analyzer"
               ale_fixers.rust = {}
               ale_linters.rust = {}
-              rust_fixer_cb = (event) -> (autocmd) ->
-                autocmd {"BufWritePre"}, {
-                  buffer: event.buf,
-                  callback: -> vim.lsp.buf.format!
-                }
-              vim.api.nvim_create_autocmd {"FileType"}, {
-                group: "vimrc",
-                pattern: { "rust" },
-                callback: (event) -> augroup "Fixers", (rust_fixer_cb event), { clear: true }
-              }
           '';
         }
         # TypeScript/JavaScript
@@ -200,6 +184,25 @@ in
           '';
         }
       ];
+
+      lsp-format-nvim = {
+        enable = true;
+        source = vimPlugins.lsp-format-nvim;
+        before = [
+          "nvim-lspconfig" # As we will want individual lsp configs to disable formatting in some cases
+        ];
+        extraConfig = ''
+          lsp_format = require "lsp-format"
+          lsp_format.setup {}
+
+          vim.api.nvim_create_autocmd "LspAttach", {
+            callback: (args) ->
+              client = assert vim.lsp.get_client_by_id(args.data.client_id)
+              lsp_format.on_attach client, args.buf
+              return
+          }
+        '';
+      };
 
       ale =
         with pkgs;
