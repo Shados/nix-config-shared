@@ -77,10 +77,10 @@
         "homepage": null,
         "owner": "ericpruitt",
         "repo": "tmux.vim",
-        "rev": "da9ea54fa27309c14a0c68518140d18ccf92a217",
-        "sha256": "1h78fvvz9sl9gzsxr5rcjzdr4ss6d2yqghvxswk42wb727xhhix8",
+        "rev": "f4f2c5843a65daa5e601503220aada4c36da9f37",
+        "sha256": "0bzr6chwi99xagny8bxwg527m3zwpj86gqjwg4nqcspfmgzsp3k5",
         "type": "tarball",
-        "url": "https://github.com/ericpruitt/tmux.vim/archive/da9ea54fa27309c14a0c68518140d18ccf92a217.tar.gz",
+        "url": "https://github.com/ericpruitt/tmux.vim/archive/f4f2c5843a65daa5e601503220aada4c36da9f37.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "vim-buffet": {
