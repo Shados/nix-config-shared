@@ -353,8 +353,8 @@ in
             -- Extensions
             g.vim_markdown_strikethrough = 1
             g.vim_markdown_frontmatter = 1
-            ${optionalString plugCfg.vim-toml.enable ''g.vim_markdown_toml_frontmatter = 1''}
-            ${optionalString plugCfg.vim-json.enable ''g.vim_markdown_json_frontmatter = 1''}
+            ${optionalString plugCfg.vim-toml.enable "g.vim_markdown_toml_frontmatter = 1"}
+            ${optionalString plugCfg.vim-json.enable "g.vim_markdown_json_frontmatter = 1"}
           '';
         };
         vim-systemd-syntax = {

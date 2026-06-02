@@ -107,10 +107,11 @@ in
   programs.steam = mkIf config.programs.steam.enable {
     package = mkDefault (
       pkgs.steam.override {
-        extraLibraries = pkgs: with pkgs; [
-          libxmu
-          libGLU
-        ];
+        extraLibraries =
+          pkgs: with pkgs; [
+            libxmu
+            libGLU
+          ];
         extraBwrapArgs = [
           "--tmpfs"
           "/dev/shm"

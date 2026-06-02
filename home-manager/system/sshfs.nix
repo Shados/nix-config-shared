@@ -25,7 +25,7 @@ in
       enable = mkEnableOption "SSHFS mounts";
       mounts = mkOption {
         default = { };
-        description = '''';
+        description = "";
         type = types.attrsOf (
           types.submodule (
             { config, ... }:

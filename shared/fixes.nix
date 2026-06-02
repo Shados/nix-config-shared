@@ -66,12 +66,15 @@ in
         };
       });
 
-  makemkv = prev.makemkv.overrideAttrs(oa: {
+  makemkv = prev.makemkv.overrideAttrs (oa: {
     prePatch = oa.prePatch or "" + ''
       sed -i Makefile.in \
         -e 's/ldconfig/true/g'
     '';
-    installFlags = oa.installFlags or [] ++ [ "DESTDIR=" "PREFIX=$(out)" ];
+    installFlags = oa.installFlags or [ ] ++ [
+      "DESTDIR="
+      "PREFIX=$(out)"
+    ];
     installPhase = ''
       runHook preInstall
 

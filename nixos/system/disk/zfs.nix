@@ -464,7 +464,7 @@ let
             echo "WARNING: Not changing '${prop}' property for ${dataset}; cannot be changed while dataset is mounted without a remount"
           fi
         '';
-        setNone = action: '''';
+        setNone = action: "";
         unrestricted = action: action;
       };
     in

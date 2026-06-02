@@ -5,7 +5,12 @@
   ...
 }:
 let
-  inherit (lib) mkAfter mkBefore mkMerge mkOrder;
+  inherit (lib)
+    mkAfter
+    mkBefore
+    mkMerge
+    mkOrder
+    ;
   prefixEnvPath = varName: elems: (lib.concatStringsSep ":" elems) + "\${${varName}:+:}\$${varName}";
 in
 {
@@ -69,15 +74,16 @@ in
       launchd.agents.ssh-agent = {
         enable = true;
         config = {
-          ProgramArguments = let
-            sshPkg = if (config.programs.ssh.package) != null
-              then config.programs.ssh.package
-              else pkgs.openssh;
-          in [
-            "/bin/sh"
-            "-c"
-            "rm -f $SSH_AUTH_SOCK; exec ${lib.getExe' sshPkg "ssh-agent"} -D -a $SSH_AUTH_SOCK"
-          ];
+          ProgramArguments =
+            let
+              sshPkg =
+                if (config.programs.ssh.package) != null then config.programs.ssh.package else pkgs.openssh;
+            in
+            [
+              "/bin/sh"
+              "-c"
+              "rm -f $SSH_AUTH_SOCK; exec ${lib.getExe' sshPkg "ssh-agent"} -D -a $SSH_AUTH_SOCK"
+            ];
           KeepAlive = {
             Crashed = true;
             SuccessfulExit = false;
@@ -86,15 +92,14 @@ in
         };
       };
 
-      home.activation.ensureNoDefaultSSHAgent =
-        lib.hm.dag.entryBefore [ "setupLaunchAgents" ] ''
-          agent_pid=$(/bin/launchctl list | ${lib.getExe pkgs.ripgrep} 'com\.openssh\.ssh-agent' | ${lib.getExe' pkgs.coreutils "cut"} -f 1)
-          if [[ $agent_pid != "-" ]]; then
-            warnEcho "Disabling and stopping default MacOS ssh-agent..."
-            run launchctl disable "gui/$(id -u)/com.openssh.ssh-agent"
-            run launchctl kill SIGTERM "gui/$(id -u)/com.openssh.ssh-agent"
-          fi
-        '';
+      home.activation.ensureNoDefaultSSHAgent = lib.hm.dag.entryBefore [ "setupLaunchAgents" ] ''
+        agent_pid=$(/bin/launchctl list | ${lib.getExe pkgs.ripgrep} 'com\.openssh\.ssh-agent' | ${lib.getExe' pkgs.coreutils "cut"} -f 1)
+        if [[ $agent_pid != "-" ]]; then
+          warnEcho "Disabling and stopping default MacOS ssh-agent..."
+          run launchctl disable "gui/$(id -u)/com.openssh.ssh-agent"
+          run launchctl kill SIGTERM "gui/$(id -u)/com.openssh.ssh-agent"
+        fi
+      '';
     })
     (lib.mkIf (config.sn.os == "nixos") {
       xsession.initExtra = ''

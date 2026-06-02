@@ -115,9 +115,9 @@ in
         ${flip concatMapStrings globalHosts (host: ''
           Host ${host.name}
             HostName ${host.hostName}
-            ${optionalString (host.user != null) ''User ${toString host.user}''}
-            ${optionalString (host.port != null) ''Port ${toString host.port}''}
-            ${optionalString (host.keyFile != null) ''IdentityFile ${toString host.keyFile}''}
+            ${optionalString (host.user != null) "User ${toString host.user}"}
+            ${optionalString (host.port != null) "Port ${toString host.port}"}
+            ${optionalString (host.keyFile != null) "IdentityFile ${toString host.keyFile}"}
             ${optionalString (host.extraConfig != null) (indentLinesBy 2 (host.extraConfig))}
         '')}
         Match all
