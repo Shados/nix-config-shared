@@ -21,7 +21,7 @@ in
 {
   disabledModules = [
     "programs/discord.nix"
-    "programs/vesktop.nix"
+    "programs/vesktop"
   ];
   options.programs.discord = {
     enable = mkEnableOption "discord chat";
