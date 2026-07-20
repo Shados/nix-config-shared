@@ -169,6 +169,15 @@ in
         # shell.nix files per-project, with direnv to make it convenient
         {
           extraConfig = mkAfter ''
+            -- Use a subdirectory of the cargo target directory for
+            -- rust-analyzer's builds, to avoid blocking manual cargo build/run
+            -- executions
+            vim.lsp.config "rust_analyzer", {
+              settings:
+                "rust-analyzer":
+                  cargo:
+                    targetDir: true
+            }
             if (fn.executable "cargo") != 0
               vim.lsp.enable "rust_analyzer"
               ale_fixers.rust = {}
