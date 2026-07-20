@@ -107,6 +107,18 @@
         "url": "https://github.com/chaosvolt/cdda-stamina-regen-buff/archive/6b5d663426754e7b07ac2be42e9cec9a004a5dcd.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
+    "cdda-stats-through-skills": {
+        "branch": "main",
+        "description": "A recreation of the old Stats through Skills mod",
+        "homepage": "",
+        "owner": "Standing-Storm",
+        "repo": "cdda-stats-through-skills",
+        "rev": "1221a9072f20ef3bcd37250481b131cc3033aee9",
+        "sha256": "01ccjpvk8k83mc6q1qnqpsc0lzh5kapvyd2g5q0197ycsw8ary59",
+        "type": "tarball",
+        "url": "https://github.com/Standing-Storm/cdda-stats-through-skills/archive/1221a9072f20ef3bcd37250481b131cc3033aee9.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
     "cdda-tankmod-revived-mod": {
         "branch": "master",
         "description": "The official replacement to my old Tanks And Other Vehicles mod, for Catacylsm DDA.",
