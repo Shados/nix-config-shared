@@ -111,6 +111,7 @@ in
           pkgs: with pkgs; [
             libxmu
             libGLU
+            libxscrnsaver
           ];
         extraBwrapArgs = [
           "--tmpfs"
