@@ -67,6 +67,23 @@ in
       });
 
   makemkv = prev.makemkv.overrideAttrs (oa: {
+    # FIXME: remove this bit once we have nixpkgs with #543776
+    passthru = {
+      srcs.bin = prev.fetchurl {
+        urls = [
+          "https://www.makemkv.com/download/makemkv-bin-${oa.version}.tar.gz"
+          "https://www.makemkv.com/download/old/makemkv-bin-${oa.version}.tar.gz"
+        ];
+        hash = "sha256-zuVt4LqlUxq+0WvYYnQtMI13K0q02uFu6GW/dPBKFgg=";
+      };
+      srcs.oss = prev.fetchurl {
+        urls = [
+          "https://www.makemkv.com/download/makemkv-oss-${oa.version}.tar.gz"
+          "https://www.makemkv.com/download/old/makemkv-oss-${oa.version}.tar.gz"
+        ];
+        hash = "sha256-hZAGNkjULsKpWLdFc9cCLw9MM05OT+fdU7cMbnSLpFM=";
+      };
+    };
     prePatch = oa.prePatch or "" + ''
       sed -i Makefile.in \
         -e 's/ldconfig/true/g'
