@@ -187,6 +187,9 @@ in
     # }}}
 
     # Audio
+    # NOTE: Best not to explicitly set SDL_AUDIODRIVER and ALSOFT_DRIVERS, it
+    # will break some games using older versions of SDL and OpenAL, potentially
+    # causing hard-to-debug crashes
     {
       services.pipewire = {
         enable = true;
@@ -199,9 +202,10 @@ in
         };
       };
       security.rtkit.enable = true;
-      environment.variables.AE_SINK = "alsa";
-      environment.variables.SDL_AUDIODRIVER = "pipewire,pulseaudio,alsa";
-      environment.variables.ALSOFT_DRIVERS = "pipewire";
+      environment.systemPackages = with pkgs; [
+        # Much of the pulseaudio CLI tools still work fine with pipewire-pulse, and are needed/used by some software
+        pulseaudio
+      ];
     }
 
     # Latency-oriented tweaking
