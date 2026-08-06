@@ -111,7 +111,10 @@ in
           pkgs: with pkgs; [
             libxmu
             libGLU
+            # probably only need these ones for steam-run
             libxscrnsaver
+            at-spi2-atk
+            gtk3
           ];
         extraBwrapArgs = [
           "--tmpfs"
