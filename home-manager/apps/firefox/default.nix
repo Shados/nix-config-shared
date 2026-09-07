@@ -25,8 +25,8 @@ let
     src = pkgs.fetchFromGitHub {
       owner = "girst";
       repo = "LegacyFox-mirror-of-git.gir.st";
-      rev = "3b7740f4da0ad4e8c21792fd6215c5c5a389bfe4";
-      sha256 = "sha256-/xcFuyKlXwCNRJ/QovUS6EUIV4ShvZeyT5HDtU16x5w=";
+      rev = "4013123fe0165e9487053af679f72e4ec81fdfa4";
+      sha256 = "sha256-ePD56OKWJ4Kh6acaxHxhHWeXIjkmRDYlqDFOgnGfOgM=";
     };
     preferLocalBuild = true;
     DESTDIR = "$(out)";
@@ -204,7 +204,6 @@ let
           pref("media.ffmpeg.vaapi.enabled",  true);
 
           ${optionalString legacyShim ''
-            pref("xpinstall.signatures.required", false);
             ${builtins.readFile "${legacyFox.outPath}/config.js"}
           ''}
 
