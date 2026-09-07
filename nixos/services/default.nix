@@ -10,7 +10,6 @@
     ./samba.nix
     ./sops.nix
     ./syncthing
-    ./teamspeak3.nix
     ./wireguard.nix
   ];
 }
