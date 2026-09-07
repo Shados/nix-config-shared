@@ -408,7 +408,7 @@ in
     firefox-uncustomised
   ];
   xdg.mimeApps.defaultApplications = {
-    "x-scheme-handler/http" = "firefox.desktop";
-    "x-scheme-handler/https" = "firefox.desktop";
+    "x-scheme-handler/http" = "firefox-nightly.desktop";
+    "x-scheme-handler/https" = "firefox-nightly.desktop";
   };
 }
