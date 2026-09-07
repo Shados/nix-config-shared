@@ -2,6 +2,7 @@
 {
   config,
   lib,
+  inputs,
   pkgs,
   ...
 }:
@@ -51,13 +52,9 @@ let
   customizeFox =
     {
       base,
-      libName,
       binName,
       legacyShim ? false,
     }:
-    let
-      version = lib.getVersion base;
-    in
     flip pkgs.wrapFirefox
       {
         applicationName = binName;
@@ -382,20 +379,24 @@ in
   nixpkgs.overlays = singleton (
     self: super: {
       firefox-customised = (
-        customizeFox rec {
+        customizeFox {
           # base = firefox-esr-68-unwrapped;
-          base = super.firefox-unwrapped;
-          libName = "firefox";
-          binName = "firefox";
+          # base = super.firefox-unwrapped;
+          base = inputs.flake-firefox-nightly.packages.${pkgs.system}.firefox-nightly-bin.unwrapped;
+          binName = "firefox-nightly";
           legacyShim = true;
         }
       );
       firefox-uncustomised =
-        (super.wrapFirefox super.firefox-bin-unwrapped {
-          applicationName = "firefox";
-          nameSuffix = "-noprefs";
-          pname = "firefox-noprefs-bin";
-        }).overrideAttrs
+        # (super.wrapFirefox super.firefox-bin-unwrapped {
+        (super.wrapFirefox
+          inputs.flake-firefox-nightly.packages.${pkgs.system}.firefox-nightly-bin.unwrapped
+          {
+            applicationName = "firefox-nightly";
+            nameSuffix = "-noprefs";
+            pname = "firefox-noprefs-bin";
+          }
+        ).overrideAttrs
           (oa: {
             meta = oa.meta or { } // {
               priority = 1000;
