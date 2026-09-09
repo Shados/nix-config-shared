@@ -17,10 +17,10 @@
         "homepage": "",
         "owner": "arkenfox",
         "repo": "user.js",
-        "rev": "8fe9905c35a1025d1e6df69479f7625585fd956d",
-        "sha256": "1iy90f0harn2bylprgdwc1iyfbwc089zrdlqq1wicl16jfi87gpv",
+        "rev": "fb56d7bb4ed07898c9d94ca7ecc89697dd88cc3c",
+        "sha256": "18fc5l64xhplsig8b0x4cwkljx6hglw4rzpxl25xr1bhk5jv2ifa",
         "type": "tarball",
-        "url": "https://github.com/arkenfox/user.js/archive/8fe9905c35a1025d1e6df69479f7625585fd956d.tar.gz",
+        "url": "https://github.com/arkenfox/user.js/archive/fb56d7bb4ed07898c9d94ca7ecc89697dd88cc3c.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "go-markdown2confluence": {
@@ -53,10 +53,10 @@
         "homepage": "",
         "owner": "transmission-remote-gui",
         "repo": "transgui",
-        "rev": "35d1dbe774cdd668a35f83544b86d94ee074cae9",
-        "sha256": "1mhvzmdahn5snkp3y5d6v2csabgcmyhx966klcb2kgzdalnrq7jx",
+        "rev": "e47d82bb8f1794645a39a8ad79bed5c6c65d5654",
+        "sha256": "09rifk3cqd5sk9g19ing21kqlb0xqsk96kf8ivw6damzqw8vc3al",
         "type": "tarball",
-        "url": "https://github.com/transmission-remote-gui/transgui/archive/35d1dbe774cdd668a35f83544b86d94ee074cae9.tar.gz",
+        "url": "https://github.com/transmission-remote-gui/transgui/archive/e47d82bb8f1794645a39a8ad79bed5c6c65d5654.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     }
 }
