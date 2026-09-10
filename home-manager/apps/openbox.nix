@@ -51,12 +51,13 @@ in
       explorer.pkg
       runner.pkg
 
-      xorg.xset
-      xorg.xrdb
-      nitrogen
-      xfce.xfconf
-      xfce.xfce4-panel
-      xfce.xfce4-panel-profiles
+      xset
+      xrdb
+      waypaper
+      xwallpaper
+      xfconf
+      xfce4-panel
+      xfce4-panel-profiles
       networkmanagerapplet
       pidgin-wrapped
       libnotify
@@ -69,13 +70,13 @@ in
           (launchCli "dpms" ''
             # Disable all DPMS timeouts, but ensure DPMS itself is enabled, so that
             # our screen locker can use it
-            ${pkgs.xorg.xset}/bin/xset s 0 0 s noblank s noexpose dpms 0 0 0 +dpms &
+            ${pkgs.xset}/bin/xset s 0 0 s noblank s noexpose dpms 0 0 0 +dpms &
           '')
-          (launchTray "nitrogen" ''
-            ${pkgs.nitrogen}/bin/nitrogen --restore &
+          (launchTray "waypaper" ''
+            ${pkgs.waypaper}/bin/waypaper --restore &
           '')
           (launchTray "xfce4-panel" ''
-            ${pkgs.xfce.xfce4-panel}/bin/xfce4-panel &
+            ${pkgs.xfce4-panel}/bin/xfce4-panel &
           '')
         ];
 

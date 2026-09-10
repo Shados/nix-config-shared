@@ -18,7 +18,7 @@ in
     ./python.nix
   ];
   home.packages = with pkgs; [
-    nixfmt-rfc-style
+    nixfmt
   ];
   sn.programs.neovim = {
     mergePlugins = true;
@@ -140,7 +140,7 @@ in
           '';
           binDeps = [
             pkgs.nil
-            pkgs.nixfmt-rfc-style
+            pkgs.nixfmt
           ];
         }
         # # OCaml

@@ -128,7 +128,7 @@ in
     extraPackages = with pkgs; [
       gsettings-desktop-schemas
       glib
-      xorg.libxcb
+      libxcb
       dbus
       nss # Needed for electron-based shit I think
 

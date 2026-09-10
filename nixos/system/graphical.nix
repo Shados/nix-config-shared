@@ -7,7 +7,6 @@
 with lib;
 let
   cfg = config.fragments.graphical;
-  gnome_cfg = config.services.xserver.desktopManager.gnome3;
 
   colors = {
     solarizedDark = builtins.readFile ./xresources/solarized-dark;
@@ -74,7 +73,7 @@ in
 
           displayManager.sessionCommands = ''
             # Custom Xresources setup
-            ${pkgs.xorg.xrdb}/bin/xrdb -merge ${default_xresources}
+            ${pkgs.xrdb}/bin/xrdb -merge ${default_xresources}
           '';
 
           updateDbusEnvironment = true;
@@ -98,34 +97,28 @@ in
         ];
         portal.config.common.default = "gtk";
       };
-      environment.systemPackages =
-        with pkgs;
-        with pkgs.xorg;
-        [
-          xmodmap
+      environment.systemPackages = with pkgs; [
+        xmodmap
 
-          # Baseline themes / theme engines
-          tango-icon-theme
-          hicolor-icon-theme
-          gnome-icon-theme
-          kdePackages.oxygen
-          gtk2
-          gtk_engines
-          gtk-engine-murrine
-          gnome-themes-extra
-          adwaita-icon-theme
+        # Baseline themes / theme engines
+        tango-icon-theme
+        hicolor-icon-theme
+        kdePackages.oxygen
+        gtk2
+        gnome-themes-extra
+        adwaita-icon-theme
 
-          arc-theme
-          arc-icon-theme
+        arc-theme
+        arc-icon-theme
 
-          mesa-demos
-          lxappearance
+        mesa-demos
+        lxappearance
 
-          snap
+        snap
 
-          # Spellchecking dictionary
-          hunspellDicts.en-gb-ise
-        ];
+        # Spellchecking dictionary
+        hunspellDicts.en-gb-ise
+      ];
       nixpkgs.config.packageOverrides =
         pkgs: with pkgs; {
           # qt48 = pkgs.qt48.override { gtkStyle = true; };

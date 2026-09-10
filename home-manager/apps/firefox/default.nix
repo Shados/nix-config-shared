@@ -319,9 +319,8 @@ let
               gnused
             ];
             preferLocalBuild = true;
-            inherit (base) meta;
+            inherit (base) meta passthru version;
             inherit base;
-            inherit (base) passthru;
           }
           ''
             mkdir -p $out/usr

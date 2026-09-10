@@ -61,7 +61,7 @@ in
           # Set the DPMS-off timeout to 15 seconds
           ${xset} dpms 0 0 15 +dpms
         '';
-        xset = getExe pkgs.xorg.xset;
+        xset = getExe pkgs.xset;
       in
       mkIf config.services.screen-locker.enable {
         lib.xss-locker-wrapper = pkgs.writeShellApplication {

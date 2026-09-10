@@ -109,7 +109,7 @@ in
         echodoc = {
           # TODO re-enable once I sort out my completion setup
           enable = false;
-          source = vimPlugins.echodoc;
+          source = vimPlugins.echodoc-vim;
           extraConfig = ''
             -- So the current mode indicator in the command line does not overwrite the
             -- function signature display
@@ -202,7 +202,6 @@ in
               tcl
               teal
               terraform
-              tmux
               toml
               typescript
               udev

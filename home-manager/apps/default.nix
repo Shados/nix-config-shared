@@ -45,9 +45,9 @@ in
         ];
         preConfigure = ":";
         buildFlags = with super.lib; [
-          "X11INC=${makeIncludePath (singleton super.xorg.libX11)}/X11"
-          "X11LIB=${makeLibraryPath (singleton super.xorg.libX11)}/X11"
-          "FREETYPEINC=${makeIncludePath (singleton super.xorg.libXft)}/freetype2"
+          "X11INC=${makeIncludePath (singleton super.libX11)}/X11"
+          "X11LIB=${makeLibraryPath (singleton super.libX11)}/X11"
+          "FREETYPEINC=${makeIncludePath (singleton super.libXft)}/freetype2"
         ];
         installFlags = [
           "PREFIX=$(out)"
