@@ -56,6 +56,9 @@ in
         done
       '';
       boot.kernel.sysctl."kernel.panic" = mkDefault 10; # Reboot after 10s on panic
+      environment.systemPackages = with pkgs; [
+        lm_sensors
+      ];
     }
     (mkIf config.documentation.nixos.enable {
       environment.systemPackages = with pkgs; [
