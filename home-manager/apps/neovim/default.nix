@@ -137,6 +137,14 @@ in
             }
             vim.lsp.enable "nil_ls"
             ale_linters.nix = {}
+            vim.api.nvim_create_autocmd "LspAttach", {
+              callback: (args) ->
+                client = assert vim.lsp.get_client_by_id(args.data.client_id)
+                bufnr = args.buf
+                if vim.bo[bufnr].filetype == "nix"
+                  vim.bo[bufnr].formatexpr = ""
+                  vim.bo[bufnr].textwidth = 100
+            }
           '';
           binDeps = [
             pkgs.nil
