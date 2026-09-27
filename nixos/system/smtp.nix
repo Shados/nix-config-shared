@@ -7,6 +7,7 @@
 with lib;
 {
   sops.secrets.msmtp-password-fastmail.owner = "shados";
+  sops.secrets.msmtp-password-fastmail.group = "wheel";
   programs.msmtp = {
     enable = true;
     accounts.default = {
