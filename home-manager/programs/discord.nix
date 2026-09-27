@@ -76,8 +76,10 @@ in
               (sloth.concat' sloth.xdgConfigHome "/${pkg.pname}")
               (sloth.concat' sloth.xdgConfigHome "/mimeapps.list")
             ];
+            bubblewrap.env.PATH = lib.makeBinPath (with pkgs; [ xdg-utils ]);
             bubblewrap.bindEntireStore = false;
             bubblewrap.extraStorePaths = with pkgs; [
+              xdg-utils # xdg-open
               config.locale.package
               mesa
             ];
