@@ -1,5 +1,6 @@
 {
   config,
+  inputs,
   lib,
   pkgs,
   ...
@@ -63,32 +64,59 @@ in
       # FIXME: make it cd to home before starting discord
       mkDiscordSandbox =
         pkg:
-        pkgs.mkBwrapper {
-          app = {
-            package = pkg;
-            runScript = pkg.pname;
-            env = {
-              XAUTHORITY = "$XAUTHORITY";
-              GTK_USE_PORTAL = 1;
-              # GDK_DEBUG = "portals";
-              GDK_SYNCHRONIZE = "true"; # FIXME: Figure out why it crashes on start without this
-            };
-            overwriteExec = true;
-          };
-          mounts = {
-            # FIXME: Not sure why this is needed, but without it XAUTHORITY fails
-            # to work, despite its path being explicitly ro-bound already
-            privateTmp = false;
-            readWrite = [
-              "$XDG_CONFIG_HOME/${pkg.pname}" # Configuration/session/etc. storage
+        (mkNixPak {
+          config = { config, sloth, ... }: {
+            app.package = pkg;
+            bubblewrap.network = true;
+            bubblewrap.bind.rw = [
+              (sloth.concat' sloth.xdgConfigHome "/${pkg.pname}")
+              (sloth.concat' sloth.xdgConfigHome "/mimeapps.list")
             ];
+            bubblewrap.bindEntireStore = false;
+            bubblewrap.extraStorePaths = with pkgs; [
+              config.locale.package
+              mesa
+            ];
+            bubblewrap.sockets.pulse = true;
+            bubblewrap.sockets.pipewire = true;
+            bubblewrap.sockets.x11 = true;
+            dbus.enable = true;
+            dbus.policies = {
+              "com.discordapp.Discord" = "own";
+              "org.freedesktop.portal.*" = "talk";
+              "org.freedesktop.Notifications" = "talk";
+              "org.freedesktop.ScreenSaver" = "talk";
+              "com.canonical.AppMenu.Registrar" = "talk";
+              "com.canonical.Unity.LauncherEntry" = "talk";
+              "com.canonical.indicator.application" = "talk";
+              "org.kde.StatusNotifierWatcher" = "talk";
+            };
+            dbus.rules.call = {
+              "org.freedesktop.portal.*" = singleton "*@/org/freedesktop/portal/desktop";
+            };
+            dbus.rules.broadcast = {
+              "org.freedesktop.portal.Desktop" = singleton "*@/org/freedesktop/portal/desktop";
+            };
+            flatpak.appId = "com.discordapp.Discord";
+
+            locale.enable = true;
+            timeZone.enable = true;
+            timeZone.provider = "host";
+            etc.sslCertificates.enable = true;
+            fonts.enable = true;
+            fonts.fonts = with pkgs; [
+              noto-fonts
+              noto-fonts-cjk-sans
+              noto-fonts-cjk-serif
+              noto-fonts-color-emoji
+
+            ];
+            gpu.enable = true;
+            gpu.provider = "nixos";
           };
-          dbus.session.owns = [
-            "com.discordapp.Discord"
-          ];
-          dbus.logging = false;
-          sockets.wayland = false;
-        };
+        }).config.env;
+
+      mkNixPak = inputs.nixpak.lib.nixpak { inherit lib pkgs; };
     in
     mkMerge [
       {
