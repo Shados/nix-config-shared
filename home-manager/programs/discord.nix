@@ -10,6 +10,7 @@ let
     escapeShellArg
     getExe
     mkEnableOption
+    mkForce
     mkIf
     mkMerge
     mkOption
@@ -60,14 +61,17 @@ in
   };
   config =
     let
-      # TODO figure out DST/timezone issue
-      # FIXME: make it cd to home before starting discord
       mkDiscordSandbox =
         pkg:
         (mkNixPak {
           config = { config, sloth, ... }: {
+            imports = [
+              inputs.nixpak.nixpakModules.gui-base
+              inputs.nixpak.nixpakModules.network
+            ];
             app.package = pkg;
-            bubblewrap.network = true;
+            flatpak.appId = "com.discordapp.Discord";
+            gpu.provider = mkForce "nixos";
             bubblewrap.bind.rw = [
               (sloth.concat' sloth.xdgConfigHome "/${pkg.pname}")
               (sloth.concat' sloth.xdgConfigHome "/mimeapps.list")
@@ -80,10 +84,9 @@ in
             bubblewrap.sockets.pulse = true;
             bubblewrap.sockets.pipewire = true;
             bubblewrap.sockets.x11 = true;
+            bubblewrap.sockets.wayland = mkForce false;
             dbus.enable = true;
             dbus.policies = {
-              "com.discordapp.Discord" = "own";
-              "org.freedesktop.portal.*" = "talk";
               "org.freedesktop.Notifications" = "talk";
               "org.freedesktop.ScreenSaver" = "talk";
               "com.canonical.AppMenu.Registrar" = "talk";
@@ -97,22 +100,9 @@ in
             dbus.rules.broadcast = {
               "org.freedesktop.portal.Desktop" = singleton "*@/org/freedesktop/portal/desktop";
             };
-            flatpak.appId = "com.discordapp.Discord";
 
-            locale.enable = true;
             timeZone.enable = true;
             timeZone.provider = "host";
-            etc.sslCertificates.enable = true;
-            fonts.enable = true;
-            fonts.fonts = with pkgs; [
-              noto-fonts
-              noto-fonts-cjk-sans
-              noto-fonts-cjk-serif
-              noto-fonts-color-emoji
-
-            ];
-            gpu.enable = true;
-            gpu.provider = "nixos";
           };
         }).config.env;
 
