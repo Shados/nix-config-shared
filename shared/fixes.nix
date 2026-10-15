@@ -118,4 +118,34 @@ in
       runHook postInstall
     '';
   });
+
+  # Use a version of strawberry new enough to include updated/working API keys
+  strawberry =
+    if versionAtLeast (getVersion prev.strawberry) "1.2.29" then
+      prev.strawberry
+    else
+      prev.strawberry.overrideAttrs (oa: rec {
+        version = "1.2.31";
+        src = prev.fetchFromGitHub {
+          owner = "strawberrymusicplayer";
+          repo = "strawberry";
+          rev = version;
+          hash = "sha256-U9qRaadhhHmzWBPS4QhofKAyVkZ+o7+emfNuRZRKWA0=";
+        };
+        releaseTarball = prev.fetchurl {
+          url = "https://github.com/strawberrymusicplayer/strawberry/releases/download/${version}/strawberry-${version}.tar.xz";
+
+          hash = "sha256-z/wM1FPzEmqTC55n9UflTZ/eDIdU/erYGF0rL1xowDc=";
+
+        };
+        patches = [ ];
+        postPatch = ''
+          tar -xOf "${releaseTarball}" "strawberry-${version}/src/apicredentials.h" > src/apicredentials.h
+        ''
+        + oa.postPatch;
+        buildInputs = oa.buildInputs ++ [
+          prev.libsecret
+          prev.libuchardet
+        ];
+      });
 }
