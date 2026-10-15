@@ -60,7 +60,7 @@ in
   config = mkMerge [
     {
       services.zfs.trim = {
-        interval = "Mon 03:30";
+        interval = "Tue 03:30";
         randomizedDelaySec = "0";
       };
       services.zfs.autoScrub = {
